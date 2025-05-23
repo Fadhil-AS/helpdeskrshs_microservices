@@ -9,6 +9,6 @@ class TicketingController extends Controller
 {
     public function getTicketing()
     {
-        return view('Services.Ticketing.bodyTicketing');
+        return view('Services.Ticketing.mainTicketing');
     }
 }

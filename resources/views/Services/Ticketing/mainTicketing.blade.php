@@ -1,4 +1,4 @@
-@extends('Services.Ticketing.layouts.mainTicketing')
+@extends('Services.Ticketing.layouts.headingTicketing')
 @section('containTicketing')
     <!-- Hiasan Sudut -->
     <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan top-left" />
