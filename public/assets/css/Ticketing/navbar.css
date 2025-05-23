@@ -1,0 +1,230 @@
+/* Navbar CSS */
+.navbar {
+    background-color: #ffffff !important;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.nav-link {
+    color: black;
+}
+
+.nav-link.active {
+    color: #00B9AD !important;
+}
+
+.nav-link:hover {
+    color: #00B9AD;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #267B84 !important;
+    color: #ffffff !important;
+    border-color: #267B84;
+    border-radius: 6px;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23CDDC29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.navbar-toggler-icon:hover {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2300B9AD' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.navbar-toggler-icon {
+    transition: background-image 0.3s ease;
+}
+
+.navbar-toggler {
+    border: none;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.btn-close:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+/* .btn-close {
+    width: 1.25rem;
+    height: 1.25rem;
+    background-size: 1.25rem;
+    filter: invert(72%) sepia(64%) saturate(343%) hue-rotate(20deg) brightness(98%) contrast(90%);
+}
+
+.btn-close:hover {
+    filter: invert(63%) sepia(84%) saturate(638%) hue-rotate(133deg) brightness(95%) contrast(92%);
+} */
+
+.offcanvas-icons {
+    font-size: 23px;
+    color: #CDDC29;
+}
+
+.offcanvas-icons:hover {
+    color: #00B9AD;
+}
+
+/* Landing Page Humas */
+.btn-tambah-pengaduan {
+    background-color: #60C0D0 !important;
+    border: none;
+}
+
+.btn-reset {
+    border-color: gainsboro;
+    background-color: white;
+}
+
+.btn-reset:hover {
+    color: white;
+    border-color: #60C0D0;
+    background-color: #60C0D0;
+}
+
+.bootstrap-select {
+    width: 160px !important;
+}
+
+.bootstrap-select .btn:focus,
+.bootstrap-select .btn:active,
+.bootstrap-select .btn-reset:focus,
+.bootstrap-select .btn-reset:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: #ced4da;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #60C0D0;
+    color: white;
+}
+
+.dropdown-menu .dropdown-item.active {
+    background-color: #60C0D0;
+    color: white;
+}
+
+select.form-select:focus {
+    box-shadow: none;
+    outline: none;
+    border-color: #ced4da;
+}
+
+.form-control:focus {
+    border-color: gainsboro;
+    box-shadow: none;
+    outline: none;
+}
+
+.pagination .page-link {
+    color: black;
+    transition: all 0.2s ease-in-out;
+    margin: 0 8px;
+}
+
+.pagination .page-link:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.pagination .page-link:hover {
+    background-color: white;
+    color: #60C0D0;
+}
+
+.pagination .page-item:not(:first-child):not(:last-child) .page-link {
+    border: 1px solid gainsboro;
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+.pagination .page-item.active:not(:first-child):not(:last-child) .page-link {
+    background-color: #60C0D0;
+    color: white;
+    border: 1px solid #60C0D0;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    border: none;
+    background-color: transparent;
+    color: black;
+    transition: color 0.2s ease-in-out;
+}
+
+.pagination .page-item:first-child .page-link:hover,
+.pagination .page-item:last-child .page-link:hover {
+    background-color: transparent;
+    color: #60C0D0;
+}
+
+.bi-eye {
+    color: black;
+}
+
+.bi-pencil-square {
+    color: black;
+}
+
+.bi-trash {
+    color: black;
+}
+
+.btn-simpan {
+    color: white;
+    background-color: #00B9AD;
+}
+
+.btn-simpan:hover {
+    color: white;
+    background-color: #267B84;
+}
+
+.btn-edit {
+    color: white;
+    background-color: #00B9AD;
+}
+
+.btn-edit:hover {
+    color: white;
+    background-color: #267B84;
+}
+
+/* Style Unit Kerja */
+.toggle-icon {
+    cursor: pointer;
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.parent-row {
+    cursor: pointer;
+}
+
+table tr td,
+table tr th {
+    padding-top: 2vh !important;
+    padding-bottom: 2vh !important;
+}
+
+@media (max-width: 985px) {
+    .tombol-cari {
+        justify-content: center !important;
+    }
+
+    .grup-tombol {
+        justify-content: center !important;
+    }
+
+    .page-tabel {
+        justify-content: center !important;
+    }
+}

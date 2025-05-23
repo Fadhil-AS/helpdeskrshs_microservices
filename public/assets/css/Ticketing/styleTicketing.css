@@ -1,0 +1,240 @@
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.back-btn i {
+    font-size: 1.2rem;
+}
+
+.lacak-container {
+    margin: 80px auto;
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+    width: 100%;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    background-color: #0d6efd;
+    color: white;
+}
+
+.status-badge.bg-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.progress-bar {
+    background-color: #00B9AD !important;
+}
+
+.timeline {
+    border-left: 3px solid #0d6efd;
+    margin-left: 10px;
+    padding-left: 15px;
+}
+
+.timeline-item {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -11px;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    background-color: #0d6efd;
+    border-radius: 50%;
+}
+
+.info-label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: #777;
+}
+
+.no-data .bi {
+    font-size: 40px;
+    color: #ccc;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+.alert {
+    border: 1px solid #ffeeba;
+    background-color: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.progress {
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+}
+
+.status-badge {
+    background-color: #ffc107;
+    color: white;
+    font-weight: 500;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    border-radius: 16px;
+}
+
+.timeline {
+    position: relative;
+    margin-left: 20px;
+    padding-left: 20px;
+    border-left: 2px solid #ccc;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 10px;
+    margin-bottom: 30px;
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -31px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    background-color: #00B9AD;
+    border: 3px solid white;
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: 0 0 0 2px #00B9AD;
+}
+
+
+.timeline-title {
+    color: #00B9AD;
+    font-weight: bold;
+}
+
+.info-label {
+    font-weight: 500;
+}
+
+#no-data {
+    text-align: center;
+    color: #888;
+    padding: 40px 10px;
+}
+
+#no-data i {
+    font-size: 48px;
+    color: #ccc;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.no-data i {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: #6c757d;
+}
+
+.no-data .text-bold {
+    font-weight: bold;
+    color: #000;
+}
+
+.tiket-title {
+    color: #267B84;
+    font-weight: bold;
+}
+
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.rating-btn {
+    border: 1px solid #ccc;
+    color: black;
+    background-color: white;
+    padding: 7px 12px;
+    margin-right: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rating-btn:hover {
+    background-color: white;
+    color: #60C0D0;
+    border-color: #60C0D0;
+}
+
+.rating-btn.active {
+    background-color: #60C0D0;
+    color: white;
+    border-color: #60C0D0;
+}
+
+
+@media (min-width: 576px) {
+    .lacak-container {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .lacak-container {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .lacak-container {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .lacak-container {
+        max-width: 1140px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .lacak-container {
+        max-width: 1320px;
+    }
+}

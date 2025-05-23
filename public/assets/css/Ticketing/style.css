@@ -1,0 +1,179 @@
+body {
+    position: relative;
+    min-height: 100vh;
+    background-color: white;
+    overflow-x: hidden;
+}
+
+.hiasan {
+    position: fixed;
+    width: 100px;
+    z-index: -1;
+}
+
+.top-left {
+    top: 1;
+    left: 0;
+    transform: rotate(0deg);
+}
+
+.top-right {
+    top: 1;
+    right: 0;
+    transform: rotate(90deg);
+}
+
+.bottom-left {
+    bottom: 0;
+    left: 0;
+    transform: rotate(-90deg);
+}
+
+.bottom-right {
+    bottom: 0;
+    right: 0;
+    transform: rotate(180deg);
+}
+
+.judul {
+    margin-top: 12vh;
+}
+
+.circle-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    margin: 0 auto;
+}
+
+.card h5 {
+    margin-top: 10px;
+}
+
+.card a.btn {
+    bottom: 10px;
+    width: 100%;
+}
+
+.card {
+    min-height: 400px;
+    max-height: 400px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    border: none;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+
+/* Style Buat Laporan */
+.form-container {
+    max-width: 1300px;
+    margin: 80px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.upload-box {
+    border: 2px dashed #ccc;
+    padding: 40px;
+    text-align: center;
+    color: #888;
+    border-radius: 10px;
+}
+
+.btn-primary-custom {
+    background-color: #00b5b8;
+    border: none;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.back-btn i {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 660px) {
+    .form-container {
+        margin: 32px;
+    }
+}
+
+
+/* Style SSD */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.back-btn i {
+    font-size: 1.2rem;
+}
+
+.ssd-container {
+    max-width: 1300px;
+    margin: 80px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.ssd-title {
+    color: #267B84;
+    font-weight: bold;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #000;
+    background-color: #f0f0f0;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #267B84;
+    font-weight: bold;
+    background-color: white;
+}
+
+@media (max-width: 985px) {
+    .text-1 {
+        font-size: 18px;
+    }
+
+    .text-2 {
+        font-size: 14px;
+    }
+
+    .text-3 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 860px) {
+    .faq-container {
+        margin-left: 32px !important;
+        margin-right: 32px !important;
+    }
+}
