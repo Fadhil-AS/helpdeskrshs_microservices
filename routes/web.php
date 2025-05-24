@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Services\Ticketing\Http\Controllers\LacakTicketingController;
 use App\Services\Ticketing\Http\Controllers\LaporanController;
 use App\Services\Ticketing\Http\Controllers\PasienController;
+use App\Services\SSD\Http\Controllers\SSDController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,3 +15,5 @@ Route::prefix('ticketing')->group(function() {
     Route::get('/pengaduan', [LaporanController::class, 'getBuatLaporan']);
     Route::get('/pasien', [PasienController::class, 'getPasien']);
 });
+
+Route::get('/ssd', [SSDController::class, 'getSSD']);

@@ -72,10 +72,8 @@
                             lainnya.</p>
                     </div>
                     <div class="card-footer bg-transparent border-0 position-absolute bottom-0 start-0 w-100 p-4">
-                        {{-- <a href="{{ route('pasien.ssd') }}" class="btn text-light w-100"
-                            style="background-color: #CDDC29;">Lihat SSD <i class="bi bi-arrow-right"></i></a> --}}
-                        <a href="" class="btn text-light w-100" style="background-color: #CDDC29;">Lihat SSD <i
-                                class="bi bi-arrow-right"></i></a>
+                        <a href="{{ url('/ssd') }}" class="btn text-light w-100" style="background-color: #CDDC29;">Lihat
+                            SSD <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
