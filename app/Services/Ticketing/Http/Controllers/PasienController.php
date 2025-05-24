@@ -5,10 +5,10 @@ namespace App\Services\Ticketing\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class TicketingController extends Controller
+class PasienController extends Controller
 {
-    public function getTicketing()
+    public function getPasien()
     {
-        return view('Services.Ticketing.mainTicketing');
+        return view('Services.Ticketing.pasien.mainPasien');
     }
 }

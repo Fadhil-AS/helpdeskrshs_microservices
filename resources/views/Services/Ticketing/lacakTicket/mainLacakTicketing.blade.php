@@ -1,4 +1,4 @@
-@extends('Services.Ticketing.layouts.headingTicketing')
+@extends('Services.Ticketing.lacakTicket.layouts.headingLacakTicketing')
 @section('containTicketing')
     <!-- Hiasan Sudut -->
     <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan top-left" />
@@ -9,10 +9,7 @@
     <div class="lacak-container">
 
         <!-- Tombol Kembali -->
-        {{-- <a href="{{ route('pasien.dashboard') }}" class="btn btn-outline-secondary back-btn">
-            <i class="bi bi-arrow-left"></i> Kembali
-        </a> --}}
-        <a href="" class="btn btn-outline-secondary back-btn">
+        <a href="{{ url('/ticketing/pasien') }}" class="btn btn-outline-secondary back-btn">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
 

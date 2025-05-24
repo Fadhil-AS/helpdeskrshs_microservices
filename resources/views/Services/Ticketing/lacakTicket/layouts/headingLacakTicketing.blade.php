@@ -10,15 +10,12 @@
     <link rel="stylesheet" href="{{ asset('assets\css\Ticketing\navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets\css\Ticketing\style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets\css\Ticketing\styleTicketing.css') }}">
-    <style>
-    </style>
 </head>
 
 <body>
     @include('Services.Ticketing.partials.navbarTicketing')
     @yield('containTicketing')
-    @include('Services.Ticketing.layouts.footerTicketing')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    @include('Services.Ticketing.lacakTicket.layouts.footerLacakTicketing')
 </body>
 
 </html>
