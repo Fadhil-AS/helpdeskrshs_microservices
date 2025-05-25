@@ -7,7 +7,7 @@
         {{-- <a class="navbar-brand" href="{{ route('pasien.dashboard') }}">
             <img src="{{ asset('assets/images/logoRSHS.png') }}" alt="Logo" height="40" />
         </a> --}}
-        <a class="navbar-brand" href="{{ url('/ticketing/pasien') }}">
+        <a class="navbar-brand" href="{{ url('/ticketing') }}">
             <img src="{{ asset('assets/images/logoRSHS.png') }}" alt="Logo" height="40" />
         </a>
     </div>

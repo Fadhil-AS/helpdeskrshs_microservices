@@ -12,11 +12,13 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/styleChatbot.css') }}">
 </head>
 
 <body>
     @include('Services.Ticketing.partials.navbarTicketing')
     @yield('containPasien')
+    @include('Services.Chatbot.mainChatbot')
     @include('Services.Ticketing.pasien.layouts.footerPasien')
 </body>
 

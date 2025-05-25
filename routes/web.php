@@ -11,9 +11,9 @@ Route::get('/', function () {
 });
 
 Route::prefix('ticketing')->group(function() {
+    Route::get('/', [PasienController::class, 'getPasien']);
     Route::get('/lacak-ticketing', [LacakTicketingController::class, 'getLacakTicketing']);
     Route::get('/pengaduan', [LaporanController::class, 'getBuatLaporan']);
-    Route::get('/pasien', [PasienController::class, 'getPasien']);
 });
 
 Route::get('/ssd', [SSDController::class, 'getSSD']);

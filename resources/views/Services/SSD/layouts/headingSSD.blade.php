@@ -10,11 +10,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/styleChatbot.css') }}">
 </head>
 
 <body>
     @include('Services.Ticketing.partials.navbarTicketing')
     @yield('containSSD')
+    @include('Services.Chatbot.mainChatbot')
     @include('Services.SSD.layouts.footerSSD')
 </body>
 

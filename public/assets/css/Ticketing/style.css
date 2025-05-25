@@ -1,9 +1,9 @@
-body {
+/* body {
     position: relative;
     min-height: 100vh;
     background-color: white;
     overflow-x: hidden;
-}
+} */
 
 .hiasan {
     position: fixed;
@@ -39,16 +39,26 @@ body {
     margin-top: 12vh;
 }
 
+.judul h3 {
+    color: #267B84;
+}
+
+.judul p {
+    color: #555;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
 .circle-icon {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 24px;
     margin: 0 auto;
+    color: white;
+    font-size: 2rem;
 }
 
 .card h5 {
@@ -61,14 +71,44 @@ body {
 }
 
 .card {
-    min-height: 400px;
-    max-height: 400px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
     border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    height: 100%;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
 }
 
 .card-body {
-    padding: 1rem;
+    flex-grow: 1;
+}
+
+.card .text-1 {
+    font-size: 1.25rem;
+}
+
+.card .text-2 {
+    font-size: 0.9rem;
+}
+
+.card .text-3 {
+    font-size: 0.95rem;
+    margin-bottom: 60px;
+}
+
+.card .card-footer {
+    background-color: transparent;
+    border-top: none;
+    padding: 1rem 1.5rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.card .card-footer .btn {
+    padding: 0.6rem 1rem;
+    font-weight: 500;
 }
 
 
@@ -107,9 +147,10 @@ body {
     font-size: 1.2rem;
 }
 
-@media (max-width: 660px) {
+@media (max-width: 1024px) {
     .form-container {
-        margin: 32px;
+        margin-left: 16px !important;
+        margin-right: 16px !important;
     }
 }
 
@@ -171,9 +212,20 @@ body {
     }
 }
 
-@media (max-width: 860px) {
-    .faq-container {
-        margin-left: 32px !important;
-        margin-right: 32px !important;
+@media (max-width: 1024px) {
+    .ssd-container {
+        margin-left: 16px !important;
+        margin-right: 16px !important;
+    }
+}
+
+@media (max-width: 425px) {
+    .ssd-container {
+        margin-left: 16px !important;
+        margin-right: 16px !important;
+    }
+
+    .accordion-body {
+        text-align: center;
     }
 }
