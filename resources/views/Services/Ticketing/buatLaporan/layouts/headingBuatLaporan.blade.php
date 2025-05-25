@@ -15,6 +15,7 @@
 <body>
     @include('Services.Ticketing.partials.navbarTicketing')
     @yield('containBuatLaporan')
+    @include('Services.Ticketing.buatLaporan.layouts.fungsiFileLaporan')
     @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan')
 </body>
 
