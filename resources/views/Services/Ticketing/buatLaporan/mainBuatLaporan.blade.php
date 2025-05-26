@@ -8,7 +8,7 @@
 
     <div class="form-container">
         <!-- Tombol Kembali -->
-        <a href="{{ url('/ticketing') }}" class="btn btn-outline-secondary back-btn">
+        <a href="{{ url('/') }}" class="btn btn-outline-secondary back-btn">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
 

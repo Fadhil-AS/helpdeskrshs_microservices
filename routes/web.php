@@ -6,12 +6,13 @@ use App\Services\Ticketing\Http\Controllers\LaporanController;
 use App\Services\Ticketing\Http\Controllers\PasienController;
 use App\Services\SSD\Http\Controllers\SSDController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('/', [PasienController::class, 'getPasien']);
 
 Route::prefix('ticketing')->group(function() {
-    Route::get('/', [PasienController::class, 'getPasien']);
     Route::get('/lacak-ticketing', [LacakTicketingController::class, 'getLacakTicketing']);
     Route::get('/pengaduan', [LaporanController::class, 'getBuatLaporan']);
 });
