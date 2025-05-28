@@ -23,12 +23,15 @@ class DataComplaintSeeder extends Seeder
 
         DB::connection('mysql')->table('data_complaint')->insert([
             'ID_COMPLAINT'          => $idPrefix . '_' . $idNumber,
-            'ID_BAGIAN'             => 'B01', // contoh unit kerja tujuan
+            'ID_COMPLAINT_REFERENSI'=> $idPrefix . '_' . $idNumber,
+            'ID_BAGIAN'             => 'B01',
             'ID_KLASIFIKASI'        => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'ID_JENIS_MEDIA'        => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'ID_PENYELESAIAN'       => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'ID_JENIS_LAPORAN'      => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'TGL_COMPLAINT'         => Carbon::createFromFormat('d-m-Y', '01-05-2024'),
+            'NAME'                  => $faker->name,
+            'NO_TLPN'               => $faker->e164PhoneNumber,
             'TGL_INSROW'            => now(),
             'STATUS'                => 'Open',
             'EVALUASI_COMPLAINT'    => 'Masalah telah diklarifikasi oleh unit.',
