@@ -18,15 +18,21 @@ class LaporanController extends Controller
     public function getBuatLaporan()
     {
         $klasifikasiPengaduan = KlasifikasiPengaduan::where('STATUS', '1')->get();
-        return view('Services.Ticketing.buatLaporan.mainBuatLaporan', compact('klasifikasiPengaduan'));
+        $idComplaintReferensi = request()->query('ref');
+        return view('Services.Ticketing.buatLaporan.mainBuatLaporan', compact('klasifikasiPengaduan', 'idComplaintReferensi'));
     }
 
     // Membuat ID format YYYYMM_0000001
     private function generateCustomComplaintId(): string
     {
         $prefix = now()->format('Ym'); // e.g. 202505
-        $count = Laporan::where('ID_COMPLAINT', 'like', $prefix . '_%')->count();
-        $number = str_pad($count + 1, 7, '0', STR_PAD_LEFT);
+        $lastLaporan = Laporan::where('ID_COMPLAINT', 'like', $prefix . '_%')->orderBy('ID_COMPLAINT', 'desc')->first();
+        $nextNumber = 1;
+        if ($lastLaporan) {
+            $lastNumber = (int) substr($lastLaporan->ID_COMPLAINT, -7);
+            $nextNumber = $lastNumber + 1;
+        }
+        $number = str_pad($nextNumber, 7, '0', STR_PAD_LEFT);
         return $prefix . '_' . $number;
     }
 
@@ -67,12 +73,13 @@ class LaporanController extends Controller
             'upload_id' => 'required|string', // Tetap dibutuhkan untuk menghapus folder temp
             'uploaded_files' => 'nullable|array',
             'uploaded_files.*' => 'string',
+            'ID_COMPLAINT_REFERENSI' => 'nullable|string|exists:data_complaint,ID_COMPLAINT'
         ]);
 
         $laporan->ID_COMPLAINT = $this->generateCustomComplaintId();
         Log::info('Generated Laporan ID:', ['id' => $laporan->ID_COMPLAINT]);
-        $laporan->TGL_COMPLAINT = Carbon::now();
-        $laporan->TGL_INSROW = Carbon::now();
+        $laporan->TGL_COMPLAINT = Carbon::now()->toDateString();
+        $laporan->TGL_INSROW = Carbon::now()->toDateString();
         $laporan->STATUS = 'Open';
 
         $laporan->NAME = $validatedData['NAME'] ?? null;
@@ -80,6 +87,12 @@ class LaporanController extends Controller
         $laporan->ID_KLASIFIKASI = $validatedData['ID_KLASIFIKASI'];
         $laporan->PERMASALAHAN = $validatedData['PERMASALAHAN'];
         $laporan->NO_MEDREC = $validatedData['NO_MEDREC'] ?? null;
+
+        if (!empty($validatedData['ID_COMPLAINT_REFERENSI'])) {
+            $laporan->ID_COMPLAINT_REFERENSI = $validatedData['ID_COMPLAINT_REFERENSI'];
+        }
+
+        $laporan->FEEDBACK_PELAPOR = $validatedData['PERMASALAHAN'];
 
         return $validatedData; // Kembalikan data yang sudah divalidasi
     }
@@ -129,7 +142,10 @@ class LaporanController extends Controller
 
             // Panggil fungsi untuk validasi dan persiapan data dasar laporan
             $validatedData = $this->validateAndPrepareLaporanData($request, $laporan);
-            $uploadIdForCleanup = $validatedData['upload_id'];
+            if(isset($validatedData['upload_id'])) {
+                $uploadIdForCleanup = $validatedData['upload_id'];
+            }
+
 
             DB::beginTransaction();
 
@@ -147,18 +163,33 @@ class LaporanController extends Controller
                 Log::info('Temporary directory deleted successfully after commit:', ['upload_id' => $uploadIdForCleanup]);
             }
 
-            return response()->json(['success' => true, 'message' => 'Laporan berhasil dikirim dengan ID Tiket: ' . $laporan->ID_COMPLAINT]);
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Laporan berhasil dikirim dengan ID Tiket: ' . $laporan->ID_COMPLAINT, 'tiket_id' => $laporan->ID_COMPLAINT]);
+            }
+
+            return redirect()->route('ticketing.buat-laporan')->with('success', 'Laporan berhasil dikirim dengan ID Tiket: ' . $laporan->ID_COMPLAINT);
 
         } catch (ValidationException $e) {
             Log::error('Validation error in storeLaporan:', ['errors' => $e->errors(), 'request_data' => $request->all()]);
-            return response()->json(['success' => false, 'message' => 'Data tidak valid.', 'errors' => $e->errors()], 422);
+            if ($request->wantsJson()) { // <--- PERUBAHAN DI SINI
+                return response()->json(['success' => false, 'message' => 'Data tidak valid.', 'errors' => $e->errors()], 422);
+            }
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error in storeLaporan:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             if ($uploadIdForCleanup) {
-                 Storage::disk('local')->deleteDirectory('temp/' . $uploadIdForCleanup);
-                 Log::info('Temporary directory deleted due to exception:', ['upload_id' => $uploadIdForCleanup]);
+                Storage::disk('local')->deleteDirectory('temp/' . $uploadIdForCleanup);
+                Log::info('Temporary directory deleted due to exception:', ['upload_id' => $uploadIdForCleanup]);
             }
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem saat menyimpan laporan.'], 500);
+            if ($request->wantsJson()) { // <--- PERUBAHAN DI SINI
+                return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem saat menyimpan laporan.'], 500);
+            }
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem saat menyimpan laporan.')->withInput();
         }
+        if ($request->wantsJson()) { // <--- PERUBAHAN DI SINI
+            return response()->json(['success' => true, 'message' => 'Laporan berhasil dikirim dengan ID Tiket: ' . $laporan->ID_COMPLAINT, 'tiket_id' => $laporan->ID_COMPLAINT]);
+        }
+        return redirect()->route('ticketing.buat-laporan')->with('success', 'Laporan berhasil dikirim dengan ID Tiket: ' . $laporan->ID_COMPLAINT);
     }
 }

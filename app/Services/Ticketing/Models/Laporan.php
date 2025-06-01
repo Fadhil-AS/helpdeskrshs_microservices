@@ -36,7 +36,6 @@ class Laporan extends Model {
         'TGL_EVALUASI',
         'GRANDING',
         'PETUGAS_PELAPOR',
-        'KETERANGAN',
         'NO_MEDREC',
         'PENANGGUNG_JAWAB',
         'TGL_SELESAI',

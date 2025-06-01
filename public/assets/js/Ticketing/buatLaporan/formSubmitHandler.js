@@ -75,7 +75,8 @@ function setupFormSubmitHandler(
                     body: finalFormData,
                     headers: {
                         'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
                 const finalResult = await finalResponse.json();

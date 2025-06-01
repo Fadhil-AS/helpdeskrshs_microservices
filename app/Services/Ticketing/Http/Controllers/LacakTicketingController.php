@@ -38,88 +38,44 @@ class LacakTicketingController extends Controller
             }
 
             $tanggapan = $request->tanggapan;
-            $aktor = "Pelapor";
-            $tanggalAksi = Carbon::now()->toDateTimeString();
-            $keteranganSebelumnya = $laporan->KETERANGAN ? trim($laporan->KETERANGAN) . ';;' : '';
+            // $aktor = "Pelapor"; // Tidak perlu jika KETERANGAN tidak dipakai
+            // $tanggalAksiUntukKeterangan = Carbon::now()->toDateTimeString(); // Tidak perlu jika KETERANGAN tidak dipakai
+            $tanggalUntukKolomDatabase = Carbon::now()->toDateString(); // Sesuai tipe DATE untuk TGL_INSROW
 
-            // Definisikan batas maksimal panjang untuk kolom KETERANGAN
-            $maxLengthKeterangan = 50; // Sesuai dengan migrasi $table->string('KETERANGAN', 50)
+            // $keteranganSebelumnya = $laporan->KETERANGAN ? trim($laporan->KETERANGAN) . ';;' : ''; // Tidak perlu jika KETERANGAN tidak dipakai
+            // $maxLengthKeterangan = 50; // Tidak perlu jika KETERANGAN tidak dipakai
+
+            $ratingLaporanString = '';
 
             if ($tanggapan === 'selesai') {
                 $laporan->STATUS = 'Close';
-                $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
-                $laporan->TGL_INSROW = Carbon::now()->toDateTimeString(); // Menggunakan toDateTimeString() agar format konsisten
-
-                $judulAksi = "Masalah Dikonfirmasi Selesai";
-                $deskripsiAksi = "Pelapor mengkonfirmasi bahwa masalah telah terselesaikan. Rating: Masalah terselesaikan.";
-
-                $keteranganBaru = "{$tanggalAksi}|{$aktor}|{$judulAksi}|{$deskripsiAksi}";
-                $fullKeterangan = $keteranganSebelumnya . $keteranganBaru;
-
-                // Potong string jika lebih panjang dari batas maksimal kolom KETERANGAN
-                // Pertimbangkan panjang $keteranganSebelumnya juga.
-                // Jika $keteranganSebelumnya sudah panjang, $keteranganBaru mungkin perlu dipotong lebih banyak.
-                // Untuk implementasi sederhana, kita potong hasil gabungannya:
-                if (strlen($fullKeterangan) > $maxLengthKeterangan) {
-                    // Logika pemotongan bisa lebih canggih, misalnya memotong dari $keteranganBaru saja
-                    // atau memberi notifikasi bahwa data terlalu panjang.
-                    // Di sini kita potong dari akhir $fullKeterangan agar pas.
-                    // Ini mungkin memotong bagian penting dari $keteranganBaru.
-                    // Alternatif: potong $keteranganBaru sebelum digabung.
-                    $sisaPanjang = $maxLengthKeterangan - strlen($keteranganSebelumnya);
-                    if ($sisaPanjang > 0) { // Jika masih ada ruang setelah keterangan sebelumnya
-                        $keteranganBaruPotong = substr($keteranganBaru, 0, $sisaPanjang);
-                        $laporan->KETERANGAN = $keteranganSebelumnya . $keteranganBaruPotong;
-                    } else {
-                        // Jika keterangan sebelumnya sudah memenuhi atau melebihi,
-                        // mungkin tidak menambahkan keterangan baru atau hanya penanda.
-                        // Untuk contoh ini, kita akan memotong $fullKeterangan dari awal,
-                        // namun ini akan menghapus history lama.
-                        // Lebih baik, jika keterangan sebelumnya sudah penuh, hanya tambahkan penanda singkat.
-                        // Atau, yang paling aman adalah memotong $keteranganBaru agar pas.
-                        $laporan->KETERANGAN = substr($fullKeterangan, 0, $maxLengthKeterangan);
-                        Log::warning("Keterangan untuk tiket {$id_complaint} dipotong karena melebihi {$maxLengthKeterangan} karakter.");
-                    }
-                } else {
-                    $laporan->KETERANGAN = $fullKeterangan;
-                }
-
-                $laporan->save();
-
-                return response()->json(['success' => true, 'message' => 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.', 'new_status' => $laporan->STATUS]);
-
+                $ratingLaporanString = 'Masalah terselesaikan';
+                // $judulAksi = "Mslh Dikonfirmasi Selesai"; // Tidak perlu jika KETERANGAN tidak dipakai
+                // $deskripsiAksi = "Pelapor mengkonfirmasi bahwa masalah telah terselesaikan. Rating: Masalah terselesaikan."; // Tidak perlu
             } elseif ($tanggapan === 'belum_selesai') {
                 $laporan->STATUS = 'Open';
-                $laporan->RATING_LAPORAN = 'Masalah belum terselesaikan';
-                $laporan->TGL_INSROW = Carbon::now()->toDateTimeString(); // Menggunakan toDateTimeString()
-
-                $judulAksi = "Masalah Dinyatakan Belum Selesai";
-                $deskripsiAksi = "Pelapor menyatakan bahwa masalah belum terselesaikan dan meminta tindak lanjut kembali. Rating: Masalah belum terselesaikan.";
-
-                $keteranganBaru = "{$tanggalAksi}|{$aktor}|{$judulAksi}|{$deskripsiAksi}";
-                $fullKeterangan = $keteranganSebelumnya . $keteranganBaru;
-
-                // Potong string jika lebih panjang dari batas maksimal kolom KETERANGAN
-                if (strlen($fullKeterangan) > $maxLengthKeterangan) {
-                    $sisaPanjang = $maxLengthKeterangan - strlen($keteranganSebelumnya);
-                     if ($sisaPanjang > 0) {
-                        $keteranganBaruPotong = substr($keteranganBaru, 0, $sisaPanjang);
-                        $laporan->KETERANGAN = $keteranganSebelumnya . $keteranganBaruPotong;
-                    } else {
-                        $laporan->KETERANGAN = substr($fullKeterangan, 0, $maxLengthKeterangan);
-                        Log::warning("Keterangan untuk tiket {$id_complaint} dipotong karena melebihi {$maxLengthKeterangan} karakter.");
-                    }
-                } else {
-                    $laporan->KETERANGAN = $fullKeterangan;
-                }
-
-                $laporan->save();
-
-                return response()->json(['success' => true, 'message' => 'Terima kasih atas informasinya. Laporan Anda akan kami tindak lanjuti kembali.', 'new_status' => $laporan->STATUS]);
+                $ratingLaporanString = 'Masalah belum terselesaikan';
+                // $judulAksi = "Masalah Dinyatakan Belum Selesai"; // Tidak perlu
+                // $deskripsiAksi = "Pelapor menyatakan bahwa masalah belum terselesaikan dan meminta tindak lanjut kembali. Rating: Masalah belum terselesaikan."; // Tidak perlu
             }
+
+            $laporan->RATING_LAPORAN = $ratingLaporanString;
+            $laporan->TGL_INSROW = $tanggalUntukKolomDatabase;
+
+            // $keteranganBaru = "{$tanggalAksiUntukKeterangan}|{$aktor}|{$judulAksi}|{$deskripsiAksi}"; // Tidak perlu
+            // $fullKeterangan = $keteranganSebelumnya . $keteranganBaru; // Tidak perlu
+            // Logika pemotongan KETERANGAN dihapus
+            // $laporan->KETERANGAN = ...; // BARIS INI DAN LOGIKA DI ATASNYA DIHAPUS
+
+            // Eloquent akan otomatis mengisi 'updated_at' karena $timestamps = true di Model
+            $laporan->save();
+
+            $pesanSukses = ($tanggapan === 'selesai') ? 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.' : 'Terima kasih atas informasinya. Laporan Anda akan kami tindak lanjuti kembali.';
+            return response()->json(['success' => true, 'message' => $pesanSukses, 'new_status' => $laporan->STATUS]);
+
         } catch (\Exception $e) {
             Log::error("Error di tanggapiPenyelesaian untuk ID {$id_complaint}: " . $e->getMessage() . "\nStack trace: " . $e->getTraceAsString());
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server saat memproses tanggapan Anda.'], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server internal saat memproses tanggapan Anda.'], 500);
         }
     }
 
@@ -138,17 +94,18 @@ class LacakTicketingController extends Controller
 
             if ($laporan) {
                 $riwayatPenanganan = [];
-                if (!empty($laporan->KETERANGAN)) {
+                // Asumsi: Kolom KETERANGAN masih ada di DB sesuai migrasi,
+                // tapi mungkin tidak diisi data baru jika Anda sudah menghapus logikanya.
+                // Jika ada data lama di KETERANGAN, ini akan mencoba mem-parsingnya.
+                if (property_exists($laporan, 'KETERANGAN') && !empty($laporan->KETERANGAN)) {
                     $entries = explode(';;', trim($laporan->KETERANGAN));
                     foreach ($entries as $entry) {
                         if (empty(trim($entry))) continue;
-
                         $parts = explode('|', $entry, 4);
-                        if (count($parts) >= 3) {
+                        if (count($parts) >= 3) { // Membutuhkan setidaknya tanggal, aktor, judul
                             try {
                                 $tanggalAksiRaw = trim($parts[0]);
                                 $tanggalAksiFormatted = Carbon::parse($tanggalAksiRaw)->format('d M Y \p\u\k\u\l H:i');
-
                                 $riwayatPenanganan[] = [
                                     'tanggal_aksi' => $tanggalAksiFormatted,
                                     'aktor' => trim($parts[1]),
@@ -156,7 +113,8 @@ class LacakTicketingController extends Controller
                                     'deskripsi_aksi' => isset($parts[3]) ? trim($parts[3]) : '',
                                 ];
                             } catch (\Exception $e) {
-                                Log::error("Gagal parsing entri riwayat: '{$entry}'. Error: " . $e->getMessage());
+                                Log::error("Gagal parsing entri riwayat dari KETERANGAN: '{$entry}'. Error: " . $e->getMessage());
+                                // Tambahkan entri fallback jika parsing gagal agar tidak crash
                                 $riwayatPenanganan[] = [
                                     'tanggal_aksi' => 'N/A',
                                     'aktor' => isset($parts[1]) ? trim($parts[1]) : 'Sistem',
@@ -165,10 +123,15 @@ class LacakTicketingController extends Controller
                                 ];
                             }
                         } else {
-                             Log::warning("Entri riwayat tidak memiliki format yang benar (kurang dari 4 bagian setelah explode): '{$entry}' pada tiket {$laporan->ID_COMPLAINT}");
+                             Log::warning("Entri riwayat (KETERANGAN) tidak memiliki format yang benar: '{$entry}' pada tiket {$laporan->ID_COMPLAINT}");
                         }
                     }
                 }
+                // else {
+                // Jika KETERANGAN tidak ada atau kosong, $riwayatPenanganan akan jadi array kosong.
+                // JavaScript akan menangani kasus ini dengan menampilkan pesan default "Tiket Dibuat".
+                // }
+
 
                 $deskripsiStatusTerkini = 'Informasi status tiket Anda.';
                 if ($laporan->STATUS === 'Open' || $laporan->STATUS === 'Baru') {
@@ -181,8 +144,8 @@ class LacakTicketingController extends Controller
                     $deskripsiStatusTerkini = 'Laporan Anda telah diselesaikan.';
                      if ($laporan->RATING_LAPORAN === 'Masalah terselesaikan') {
                         $deskripsiStatusTerkini .= ' Pelapor mengkonfirmasi masalah telah selesai.';
-                    } elseif ($laporan->RATING_LAPORAN === 'Masalah belum terselesaikan') {
-                        $deskripsiStatusTerkini .= ' Pelapor menyatakan masalah belum selesai';
+                    } elseif ($laporan->RATING_LAPORAN === 'Masalah belum terselesaikan' && $laporan->STATUS !== 'Open') {
+                        $deskripsiStatusTerkini .= ' Pelapor sebelumnya menyatakan masalah belum selesai.';
                     }
                 }
 
@@ -190,7 +153,6 @@ class LacakTicketingController extends Controller
                 $waktuKonfirmasiTersisa = null;
                 $persenWaktuKonfirmasi = '0%';
                 $tglSelesaiInternalISO = null;
-
 
                 if ($laporan->STATUS === 'Menunggu Konfirmasi Pelapor' && $laporan->TGL_SELESAI) {
                     $isMenungguKonfirmasi = true;
@@ -206,7 +168,6 @@ class LacakTicketingController extends Controller
                             $menit = floor(($sisaDetik % 3600) / 60);
                             $detik = $sisaDetik % 60;
                             $waktuKonfirmasiTersisa = sprintf('%02d:%02d:%02d', $jam, $menit, $detik);
-
                             $totalDurasiDetik = 24 * 3600;
                             $persenWaktuKonfirmasi = ($sisaDetik / $totalDurasiDetik) * 100;
                             $persenWaktuKonfirmasi = min(max($persenWaktuKonfirmasi, 0), 100) . '%';
@@ -220,15 +181,21 @@ class LacakTicketingController extends Controller
                     }
                 }
 
+                $tanggalDiperbaruiFormatted = $laporan->updated_at ? Carbon::parse($laporan->updated_at)->format('d/m/Y H:i') : ($laporan->TGL_INSROW ? Carbon::parse($laporan->TGL_INSROW)->format('d/m/Y') : Carbon::parse($laporan->TGL_COMPLAINT)->format('d/m/Y H:i'));
+                // Jika TGL_EVALUASI lebih baru, gunakan itu sebagai tanggal diperbarui
+                if ($laporan->TGL_EVALUASI && Carbon::parse($laporan->TGL_EVALUASI)->gt(Carbon::parse($laporan->updated_at ?: $laporan->TGL_INSROW ?: $laporan->TGL_COMPLAINT ))) {
+                    $tanggalDiperbaruiFormatted = Carbon::parse($laporan->TGL_EVALUASI)->format('d/m/Y H:i');
+                }
+
                 $data = [
                     'success' => true,
                     'tiket' => [
                         'id_complaint' => $laporan->ID_COMPLAINT,
                         'status' => $laporan->STATUS,
                         'rating_laporan' => $laporan->RATING_LAPORAN,
-                        'tanggal_dibuat' => Carbon::parse($laporan->TGL_COMPLAINT)->format('d/m/Y'),
-                        'tanggal_complaint_timelineFormat' => Carbon::parse($laporan->TGL_COMPLAINT)->format('d M Y'),
-                        'tanggal_diperbarui' => $laporan->TGL_EVALUASI ? Carbon::parse($laporan->TGL_EVALUASI)->format('d/m/Y') : '-',
+                        'tanggal_dibuat' => Carbon::parse($laporan->TGL_COMPLAINT)->format('d/m/Y H:i'),
+                        'tanggal_complaint_timelineFormat' => Carbon::parse($laporan->TGL_COMPLAINT)->format('d M Y \p\u\k\u\l H:i'), // Digunakan JS untuk default riwayat
+                        'tanggal_diperbarui' => $tanggalDiperbaruiFormatted,
                         'ditangani_oleh' => $laporan->unitKerja ? $laporan->unitKerja->NAMA_BAGIAN : ($laporan->ID_BAGIAN ?? 'Belum Ditentukan'),
                         'deskripsi_status_terkini' => $deskripsiStatusTerkini,
                         'tgl_selesai_internal' => $tglSelesaiInternalISO,
@@ -238,7 +205,7 @@ class LacakTicketingController extends Controller
                         'evaluasi_complaint' => $laporan->EVALUASI_COMPLAINT,
                         'tgl_evaluasi' => $laporan->TGL_EVALUASI ? Carbon::parse($laporan->TGL_EVALUASI)->format('d/m/Y H:i') : null,
                     ],
-                    'riwayat_penanganan' => $riwayatPenanganan,
+                    'riwayat_penanganan' => $riwayatPenanganan, // PERUBAHAN: tidak lagi di-reverse
                 ];
                 return response()->json($data);
             } else {
@@ -247,19 +214,19 @@ class LacakTicketingController extends Controller
 
         } catch (\Exception $e) {
             Log::error("Error di searchTicket: " . $e->getMessage() . "\nStack Trace:\n" . $e->getTraceAsString());
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan di server saat memproses permintaan Anda.'], 500);
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server internal saat mencari tiket.'], 500);
         }
     }
 
     public function simpanFeedback(Request $request){
         $validator = Validator::make($request->all(), [
             'id_complaint' => 'required|string|exists:data_complaint,ID_COMPLAINT',
-            'rating' => 'required|integer|min:0|max:5', // Asumsi rating bintang 1-5, 0 jika tidak ada
-            'feedback' => 'nullable|string|max:1000',
+            'rating_laporan' => 'required|string|in:Masalah terselesaikan,Masalah belum terselesaikan',
+            'feedback_text_optional' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => 'Input tidak valid.', 'errors' => $validator->errors()], 422);
+            return response()->json(['success' => false, 'message' => 'Input untuk feedback tidak valid.', 'errors' => $validator->errors()], 422);
         }
 
         try {
@@ -267,25 +234,30 @@ class LacakTicketingController extends Controller
             if (!$laporan) {
                 return response()->json(['success' => false, 'message' => 'Laporan tidak ditemukan.'], 404);
             }
-            $laporan->FEEDBACK_PELAPOR = $request->feedback; // Sesuaikan nama kolom di DB Anda
-            if ($request->filled('rating') && $request->rating > 0) {
-                 // $laporan->RATING_PELAPOR_BINTANG = $request->rating; // Contoh jika ada kolom rating bintang
-            }
-            $aktor = "Pelapor";
-            $tanggalAksi = Carbon::now()->toDateTimeString();
-            $keteranganSebelumnya = $laporan->KETERANGAN ? trim($laporan->KETERANGAN) . ';;' : '';
-            $judulAksi = "Feedback Diberikan oleh Pelapor";
-            $deskripsiAksi = "Pelapor memberikan feedback: " . ($request->feedback ?: '(tidak ada komentar)') . ". Rating Bintang: " . ($request->rating ?: 'N/A');
-            $laporan->KETERANGAN = $keteranganSebelumnya . "{$tanggalAksi}|{$aktor}|{$judulAksi}|{$deskripsiAksi}";
 
-            $laporan->TGL_INSROW = Carbon::now();
+            $laporan->RATING_LAPORAN = $request->rating_laporan;
+
+            if ($request->filled('feedback_text_optional')) {
+                $laporan->FEEDBACK_PELAPOR = $request->feedback_text_optional;
+            }
+
+            // Kolom KETERANGAN tidak lagi diisi di sini
+            // $aktor = "Pelapor";
+            // $tanggalAksiUntukKeterangan = Carbon::now()->toDateTimeString();
+            // $tanggalUntukKolomDatabase = Carbon::now()->toDateString();
+            // $keteranganSebelumnya = $laporan->KETERANGAN ? trim($laporan->KETERANGAN) . ';;' : '';
+            // $judulAksi = "Rating Laporan Diperbarui";
+            // ... (logika KETERANGAN dihapus) ...
+
+            $laporan->TGL_INSROW = Carbon::now()->toDateString(); // Sesuai tipe DATE untuk TGL_INSROW
+            // Eloquent akan otomatis mengisi 'updated_at'
             $laporan->save();
 
-            return response()->json(['success' => true, 'message' => 'Terima kasih atas feedback Anda!']);
+            return response()->json(['success' => true, 'message' => 'Rating laporan berhasil disimpan!']);
 
         } catch (\Exception $e) {
-            Log::error("Error di simpanFeedback untuk ID {$request->id_complaint}: " . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server saat menyimpan feedback.'], 500);
+            Log::error("Error di simpanFeedback untuk ID {$request->id_complaint}: " . $e->getMessage() . "\nStack trace: " . $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server internal saat menyimpan feedback.'], 500);
         }
     }
 }

@@ -39,7 +39,6 @@ class DataComplaintSeeder extends Seeder
             'TGL_EVALUASI'          => Carbon::createFromFormat('d-m-Y', '02-05-2024'),
             'GRANDING'              => 'Merah',
             'PETUGAS_PELAPOR'       => $faker->name,
-            'KETERANGAN'            => 'Urgensi tinggi',
             'NO_MEDREC'             => 'RM12345678',
             'PENANGGUNG_JAWAB'      => 'dr. Andi',
             'TGL_SELESAI'           => now(),

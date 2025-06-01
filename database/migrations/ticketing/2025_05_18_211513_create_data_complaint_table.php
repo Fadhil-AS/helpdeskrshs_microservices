@@ -29,7 +29,6 @@ return new class extends Migration
             $table->date('TGL_EVALUASI')->nullable();
             $table->string('GRANDING', 30)->nullable();
             $table->string('PETUGAS_PELAPOR', 100)->nullable();
-            $table->string('KETERANGAN', 50)->nullable();
             $table->string('NO_MEDREC', 10)->nullable();
             $table->string('PENANGGUNG_JAWAB', 70)->nullable();
             $table->date('TGL_SELESAI')->nullable();

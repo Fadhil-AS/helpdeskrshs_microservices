@@ -36,13 +36,23 @@
         <form id="formPengaduan" method="POST" action="{{ route('ticketing.store-laporan') }}"
             enctype="multipart/form-data">
             @csrf
+
+            @if (isset($idComplaintReferensi) && !empty($idComplaintReferensi))
+                <input type="hidden" name="ID_COMPLAINT_REFERENSI" value="{{ $idComplaintReferensi }}">
+                <div class="alert alert-info">
+                    Pengaduan ini terkait dengan tiket sebelumnya: <strong>{{ $idComplaintReferensi }}</strong>.
+                    Deskripsi yang Anda masukkan di bawah ini juga akan dianggap sebagai feedback Anda terhadap penyelesaian
+                    tiket tersebut.
+                </div>
+            @endif
+
             <div class="mb-3" id="wrapper_nama">
                 <label class="form-label fw-bold">Nama Lengkap</label>
                 <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label fw-bold" for="ID_KLASIFIKASI">Klasifikasi Pengaduan</label> {{-- Mengganti for="id_klasifikasi" menjadi for="ID_KLASIFIKASI" --}}
+                <label class="form-label fw-bold" for="ID_KLASIFIKASI">Klasifikasi Pengaduan</label>
                 <select name="ID_KLASIFIKASI" id="ID_KLASIFIKASI" class="form-select" required>
                     <option value="">Pilih Klasifikasi Pengaduan</option>
                     @foreach ($klasifikasiPengaduan as $klasifikasi)
@@ -55,8 +65,7 @@
 
             <div class="mb-3" id="wrapper_no_tlpn">
                 <label class="form-label fw-bold">Nomor Telepon</label>
-                <input type="tel" class="form-control" placeholder="Contoh: 08123456789" name="NO_TLPN" required>
-                {{-- Mengganti type="number" menjadi type="tel" untuk input telepon yang lebih sesuai --}}
+                <input type="number" class="form-control" placeholder="Contoh: 08123456789" name="NO_TLPN" required>
             </div>
 
             <div class="mb-3" id="wrapper_no_medrec">

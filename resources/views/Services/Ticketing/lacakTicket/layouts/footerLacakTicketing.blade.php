@@ -1,14 +1,25 @@
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{{-- footerLacakTicketing.blade.php --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous">
+</script>
+
 <script>
     let countdownInterval = null;
 
     async function cariTiket() {
-        const searchInput = document.getElementById('inputTiket').value.trim();
+        const searchInput = document.getElementById('inputTiket');
         const hasilArea = document.getElementById('hasilArea');
-        const spinnerButton = document.querySelector(
-            'button.btn-simpan'); // Pastikan selector ini tepat, atau gunakan ID jika tombol lacak punya ID
+        const spinnerButton = document.querySelector('.lacak-container button.btn-simpan[onclick="cariTiket()"]');
 
-        if (searchInput === '') {
+        if (!searchInput || !hasilArea) {
+            console.error("Elemen #inputTiket atau #hasilArea tidak ditemukan.");
+            if (hasilArea) hasilArea.innerHTML =
+                `<div class="no-data text-danger">Error: Elemen penting halaman tidak ditemukan.</div>`;
+            return;
+        }
+        const searchInputValue = searchInput.value.trim();
+
+        if (searchInputValue === '') {
             hasilArea.innerHTML = `
                 <div class="no-data">
                     <i class="bi bi-file-earmark-text"></i>
@@ -30,9 +41,11 @@
                 </div>
                 <p class="mt-2">Mencari tiket...</p>
             </div>`;
-        spinnerButton.disabled = true;
-        spinnerButton.innerHTML =
-            `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Melacak...`;
+        if (spinnerButton) {
+            spinnerButton.disabled = true;
+            spinnerButton.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Melacak...`;
+        }
 
         try {
             const response = await fetch('{{ route('ticketing.lacak.search') }}', {
@@ -42,26 +55,84 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
-                    searchInput: searchInput
+                    searchInput: searchInputValue
                 })
             });
 
-            const result = await response.json();
-            spinnerButton.disabled = false;
-            spinnerButton.innerHTML = `<i class="bi bi-search"></i> Lacak`;
+            if (!response.ok) {
+                let errorText = `Error HTTP: ${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorText = errorData.message || errorText;
+                } catch (e) {
+                    /* Abaikan jika error parsing JSON dari respons error */ }
+                console.error('Error HTTP dari searchTicket:', errorText);
+                hasilArea.innerHTML =
+                    `<div class="no-data"><i class="bi bi-wifi-off"></i><div class="text-bold mt-2">Gagal Memuat Data</div><div>${errorText}. Silakan coba lagi nanti.</div></div>`;
+                if (spinnerButton) {
+                    spinnerButton.disabled = false;
+                    spinnerButton.innerHTML = `<i class="bi bi-search"></i> Lacak`;
+                }
+                return;
+            }
 
-            if (result.success) {
+            let result;
+            try {
+                result = await response.json();
+            } catch (e) {
+                const responseText = await response.text();
+                console.error('Gagal parse JSON dari searchTicket:', e, "\nResponse Text:", responseText);
+                hasilArea.innerHTML =
+                    `<div class="no-data"><i class="bi bi-exclamation-triangle-fill"></i><div class="text-bold mt-2">Format Respons Salah</div><div>Server memberikan respons yang tidak terduga. Periksa console untuk detail.</div></div>`;
+                if (spinnerButton) {
+                    spinnerButton.disabled = false;
+                    spinnerButton.innerHTML = `<i class="bi bi-search"></i> Lacak`;
+                }
+                return;
+            }
+
+            if (spinnerButton) {
+                spinnerButton.disabled = false;
+                spinnerButton.innerHTML = `<i class="bi bi-search"></i> Lacak`;
+            }
+
+            if (result.success && result.tiket) {
                 const tiket = result.tiket;
-                const riwayatHtml = result.riwayat_penanganan.map(item => `
+
+                // 1. Buat entri timeline awal "Tiket Dibuat"
+                const initialTimelineEntryHtml = `
                     <div class="timeline-item">
-                        <div class="fw-bold">${item.aktor} <span class="text-muted small fw-normal">${item.tanggal_aksi}</span></div>
-                        <div class="timeline-title">${item.judul_aksi}</div>
-                        <div>${item.deskripsi_aksi || ''}</div>
+                        <div class="fw-bold">Pelapor <span class="text-muted small fw-normal">${tiket.tanggal_complaint_timelineFormat || 'N/A'}</span></div>
+                        <div class="timeline-title">Tiket Dibuat</div>
+                        <div>Tiket ${tiket.id_complaint || 'N/A'} telah dibuat.</div>
                     </div>
-                `).join('');
+                `;
+
+                // 2. Buat HTML untuk riwayat penanganan tambahan dari server (jika ada)
+                const additionalRiwayatHtml = (result.riwayat_penanganan && Array.isArray(result
+                        .riwayat_penanganan) && result.riwayat_penanganan.length > 0) ?
+                    result.riwayat_penanganan.map(item => `
+                        <div class="timeline-item">
+                            <div class="fw-bold">${item.aktor || 'N/A'} <span class="text-muted small fw-normal">${item.tanggal_aksi || 'N/A'}</span></div>
+                            <div class="timeline-title">${item.judul_aksi || 'N/A'}</div>
+                            <div>${item.deskripsi_aksi || ''}</div>
+                        </div>
+                    `).join('') :
+                    '';
+
+                // 3. Gabungkan entri awal dengan riwayat tambahan
+                const fullRiwayatHtml = initialTimelineEntryHtml + additionalRiwayatHtml;
+
+                // 4. Siapkan HTML untuk seluruh bagian timeline
+                const timelineSectionHtml = `
+                    <hr class="my-3">
+                    <h5 class="fw-bold">Riwayat Penanganan</h5>
+                    <p class="text-muted mb-2">Perkembangan penanganan tiket Anda</p>
+                    <div class="timeline">${fullRiwayatHtml}</div>
+                `;
+
 
                 let detailTambahanHtml = '';
-                // BAGIAN INI MENAMPILKAN BLOK KONFIRMASI SESUAI GAMBAR
                 if (tiket.is_menunggu_konfirmasi) {
                     detailTambahanHtml = `
                         <div class="alert alert-warning mt-4 mb-4" id="konfirmasiArea-${tiket.id_complaint}">
@@ -72,7 +143,7 @@
                             <div class="progress mb-2" style="height: 10px;">
                                 <div class="progress-bar bg-primary" id="progressBar-${tiket.id_complaint}" role="progressbar" style="width: ${tiket.persen_waktu_konfirmasi || '100%'};" aria-valuenow="${(tiket.persen_waktu_konfirmasi || '100').replace('%','')}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
-                            <p>Anda memiliki waktu <strong id="sisaWaktu-${tiket.id_complaint}">${tiket.waktu_konfirmasi_tersisa || 'Memuat...'}</strong> untuk mengkonfirmasi penyelesaian tiket ini. Jika tidak ada konfirmasi dalam 1x24 jam dari waktu penyelesaian internal, tiket akan otomatis ditutup.</p>
+                            <p>Anda memiliki waktu <strong id="sisaWaktu-${tiket.id_complaint}">${tiket.waktu_konfirmasi_tersisa || 'Memuat...'}</strong> untuk mengkonfirmasi penyelesaian tiket ini. Jika tidak ada konfirmasi, tiket akan otomatis ditutup.</p>
                             <div class="d-flex gap-2 flex-wrap">
                                 <button class="btn btn-success btn-md" onclick="tanggapiTiket('${tiket.id_complaint}', 'selesai')">
                                     <i class="bi bi-check-circle pe-1"></i> Masalah Terselesaikan
@@ -94,11 +165,10 @@
                 let statusBadgeClass = 'bg-secondary';
                 if (tiket.status === 'On Progress' || tiket.status === 'Dalam Proses') statusBadgeClass =
                     'bg-primary';
-                else if (tiket.status === 'Menunggu Konfirmasi Pelapor') statusBadgeClass =
-                    'bg-warning text-dark'; // Untuk badge status
+                else if (tiket.status === 'Menunggu Konfirmasi Pelapor') statusBadgeClass = 'bg-warning text-dark';
                 else if (tiket.status === 'Close' || tiket.status === 'Selesai') statusBadgeClass = 'bg-success';
                 else if (tiket.status === 'Open' || tiket.status === 'Baru') statusBadgeClass =
-                    'btn-simpan text-white'; // atau 'bg-info' atau kelas lain untuk status Open/Baru
+                    'btn-simpan text-white';
 
                 hasilArea.innerHTML = `
                     <div class="container border rounded p-3 p-md-4 mt-4 shadow-sm">
@@ -106,63 +176,41 @@
                             <strong class="fs-5 text-break">Tiket: ${tiket.id_complaint}</strong>
                             <span class="status-badge ${statusBadgeClass} text-nowrap">${tiket.status}</span>
                         </div>
-                        ${detailTambahanHtml} <div class="row mb-3">
+                        ${detailTambahanHtml}
+                        <div class="row mb-3">
                             <div class="col-md-6 mb-2 mb-md-0">
                                 <div class="info-label">Tanggal Dibuat:</div>
-                                <div class="fw-bold">${tiket.tanggal_dibuat}</div>
+                                <div class="fw-bold">${tiket.tanggal_dibuat || 'N/A'}</div>
                             </div>
                             <div class="col-md-6">
                                 <div class="info-label">Tanggal Diperbarui:</div>
-                                <div class="fw-bold">${tiket.tanggal_diperbarui}</div>
+                                <div class="fw-bold">${tiket.tanggal_diperbarui || 'N/A'}</div>
                             </div>
                         </div>
                         <hr class="my-3">
                         <div class="mb-3">
                             <div class="info-label">Ditangani Oleh:</div>
-                            <div class="fw-bold">${tiket.ditangani_oleh}</div>
+                            <div class="fw-bold">${tiket.ditangani_oleh || 'N/A'}</div>
                         </div>
                         <hr class="my-3">
                         <div class="mb-3">
                             <div class="info-label">Deskripsi Status Terkini:</div>
-                            <div>${tiket.deskripsi_status_terkini}</div>
+                            <div>${tiket.deskripsi_status_terkini || 'N/A'}</div>
                         </div>
-                        ${result.riwayat_penanganan && result.riwayat_penanganan.length > 0 ? `
-                        <hr class="my-3">
-                        <h5 class="fw-bold">Riwayat Penanganan</h5>
-                        <p class="text-muted mb-2">Perkembangan penanganan tiket Anda</p>
-                        <div class="timeline">${riwayatHtml}</div>
-                        ` : `
-                        <hr class="my-3">
-                        <h5 class="fw-bold">Riwayat Penanganan</h5>
-                        <p class="text-muted mb-2">Perkembangan penanganan tiket Anda</p>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="fw-bold">Pelapor <span class="text-muted small fw-normal">${tiket.tanggal_complaint_timelineFormat}</span></div>
-                                <div class="timeline-title">Tiket Dibuat</div>
-                                <div>Tiket ${tiket.id_complaint} telah dibuat.</div>
-                            </div>
-                        </div>
-                        `}
+                        ${timelineSectionHtml} {/* <-- Bagian timeline yang sudah disesuaikan */}
                     </div>`;
-                initializeRatingButtons(tiket.id_complaint); // Panggil setelah HTML dirender
             } else {
-                hasilArea.innerHTML = `
-                    <div class="no-data">
-                        <i class="bi bi-emoji-frown"></i>
-                        <div class="text-bold mt-2">Tidak Ditemukan</div>
-                        <div>${result.message || 'Pastikan input yang Anda masukkan benar.'}</div>
-                    </div>`;
+                hasilArea.innerHTML =
+                    `<div class="no-data"><i class="bi bi-emoji-frown"></i><div class="text-bold mt-2">Data Tidak Ditemukan</div><div>${result.message || 'Pastikan input yang Anda masukkan benar.'}</div></div>`;
             }
         } catch (error) {
-            console.error('Error saat mencari tiket:', error);
-            spinnerButton.disabled = false;
-            spinnerButton.innerHTML = `<i class="bi bi-search"></i> Lacak`;
-            hasilArea.innerHTML = `
-                <div class="no-data">
-                    <i class="bi bi-wifi-off"></i>
-                    <div class="text-bold mt-2">Terjadi Kesalahan</div>
-                    <div>Gagal terhubung ke server. Silakan coba lagi nanti.</div>
-                </div>`;
+            console.error('Error tidak terduga saat mencari tiket:', error);
+            if (spinnerButton) {
+                spinnerButton.disabled = false;
+                spinnerButton.innerHTML = `<i class="bi bi-search"></i> Lacak`;
+            }
+            hasilArea.innerHTML =
+                `<div class="no-data"><i class="bi bi-wifi-off"></i><div class="text-bold mt-2">Terjadi Kesalahan Teknis</div><div>Gagal menghubungi server. Silakan coba lagi nanti.</div></div>`;
         }
     }
 
@@ -170,25 +218,34 @@
         const konfirmasiArea = document.getElementById(`konfirmasiArea-${idComplaint}`);
         let originalButtonHtmlSelesai = '';
         let originalButtonHtmlBelumSelesai = '';
+        let btnSelesai = konfirmasiArea ? konfirmasiArea.querySelector('.btn-success') : null;
+        let btnBelumSelesai = konfirmasiArea ? konfirmasiArea.querySelector('.btn-danger') : null;
 
-        if (konfirmasiArea) {
-            const btnSelesai = konfirmasiArea.querySelector('.btn-success');
-            const btnBelumSelesai = konfirmasiArea.querySelector('.btn-danger');
-            if (btnSelesai) originalButtonHtmlSelesai = btnSelesai.innerHTML;
-            if (btnBelumSelesai) originalButtonHtmlBelumSelesai = btnBelumSelesai.innerHTML;
+        if (btnSelesai) originalButtonHtmlSelesai = btnSelesai.innerHTML;
+        if (btnBelumSelesai) originalButtonHtmlBelumSelesai = btnBelumSelesai.innerHTML;
 
-            if (jenisTanggapan === 'selesai' && btnSelesai) {
-                btnSelesai.disabled = true;
-                btnSelesai.innerHTML =
-                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
-                if (btnBelumSelesai) btnBelumSelesai.disabled = true;
-            } else if (jenisTanggapan === 'belum_selesai' && btnBelumSelesai) {
-                btnBelumSelesai.disabled = true;
-                btnBelumSelesai.innerHTML =
-                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
-                if (btnSelesai) btnSelesai.disabled = true;
-            }
+        if (jenisTanggapan === 'selesai' && btnSelesai) {
+            btnSelesai.disabled = true;
+            btnSelesai.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+            if (btnBelumSelesai) btnBelumSelesai.disabled = true;
+        } else if (jenisTanggapan === 'belum_selesai' && btnBelumSelesai) {
+            btnBelumSelesai.disabled = true;
+            btnBelumSelesai.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
+            if (btnSelesai) btnSelesai.disabled = true;
         }
+
+        const reEnableButtons = () => {
+            if (btnSelesai) {
+                btnSelesai.disabled = false;
+                btnSelesai.innerHTML = originalButtonHtmlSelesai;
+            }
+            if (btnBelumSelesai) {
+                btnBelumSelesai.disabled = false;
+                btnBelumSelesai.innerHTML = originalButtonHtmlBelumSelesai;
+            }
+        };
 
         try {
             const response = await fetch(`{{ url('/ticketing/lacak-ticketing/tanggapi') }}/${idComplaint}`, {
@@ -201,65 +258,50 @@
                     tanggapan: jenisTanggapan
                 })
             });
-            const result = await response.json();
+
+            if (!response.ok) {
+                let errorText = `Error HTTP: ${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorText = errorData.message || errorText;
+                } catch (e) {
+                    /* ignore */ }
+                console.error('Error HTTP dari tanggapiTiket:', errorText);
+                alert(`Gagal mengirim tanggapan: ${errorText}`);
+                reEnableButtons();
+                return;
+            }
+
+            let result;
+            try {
+                result = await response.json();
+            } catch (e) {
+                const responseText = await response.text();
+                console.error('Gagal parse JSON dari tanggapiTiket:', e, "\nResponse Text:", responseText);
+                alert('Server memberikan respons yang tidak terduga. Periksa console.');
+                reEnableButtons();
+                return;
+            }
 
             if (result.success) {
                 alert(result.message);
-                document.getElementById('inputTiket').value = idComplaint; // Isi input dengan ID tiket
-                cariTiket(); // Muat ulang detail tiket
+                const inputTiketEl = document.getElementById('inputTiket');
 
-                if (jenisTanggapan === 'selesai') {
-                    var myModal = new bootstrap.Modal(document.getElementById(
-                        'feedbackModal')); // Pastikan ID modal ini ada di HTML Anda
-                    myModal.show();
-                    document.getElementById('feedbackModal').dataset.idComplaint = idComplaint;
-                } else if (jenisTanggapan === 'belum_selesai') {
-                    var myModal = new bootstrap.Modal(document.getElementById(
-                        'belumSelesaiModal')); // Pastikan ID modal ini ada di HTML Anda
-                    const linkBuatTiketBaru = document.querySelector('#belumSelesaiModal .btn-simpan');
-                    if (linkBuatTiketBaru) {
-                        linkBuatTiketBaru.href = `{{ url('/ticketing/buat-laporan?ref=') }}${idComplaint}`;
-                    }
-
-                    const teksTiketTerkait = document.querySelector(
-                        '#belumSelesaiModal .alert strong'); // Sesuaikan selector jika perlu
-                    const spanTiketTerkait = document.querySelector(
-                        '#belumSelesaiModal span strong'); // Sesuaikan selector jika perlu
-                    if (teksTiketTerkait) teksTiketTerkait.textContent = idComplaint;
-                    if (spanTiketTerkait) spanTiketTerkait.textContent = idComplaint;
-
-                    myModal.show();
+                if (jenisTanggapan === 'belum_selesai') {
+                    window.location.href = `{{ route('ticketing.buat-laporan') }}?ref=${idComplaint}`;
+                    // Tidak perlu cariTiket() lagi karena akan redirect
+                } else if (jenisTanggapan === 'selesai') {
+                    if (inputTiketEl) inputTiketEl.value = idComplaint; // Tetap isi input tiket
+                    cariTiket(); // Muat ulang detail tiket
                 }
             } else {
-                alert(result.message || 'Gagal mengirim tanggapan.');
-                if (konfirmasiArea) {
-                    const btnSelesai = konfirmasiArea.querySelector('.btn-success');
-                    const btnBelumSelesai = konfirmasiArea.querySelector('.btn-danger');
-                    if (btnSelesai) {
-                        btnSelesai.disabled = false;
-                        btnSelesai.innerHTML = originalButtonHtmlSelesai;
-                    }
-                    if (btnBelumSelesai) {
-                        btnBelumSelesai.disabled = false;
-                        btnBelumSelesai.innerHTML = originalButtonHtmlBelumSelesai;
-                    }
-                }
+                alert(result.message || 'Gagal mengirim tanggapan dari server.');
+                reEnableButtons();
             }
         } catch (error) {
-            console.error('Error saat menanggapi tiket:', error);
-            alert('Terjadi kesalahan koneksi saat mengirim tanggapan.');
-            if (konfirmasiArea) {
-                const btnSelesai = konfirmasiArea.querySelector('.btn-success');
-                const btnBelumSelesai = konfirmasiArea.querySelector('.btn-danger');
-                if (btnSelesai) {
-                    btnSelesai.disabled = false;
-                    btnSelesai.innerHTML = originalButtonHtmlSelesai;
-                }
-                if (btnBelumSelesai) {
-                    btnBelumSelesai.disabled = false;
-                    btnBelumSelesai.innerHTML = originalButtonHtmlBelumSelesai;
-                }
-            }
+            console.error('Error saat menanggapi tiket (catch utama):', error);
+            alert('Terjadi kesalahan teknis saat memproses tanggapan Anda. Periksa console.');
+            reEnableButtons();
         }
     }
 
@@ -269,233 +311,81 @@
         const konfirmasiAreaElement = document.getElementById(konfirmasiAreaId);
 
         if (!countDownElement || !progressBarElement || !tglSelesaiInternalISO || !konfirmasiAreaElement) {
-            console.warn("Elemen countdown atau tanggal tidak ditemukan:", elementId, progressBarId,
-                tglSelesaiInternalISO, konfirmasiAreaId);
+            console.warn("Elemen countdown tidak lengkap atau tanggal tidak valid:", {
+                elementId,
+                progressBarId,
+                tglSelesaiInternalISO,
+                konfirmasiAreaId
+            });
             if (countDownElement) countDownElement.innerHTML = "N/A";
             return;
         }
-
         const tglSelesai = new Date(tglSelesaiInternalISO);
-        const batasWaktuKonfirmasi = new Date(tglSelesai.getTime() + 24 * 60 * 60 *
-            1000); // 24 jam dari tglSelesaiInternal
-
+        if (isNaN(tglSelesai.getTime())) {
+            console.error("Format tglSelesaiInternalISO tidak valid:", tglSelesaiInternalISO);
+            if (countDownElement) countDownElement.innerHTML = "Err:Tgl";
+            return;
+        }
+        const batasWaktuKonfirmasi = new Date(tglSelesai.getTime() + 24 * 60 * 60 * 1000);
         if (countdownInterval) clearInterval(countdownInterval);
 
         countdownInterval = setInterval(() => {
             const sekarang = new Date();
             const sisaMs = batasWaktuKonfirmasi - sekarang;
-
             if (sisaMs < 0) {
                 clearInterval(countdownInterval);
-                countDownElement.innerHTML = "Waktu habis";
-                progressBarElement.style.width = '0%';
-                progressBarElement.classList.remove('bg-primary', 'bg-warning');
-                progressBarElement.classList.add('bg-danger');
+                if (countDownElement) countDownElement.innerHTML = "Waktu habis";
+                if (progressBarElement) {
+                    progressBarElement.style.width = '0%';
+                    progressBarElement.classList.remove('bg-primary', 'bg-warning');
+                    progressBarElement.classList.add('bg-danger');
+                }
+                if (konfirmasiAreaElement) {
+                    const buttons = konfirmasiAreaElement.querySelectorAll('button');
+                    buttons.forEach(btn => btn.disabled = true);
+                    const pSisaWaktuStrong = konfirmasiAreaElement.querySelector('p strong');
+                    if (pSisaWaktuStrong) pSisaWaktuStrong.textContent = "Waktu habis";
 
-                const buttons = konfirmasiAreaElement.querySelectorAll('button');
-                buttons.forEach(btn => btn.disabled = true);
-                const pSisaWaktu = konfirmasiAreaElement.querySelector('p');
-                if (pSisaWaktu) {
-                    const existingStrong = pSisaWaktu.querySelector('strong');
-                    if (existingStrong) existingStrong.textContent = "Waktu habis";
-                    // Tambahkan pesan bahwa tiket akan ditutup otomatis
-                    if (!pSisaWaktu.innerHTML.includes("otomatis ditutup oleh sistem")) {
-                        // Periksa apakah pesan otomatis ditutup dari BE sudah ada atau belum
-                        const isClosedBySystemMessageExists = Array.from(pSisaWaktu.childNodes).some(node =>
-                            node.nodeType === Node.TEXT_NODE && node.textContent.includes(
-                                "Tiket telah ditutup otomatis"));
-                        if (!isClosedBySystemMessageExists && !pSisaWaktu.innerHTML.includes(
-                                "<em>Tiket akan segera ditutup otomatis oleh sistem.</em>")) {
-                            pSisaWaktu.innerHTML +=
-                                "<br><em>Tiket akan segera ditutup otomatis oleh sistem.</em>";
-                        }
+                    const pElementForMessage = konfirmasiAreaElement.querySelector('p');
+                    if (pElementForMessage && !pElementForMessage.innerHTML.includes(
+                            "Tiket akan segera ditutup otomatis oleh sistem.")) {
+                        pElementForMessage.innerHTML +=
+                            "<br><em>Tiket akan segera ditutup otomatis oleh sistem.</em>";
                     }
                 }
-                // Di sini, idealnya ada pemanggilan ke backend untuk benar-benar menutup tiket.
-                // Untuk saat ini, hanya UI yang diupdate.
                 return;
             }
-
             const jam = Math.floor(sisaMs / (1000 * 60 * 60));
             const menit = Math.floor((sisaMs % (1000 * 60 * 60)) / (1000 * 60));
             const detik = Math.floor((sisaMs % (1000 * 60)) / 1000);
-            countDownElement.innerHTML =
+            if (countDownElement) countDownElement.innerHTML =
                 `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
 
-            const totalDurasiMs = 24 * 60 * 60 * 1000; // Total durasi konfirmasi dalam milidetik
+            const totalDurasiMs = 24 * 60 * 60 * 1000;
             const persenSisa = (sisaMs / totalDurasiMs) * 100;
-            progressBarElement.style.width = Math.min(Math.max(persenSisa, 0), 100) +
-                '%'; // Clamp antara 0-100%
-
-            if (persenSisa < 20) { // Kurang dari 20% sisa waktu
-                progressBarElement.classList.remove('bg-primary', 'bg-warning');
-                progressBarElement.classList.add('bg-danger');
-            } else if (persenSisa < 50) { // Kurang dari 50% sisa waktu
-                progressBarElement.classList.remove('bg-primary', 'bg-danger');
-                progressBarElement.classList.add('bg-warning');
-            } else {
-                progressBarElement.classList.remove('bg-warning', 'bg-danger');
-                progressBarElement.classList.add('bg-primary');
+            if (progressBarElement) {
+                progressBarElement.style.width = Math.min(Math.max(persenSisa, 0), 100) + '%';
+                progressBarElement.classList.remove('bg-primary', 'bg-warning', 'bg-danger');
+                if (persenSisa < 20) {
+                    progressBarElement.classList.add('bg-danger');
+                } else if (persenSisa < 50) {
+                    progressBarElement.classList.add('bg-warning');
+                } else {
+                    progressBarElement.classList.add('bg-primary');
+                }
             }
-
         }, 1000);
     }
 
-    function initializeRatingButtons(idComplaint) {
-        const feedbackModalElement = document.getElementById('feedbackModal');
-        if (!feedbackModalElement) return;
-
-        // Set dataset idComplaint pada modal setiap kali diinisialisasi
-        feedbackModalElement.dataset.idComplaint = idComplaint;
-
-        const ratingContainer = feedbackModalElement.querySelector(
-            '#ratingContainer'); // Pastikan ID ini ada di modal HTML
-        const kirimFeedbackButton = feedbackModalElement.querySelector('.btn-simpan'); // Tombol kirim di modal feedback
-
-        if (ratingContainer) {
-            const ratingButtons = ratingContainer.querySelectorAll(
-                '.rating-btn'); // Pastikan class ini ada pada tombol rating
-
-            // Hapus event listener lama dan tambahkan yang baru untuk rating buttons
-            ratingButtons.forEach(btn => {
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn); // Ganti node lama dengan clone untuk hapus listener
-
-                newBtn.addEventListener('click', function() {
-                    const currentRating = parseInt(this.textContent);
-                    // Reset semua tombol rating
-                    ratingButtons.forEach(innerBtnOriginal => { // Gunakan original list untuk query
-                        const iBtn = feedbackModalElement.querySelector(
-                            `#ratingContainer .rating-btn:nth-child(${parseInt(innerBtnOriginal.textContent)})`
-                        );
-                        if (iBtn) {
-                            iBtn.classList.remove('btn-primary', 'text-white');
-                            iBtn.classList.add('btn-outline-secondary');
-                        }
-                    });
-                    // Set tombol rating yang dipilih dan sebelumnya
-                    for (let i = 1; i <= currentRating; i++) {
-                        const rBtn = feedbackModalElement.querySelector(
-                            `#ratingContainer .rating-btn:nth-child(${i})`);
-                        if (rBtn) {
-                            rBtn.classList.add('btn-primary', 'text-white');
-                            rBtn.classList.remove('btn-outline-secondary');
-                        }
-                    }
-                    if (kirimFeedbackButton) kirimFeedbackButton.dataset.rating = currentRating;
-                });
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTiketEl = document.getElementById('inputTiket');
+        if (inputTiketEl) {
+            inputTiketEl.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    cariTiket();
+                }
             });
-        }
-
-        if (kirimFeedbackButton) {
-            // Hapus event listener lama dan tambahkan yang baru untuk tombol kirim
-            const newKirimBtn = kirimFeedbackButton.cloneNode(true);
-            kirimFeedbackButton.parentNode.replaceChild(newKirimBtn, kirimFeedbackButton);
-
-            newKirimBtn.onclick = function() { // Gunakan onclick atau addEventListener
-                const currentIdComplaintFromModal = feedbackModalElement.dataset
-                    .idComplaint; // Ambil dari dataset modal
-                const ratingToSend = parseInt(this.dataset.rating) || 0; // Ambil dari dataset tombol kirim
-                const feedbackText = feedbackModalElement.querySelector('#feedbackText')
-                    .value; // Pastikan ID ini ada
-                kirimFeedback(currentIdComplaintFromModal, ratingToSend, feedbackText);
-            };
-        }
-    }
-
-    async function kirimFeedback(idComplaint, rating, feedbackText) {
-        const kirimButton = document.querySelector('#feedbackModal .btn-simpan');
-        let originalButtonHtml = '';
-        if (kirimButton) {
-            originalButtonHtml = kirimButton.innerHTML;
-            kirimButton.disabled = true;
-            kirimButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...`;
-        }
-
-        try {
-            const response = await fetch('{{ route('ticketing.simpan-feedback') }}', { // Pastikan route ini ada
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    id_complaint: idComplaint,
-                    rating: rating,
-                    feedback: feedbackText
-                })
-            });
-            const result = await response.json();
-
-            if (kirimButton) {
-                kirimButton.disabled = false;
-                kirimButton.innerHTML = originalButtonHtml;
-            }
-
-            if (result.success) {
-                alert('Feedback berhasil dikirim!');
-                var feedbackModalEl = document.getElementById('feedbackModal');
-                if (feedbackModalEl) {
-                    var feedbackModalInstance = bootstrap.Modal.getInstance(feedbackModalEl);
-                    if (feedbackModalInstance) feedbackModalInstance.hide();
-                }
-                // Reset form feedback setelah berhasil
-                const feedbackTextArea = document.getElementById('feedbackText');
-                if (feedbackTextArea) feedbackTextArea.value = '';
-                const ratingContainer = document.getElementById('ratingContainer');
-                if (ratingContainer) {
-                    ratingContainer.querySelectorAll('.rating-btn').forEach(btn => {
-                        btn.classList.remove('btn-primary', 'text-white');
-                        btn.classList.add('btn-outline-secondary');
-                    });
-                }
-                if (kirimButton) kirimButton.dataset.rating = 0; // Reset rating di tombol
-
-            } else {
-                let errorMessage = result.message || 'Gagal mengirim feedback.';
-                if (result.errors) {
-                    for (const key in result.errors) {
-                        errorMessage += `\n- ${result.errors[key].join(', ')}`;
-                    }
-                }
-                alert(errorMessage);
-            }
-        } catch (error) {
-            if (kirimButton) {
-                kirimButton.disabled = false;
-                kirimButton.innerHTML = originalButtonHtml;
-            }
-            console.error('Error mengirim feedback:', error);
-            alert('Terjadi kesalahan koneksi saat mengirim feedback.');
-        }
-    }
-
-    // Event listener untuk tombol Enter pada input pencarian
-    document.getElementById('inputTiket').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Mencegah submit form jika input ada di dalam form
-            cariTiket();
         }
     });
-
-    // Event listener untuk modal feedback saat ditutup (hidden)
-    const feedbackModalEl = document.getElementById('feedbackModal');
-    if (feedbackModalEl) {
-        feedbackModalEl.addEventListener('hidden.bs.modal', function() {
-            // Reset form di dalam modal feedback
-            const feedbackTextArea = this.querySelector('#feedbackText'); // 'this' merujuk ke modal
-            if (feedbackTextArea) feedbackTextArea.value = '';
-
-            const ratingContainer = this.querySelector('#ratingContainer');
-            if (ratingContainer) {
-                ratingContainer.querySelectorAll('.rating-btn').forEach(btn => {
-                    btn.classList.remove('btn-primary', 'text-white');
-                    btn.classList.add('btn-outline-secondary');
-                });
-            }
-            const kirimFeedbackButton = this.querySelector('.btn-simpan');
-            if (kirimFeedbackButton) kirimFeedbackButton.dataset.rating = 0; // Reset rating
-        });
-    }
 </script>
