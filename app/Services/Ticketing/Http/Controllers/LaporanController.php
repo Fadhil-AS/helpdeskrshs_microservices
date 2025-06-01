@@ -64,19 +64,10 @@ class LaporanController extends Controller
             'ID_KLASIFIKASI' => 'required|string|exists:klasifikasi_pengaduan,ID_KLASIFIKASI',
             'PERMASALAHAN' => 'required|string|max:4000',
             'NO_MEDREC' => 'nullable|string|max:10',
-            'ID_COMPLAINT_REFERENSI' => 'nullable|string|max:20',
             'upload_id' => 'required|string', // Tetap dibutuhkan untuk menghapus folder temp
             'uploaded_files' => 'nullable|array',
             'uploaded_files.*' => 'string',
-            'file_referensi_original_name' => 'nullable|string'
         ]);
-
-        // Validasi ID Tiket Referensi jika File Referensi diunggah
-        if (isset($validatedData['file_referensi_original_name']) && empty($validatedData['ID_COMPLAINT_REFERENSI'])) {
-            throw ValidationException::withMessages([
-                'ID_COMPLAINT_REFERENSI' => ['ID Tiket Referensi wajib diisi jika Anda mengunggah File Referensi.']
-            ]);
-        }
 
         $laporan->ID_COMPLAINT = $this->generateCustomComplaintId();
         Log::info('Generated Laporan ID:', ['id' => $laporan->ID_COMPLAINT]);
@@ -91,24 +82,6 @@ class LaporanController extends Controller
         $laporan->NO_MEDREC = $validatedData['NO_MEDREC'] ?? null;
 
         return $validatedData; // Kembalikan data yang sudah divalidasi
-    }
-
-    /**
-     * Fungsi processComplaintReferensi untuk memvalidasi dan mengatur ID Complaint Referensi.
-     */
-    private function processComplaintReferensi(Laporan $laporan, ?string $idComplaintReferensi): void
-    {
-        if (!empty($idComplaintReferensi)) {
-            $ref = Laporan::where('ID_COMPLAINT', $idComplaintReferensi)
-                ->where('STATUS', 'Close')
-                ->first();
-            if (!$ref) {
-                throw ValidationException::withMessages([
-                    'ID_COMPLAINT_REFERENSI' => ['Tiket referensi tidak ditemukan atau statusnya bukan "Close".']
-                ]);
-            }
-            $laporan->ID_COMPLAINT_REFERENSI = $idComplaintReferensi;
-        }
     }
 
     /**
@@ -129,7 +102,8 @@ class LaporanController extends Controller
                 $fileContents = Storage::disk('local')->get($tempPath);
                 $originalExtension = pathinfo($tempPath, PATHINFO_EXTENSION);
 
-                $newFilename = $laporan->ID_COMPLAINT . '_' . $fileCounter . '.' . $originalExtension;
+                // Hanya ada file bukti pendukung sekarang
+                $newFilename = $laporan->ID_COMPLAINT . '_bukti_'. $fileCounter . '.' . $originalExtension;
                 $finalPath = 'pengaduan_files/' . $newFilename;
 
                 Storage::disk('public')->put($finalPath, $fileContents);
@@ -158,8 +132,6 @@ class LaporanController extends Controller
             $uploadIdForCleanup = $validatedData['upload_id'];
 
             DB::beginTransaction();
-
-            $this->processComplaintReferensi($laporan, $validatedData['ID_COMPLAINT_REFERENSI'] ?? null);
 
             $mergedFilePaths = $this->processAndStoreFiles($laporan, $validatedData['uploaded_files'] ?? null);
             if ($mergedFilePaths) {

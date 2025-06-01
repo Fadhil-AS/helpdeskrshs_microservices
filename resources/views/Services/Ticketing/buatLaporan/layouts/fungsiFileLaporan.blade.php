@@ -1,14 +1,9 @@
-<script src="{{ asset('assets/js/ticketing/validation.js') }}"></script>
-<script src="{{ asset('assets/js/ticketing/referensiUI.js') }}"></script>
-<script src="{{ asset('assets/js/ticketing/buktiPendukungUI.js') }}"></script>
-<script src="{{ asset('assets/js/ticketing/formSubmitHandler.js') }}"></script>
+<script src="{{ asset('assets/js/ticketing/buatLaporan/validation.js') }}"></script>
+<script src="{{ asset('assets/js/ticketing/buatLaporan/buktiPendukungUI.js') }}"></script>
+<script src="{{ asset('assets/js/ticketing/buatLaporan/formSubmitHandler.js') }}"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Variabel Utama & Konstanta ---
-        const refTicketFileInput = document.getElementById('refTicketFile');
-        const refTicketFileInfo = document.getElementById('refTicketFileInfo');
-
         const buktiPendukungFileInput = document.getElementById('buktiPendukungFile');
         const buktiPendukungDropAreaLabel = document.getElementById(
             'buktiPendukungDropZone'); // Target Drop Zone
@@ -25,7 +20,7 @@
         }
         const buktiErrorContainer = document.getElementById('buktiPendukungFileErrors');
 
-        let validBuktiPendukungFilesGlobal = []; // Array ini akan di-manage oleh fileBuktiPendukungUI.js
+        let validBuktiPendukungFilesGlobal = [];
 
         const originalUploadBoxHTMLGlobal = `
         <div class="initial-prompt text-center">
@@ -45,10 +40,6 @@
         const storeLaporanRouteGlobal = '{{ route('ticketing.store-laporan') }}';
 
         // --- Inisialisasi Modul UI ---
-        if (refTicketFileInput && refTicketFileInfo) {
-            setupRefTicketUI(refTicketFileInput, refTicketFileInfo);
-        }
-
         if (buktiPendukungFileInput && buktiPendukungDropAreaLabel && uploadBoxContent) {
             initBuktiPendukungUI(
                 buktiPendukungFileInput,
@@ -56,7 +47,7 @@
                 uploadBoxContent,
                 buktiErrorContainer,
                 originalUploadBoxHTMLGlobal,
-                validBuktiPendukungFilesGlobal // Pass array ini agar dimanipulasi oleh referensi
+                validBuktiPendukungFilesGlobal
             );
         } else {
             console.warn(
@@ -74,18 +65,14 @@
         function resetAllUIAfterSuccess() {
             if (formPengaduan) formPengaduan.reset();
 
-            if (refTicketFileInfo) refTicketFileInfo.innerHTML = '';
-            if (refTicketFileInput) refTicketFileInput.value = '';
-
             // Mengosongkan array dengan tetap menjaga referensi jika ada bagian lain yang masih menggunakannya
             // Atau jika _validBuktiPendukungFilesInternal di modul lain benar-benar menunjuk ke sini:
             validBuktiPendukungFilesGlobal.length = 0;
 
-            if (typeof renderBuktiPendukungUIInternal ===
-                'function') { // Panggil fungsi render dari modul UI Bukti Pendukung
-                renderBuktiPendukungUIInternal();
-            } else if (typeof renderBuktiPendukungUI === 'function') { // Fallback jika penamaan berbeda
+            if (typeof renderBuktiPendukungUI === 'function') {
                 renderBuktiPendukungUI();
+            } else {
+                console.warn("Fungsi renderBuktiPendukungUI tidak ditemukan untuk mereset UI bukti pendukung.");
             }
 
             if (buktiErrorContainer) buktiErrorContainer.innerHTML = '';
@@ -97,7 +84,6 @@
                 formPengaduan,
                 submitButton,
                 formMessageDiv,
-                refTicketFileInput,
                 getValidBuktiPendukungFilesFromMain,
                 csrfTokenGlobal,
                 uploadFileRouteGlobal,

@@ -13,7 +13,10 @@ class Laporan extends Model {
     protected $table = 'data_complaint';
     protected $primaryKey = 'ID_COMPLAINT';
     public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = true;
+    // const CREATED_AT = 'TGL_INSROW';
+    // const UPDATED_AT = 'TGL_INSROW';
 
     protected $fillable = [
         'ID_COMPLAINT',
@@ -45,6 +48,8 @@ class Laporan extends Model {
         'INFO_DIREKSI',
         'PERMASALAHAN',
         'KD_PENGADUAN',
+        'RATING_LAPORAN',
+        'FEEDBACK_PELAPOR',
     ];
 
     public function previous()

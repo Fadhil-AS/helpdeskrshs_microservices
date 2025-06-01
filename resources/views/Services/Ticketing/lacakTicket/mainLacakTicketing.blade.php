@@ -33,5 +33,6 @@
                 <div>Masukkan no tiket/no telepon/nama/no medrec untuk melihat status laporan Anda</div>
             </div>
         </div>
+        <div id="globalMessages" class="mb-3"></div>
     </div>
 @endsection

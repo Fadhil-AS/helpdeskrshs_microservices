@@ -1,10 +1,8 @@
-// public/js/ticketing/formSubmitHandler.js
 function setupFormSubmitHandler(
     formPengaduan,
     submitButton,
     formMessageDiv,
-    refTicketFileInput,
-    getValidBuktiPendukungFiles, // Fungsi untuk mendapatkan array file bukti pendukung
+    getValidBuktiPendukungFiles,
     csrfToken,
     uploadFileRoute,
     storeLaporanRoute,
@@ -18,28 +16,7 @@ function setupFormSubmitHandler(
             submitButton.innerHTML =
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim Laporan...';
 
-            const idRefInput = document.querySelector('[name="ID_COMPLAINT_REFERENSI"]');
-            // Validasi frontend dasar
-            if (refTicketFileInput && refTicketFileInput.files.length > 0 && idRefInput && !idRefInput.value.trim()) {
-                if (formMessageDiv) formMessageDiv.innerHTML =
-                    '<div class="alert alert-danger">ID Tiket wajib diisi jika Anda mengunggah file referensi.</div>';
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Kirim Laporan';
-                return;
-            }
-
             const allFilesToUpload = [];
-            if (refTicketFileInput && refTicketFileInput.files[0]) {
-                // Validasi file referensi sebelum menambahkannya
-                const validationResult = validateFileGlobal(refTicketFileInput.files[0]);
-                if (!validationResult.valid) {
-                    if (formMessageDiv) formMessageDiv.innerHTML = `<div class="alert alert-danger">${validationResult.message} (File Referensi)</div>`;
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = 'Kirim Laporan';
-                    return;
-                }
-                allFilesToUpload.push({ file: refTicketFileInput.files[0], type: 'referensi' });
-            }
 
             const currentValidBuktiFiles = getValidBuktiPendukungFiles(); // Ambil file yang sudah divalidasi oleh UI bukti pendukung
             currentValidBuktiFiles.forEach(file => {
@@ -88,10 +65,6 @@ function setupFormSubmitHandler(
             uploadedFileTemporaryPaths.forEach(path => {
                 finalFormData.append('uploaded_files[]', path);
             });
-
-            if (refTicketFileInput && refTicketFileInput.files[0]) {
-                finalFormData.append('file_referensi_original_name', refTicketFileInput.files[0].name);
-            }
 
             finalFormData.delete('file_referensi');
             finalFormData.delete('bukti_pendukung[]');

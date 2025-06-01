@@ -51,6 +51,8 @@ class DataComplaintSeeder extends Seeder
             'INFO_DIREKSI'          => 'Akan ditindaklanjuti dalam rapat koordinasi.',
             'PERMASALAHAN'          => 'Keterlambatan layanan medis di IGD.',
             'KD_PENGADUAN'          => 'KDMED001',
+            'RATING_LAPORAN'        => 'Masalah Belum Terselesaikan',
+            'FEEDBACK_PELAPOR'      => 'Saya merasa tidak puas atas klarifikasinya',
             'created_at'            => now(),
             'updated_at'            => now(),
         ]);

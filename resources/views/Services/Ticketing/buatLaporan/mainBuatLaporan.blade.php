@@ -66,23 +66,6 @@
                 <small class="text-muted">Nomor rekam medis membantu kami mengidentifikasi Anda dengan lebih cepat.</small>
             </div>
 
-            <div id="wrapper_ref_id" class="mb-3">
-                <label class="form-label fw-bold">ID Tiket</label>
-                <input type="text" class="form-control" name="ID_COMPLAINT_REFERENSI"
-                    placeholder="Ketik ID tiket referensi jika ada">
-                <small class="text-muted">ID Tiket wajib diisi jika anda ingin mengunggah referensi tiket sebelumnya</small>
-            </div>
-
-            <div id="wrapper_ref_file" class="mb-3">
-                {{-- <label class="form-label fw-bold">File Referensi Tiket (Opsional)</label> --}}
-                <input type="file" id="refTicketFile" name="file_referensi" class="d-none"
-                    accept=".jpg, .jpeg, .png, .pdf">
-                <label for="refTicketFile" class="btn btn-upload w-30" style="cursor: pointer;">
-                    <i class="bi bi-plus-circle"></i> Tambahkan Referensi Tiket Sebelumnya
-                </label>
-                <div id="refTicketFileInfo" class="mt-2 text-muted small"></div>
-            </div>
-
             <div class="mb-3" id="wrapper_deskripsi">
                 <label class="form-label fw-bold">Deskripsi Pengaduan</label>
                 <textarea class="form-control" rows="4" placeholder="Jelaskan secara detail pengaduan anda" name="PERMASALAHAN"

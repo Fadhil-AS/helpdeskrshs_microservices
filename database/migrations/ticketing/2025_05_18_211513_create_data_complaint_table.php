@@ -22,7 +22,7 @@ return new class extends Migration
             $table->date('TGL_COMPLAINT');
             $table->string('NAME', 70)->nullable();
             $table->string('NO_TLPN', 100)->nullable();
-            $table->timestamp('TGL_INSROW');
+            $table->date('TGL_INSROW');
             $table->string('STATUS', 30);
             $table->string('EVALUASI_COMPLAINT', 4000)->nullable();
             $table->string('JUDUL_COMPLAINT', 4000)->nullable();
@@ -41,6 +41,8 @@ return new class extends Migration
             $table->string('INFO_DIREKSI', 200)->nullable();
             $table->text('PERMASALAHAN', 4000)->nullable();
             $table->string('KD_PENGADUAN', 50)->nullable();
+            $table->string('RATING_LAPORAN', 255)->nullable();
+            $table->text('FEEDBACK_PELAPOR', 4000)->nullable();
             $table->timestamps();
 
             $table->foreign('ID_COMPLAINT_REFERENSI')->references('ID_COMPLAINT')->on('DATA_COMPLAINT')->onDelete('set null');
