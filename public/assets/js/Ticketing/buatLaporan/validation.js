@@ -1,6 +1,6 @@
-function validateFileGlobal(file) { // Ubah nama agar tidak konflik jika ada fungsi validateFile lain
+function validateFileGlobal(file) {
     const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (!allowedTypes.includes(file.type)) {
         return {
             valid: false,

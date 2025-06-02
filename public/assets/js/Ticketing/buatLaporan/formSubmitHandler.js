@@ -18,7 +18,7 @@ function setupFormSubmitHandler(
 
             const allFilesToUpload = [];
 
-            const currentValidBuktiFiles = getValidBuktiPendukungFiles(); // Ambil file yang sudah divalidasi oleh UI bukti pendukung
+            const currentValidBuktiFiles = getValidBuktiPendukungFiles();
             currentValidBuktiFiles.forEach(file => {
                 allFilesToUpload.push({ file: file, type: 'bukti_pendukung' });
             });

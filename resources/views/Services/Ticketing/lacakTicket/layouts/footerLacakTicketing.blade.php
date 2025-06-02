@@ -65,7 +65,8 @@
                     const errorData = await response.json();
                     errorText = errorData.message || errorText;
                 } catch (e) {
-                    /* Abaikan jika error parsing JSON dari respons error */ }
+                    /* Abaikan jika error parsing JSON dari respons error */
+                }
                 console.error('Error HTTP dari searchTicket:', errorText);
                 hasilArea.innerHTML =
                     `<div class="no-data"><i class="bi bi-wifi-off"></i><div class="text-bold mt-2">Gagal Memuat Data</div><div>${errorText}. Silakan coba lagi nanti.</div></div>`;
@@ -165,10 +166,12 @@
                 let statusBadgeClass = 'bg-secondary';
                 if (tiket.status === 'On Progress' || tiket.status === 'Dalam Proses') statusBadgeClass =
                     'bg-primary';
-                else if (tiket.status === 'Menunggu Konfirmasi Pelapor') statusBadgeClass = 'bg-warning text-dark';
+                else if (tiket.status === 'Menunggu Konfirmasi Pelapor' || tiket.status === 'Menunggu Konfirmasi')
+                    statusBadgeClass = 'bg-warning text-dark'; // Ditambahkan 'Menunggu Konfirmasi'
                 else if (tiket.status === 'Close' || tiket.status === 'Selesai') statusBadgeClass = 'bg-success';
-                else if (tiket.status === 'Open' || tiket.status === 'Baru') statusBadgeClass =
-                    'btn-simpan text-white';
+                else if (tiket.status === 'Open' || tiket.status === 'Baru' || tiket.status === 'Banding')
+                    statusBadgeClass = 'btn-simpan text-white'; // Ditambahkan 'Banding'
+
 
                 hasilArea.innerHTML = `
                     <div class="container border rounded p-3 p-md-4 mt-4 shadow-sm">
@@ -197,7 +200,7 @@
                             <div class="info-label">Deskripsi Status Terkini:</div>
                             <div>${tiket.deskripsi_status_terkini || 'N/A'}</div>
                         </div>
-                        ${timelineSectionHtml} {/* <-- Bagian timeline yang sudah disesuaikan */}
+                        ${timelineSectionHtml}
                     </div>`;
             } else {
                 hasilArea.innerHTML =
@@ -265,7 +268,8 @@
                     const errorData = await response.json();
                     errorText = errorData.message || errorText;
                 } catch (e) {
-                    /* ignore */ }
+                    /* ignore */
+                }
                 console.error('Error HTTP dari tanggapiTiket:', errorText);
                 alert(`Gagal mengirim tanggapan: ${errorText}`);
                 reEnableButtons();
@@ -288,11 +292,11 @@
                 const inputTiketEl = document.getElementById('inputTiket');
 
                 if (jenisTanggapan === 'belum_selesai') {
+                    // PERUBAHAN: Redirect langsung ke form pengaduan
                     window.location.href = `{{ route('ticketing.buat-laporan') }}?ref=${idComplaint}`;
-                    // Tidak perlu cariTiket() lagi karena akan redirect
                 } else if (jenisTanggapan === 'selesai') {
-                    if (inputTiketEl) inputTiketEl.value = idComplaint; // Tetap isi input tiket
-                    cariTiket(); // Muat ulang detail tiket
+                    if (inputTiketEl) inputTiketEl.value = idComplaint;
+                    cariTiket();
                 }
             } else {
                 alert(result.message || 'Gagal mengirim tanggapan dari server.');

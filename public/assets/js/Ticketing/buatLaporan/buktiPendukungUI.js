@@ -1,6 +1,4 @@
-// public/js/ticketing/fileBuktiPendukungUI.js
-
-let _validBuktiPendukungFiles = []; // Pastikan ini adalah array global untuk modul ini
+let _validBuktiPendukungFiles = [];
 let _buktiPendukungFileInput, _buktiPendukungDropAreaLabel, _uploadBoxContent, _buktiErrorContainer, _originalUploadBoxHTML;
 
 function initBuktiPendukungUI(
@@ -9,7 +7,7 @@ function initBuktiPendukungUI(
     uploadContent,
     errorContainer,
     originalHTML,
-    filesArrayReference // Ini adalah validBuktiPendukungFilesGlobal dari file utama
+    filesArrayReference
 ) {
     _buktiPendukungFileInput = buktiFileInput;
     _buktiPendukungDropAreaLabel = dropAreaLabel;
@@ -17,16 +15,13 @@ function initBuktiPendukungUI(
     _buktiErrorContainer = errorContainer;
     _originalUploadBoxHTML = originalHTML;
 
-    // Sangat penting: _validBuktiPendukungFiles sekarang merujuk ke array yang sama
-    // dengan validBuktiPendukungFilesGlobal. Setiap perubahan pada _validBuktiPendukungFiles
-    // akan langsung memengaruhi validBuktiPendukungFilesGlobal.
     _validBuktiPendukungFiles = filesArrayReference;
 
     console.log("initBuktiPendukungUI: _validBuktiPendukungFiles diinisialisasi dengan:", _validBuktiPendukungFiles, Array.isArray(_validBuktiPendukungFiles));
 
 
     if (_buktiPendukungFileInput && _buktiPendukungDropAreaLabel && _uploadBoxContent) {
-        renderBuktiPendukungUI(); // Panggil setelah semua diinisialisasi
+        renderBuktiPendukungUI();
         _buktiPendukungFileInput.addEventListener('change', (event) => processNewBuktiPendukungFiles(event.target.files));
 
         function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
@@ -70,7 +65,7 @@ function renderBuktiPendukungUI() {
 
     if (!Array.isArray(_validBuktiPendukungFiles)) {
         console.error("renderBuktiPendukungUI: _validBuktiPendukungFiles BUKAN array!", _validBuktiPendukungFiles);
-        _validBuktiPendukungFiles = []; // Reset ke array kosong jika bukan array
+        _validBuktiPendukungFiles = [];
     }
 
     if (_validBuktiPendukungFiles.length === 0) {
@@ -87,7 +82,7 @@ function renderBuktiPendukungUI() {
         filesGridContainer.id = 'fileGridContainer';
         filesGridContainer.classList.add('d-flex', 'flex-wrap', 'justify-content-start', 'align-items-stretch', 'gap-2');
 
-        _validBuktiPendukungFiles.forEach((file, index) => { // Aman karena sudah dicek Array.isArray
+        _validBuktiPendukungFiles.forEach((file, index) => {
             const fileBox = document.createElement('div');
             fileBox.classList.add('file-item-box');
 
@@ -169,11 +164,11 @@ function processNewBuktiPendukungFiles(newlySelectedFiles) {
 
     if (!Array.isArray(_validBuktiPendukungFiles)) {
         console.error("processNewBuktiPendukungFiles: _validBuktiPendukungFiles BUKAN array! Membuat array baru.");
-        _validBuktiPendukungFiles = []; // Safety net
+        _validBuktiPendukungFiles = [];
     }
 
     for (const file of newlySelectedFiles) {
-        const validationResult = validateFileGlobal(file); // Gunakan fungsi global
+        const validationResult = validateFileGlobal(file);
         if (validationResult.valid) {
             const isDuplicate = _validBuktiPendukungFiles.some(
                 existingFile => existingFile.name === file.name &&

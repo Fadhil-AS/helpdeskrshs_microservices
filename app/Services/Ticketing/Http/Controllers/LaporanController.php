@@ -25,7 +25,7 @@ class LaporanController extends Controller
     // Membuat ID format YYYYMM_0000001
     private function generateCustomComplaintId(): string
     {
-        $prefix = now()->format('Ym'); // e.g. 202505
+        $prefix = now()->format('Ym');
         $lastLaporan = Laporan::where('ID_COMPLAINT', 'like', $prefix . '_%')->orderBy('ID_COMPLAINT', 'desc')->first();
         $nextNumber = 1;
         if ($lastLaporan) {
@@ -70,7 +70,7 @@ class LaporanController extends Controller
             'ID_KLASIFIKASI' => 'required|string|exists:klasifikasi_pengaduan,ID_KLASIFIKASI',
             'PERMASALAHAN' => 'required|string|max:4000',
             'NO_MEDREC' => 'nullable|string|max:10',
-            'upload_id' => 'required|string', // Tetap dibutuhkan untuk menghapus folder temp
+            'upload_id' => 'required|string',
             'uploaded_files' => 'nullable|array',
             'uploaded_files.*' => 'string',
             'ID_COMPLAINT_REFERENSI' => 'nullable|string|exists:data_complaint,ID_COMPLAINT'
@@ -94,7 +94,7 @@ class LaporanController extends Controller
 
         $laporan->FEEDBACK_PELAPOR = $validatedData['PERMASALAHAN'];
 
-        return $validatedData; // Kembalikan data yang sudah divalidasi
+        return $validatedData;
     }
 
     /**
@@ -115,7 +115,6 @@ class LaporanController extends Controller
                 $fileContents = Storage::disk('local')->get($tempPath);
                 $originalExtension = pathinfo($tempPath, PATHINFO_EXTENSION);
 
-                // Hanya ada file bukti pendukung sekarang
                 $newFilename = $laporan->ID_COMPLAINT . '_bukti_'. $fileCounter . '.' . $originalExtension;
                 $finalPath = 'pengaduan_files/' . $newFilename;
 
@@ -140,7 +139,6 @@ class LaporanController extends Controller
         try {
             $laporan = new Laporan();
 
-            // Panggil fungsi untuk validasi dan persiapan data dasar laporan
             $validatedData = $this->validateAndPrepareLaporanData($request, $laporan);
             if(isset($validatedData['upload_id'])) {
                 $uploadIdForCleanup = $validatedData['upload_id'];
@@ -171,7 +169,7 @@ class LaporanController extends Controller
 
         } catch (ValidationException $e) {
             Log::error('Validation error in storeLaporan:', ['errors' => $e->errors(), 'request_data' => $request->all()]);
-            if ($request->wantsJson()) { // <--- PERUBAHAN DI SINI
+            if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Data tidak valid.', 'errors' => $e->errors()], 422);
             }
             return redirect()->back()->withErrors($e->errors())->withInput();
@@ -182,12 +180,12 @@ class LaporanController extends Controller
                 Storage::disk('local')->deleteDirectory('temp/' . $uploadIdForCleanup);
                 Log::info('Temporary directory deleted due to exception:', ['upload_id' => $uploadIdForCleanup]);
             }
-            if ($request->wantsJson()) { // <--- PERUBAHAN DI SINI
+            if ($request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem saat menyimpan laporan.'], 500);
             }
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem saat menyimpan laporan.')->withInput();
         }
-        if ($request->wantsJson()) { // <--- PERUBAHAN DI SINI
+        if ($request->wantsJson()) {
             return response()->json(['success' => true, 'message' => 'Laporan berhasil dikirim dengan ID Tiket: ' . $laporan->ID_COMPLAINT, 'tiket_id' => $laporan->ID_COMPLAINT]);
         }
         return redirect()->route('ticketing.buat-laporan')->with('success', 'Laporan berhasil dikirim dengan ID Tiket: ' . $laporan->ID_COMPLAINT);
