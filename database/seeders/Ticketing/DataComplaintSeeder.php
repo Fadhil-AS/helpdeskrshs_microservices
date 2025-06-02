@@ -23,12 +23,15 @@ class DataComplaintSeeder extends Seeder
 
         DB::connection('mysql')->table('data_complaint')->insert([
             'ID_COMPLAINT'          => $idPrefix . '_' . $idNumber,
-            'ID_BAGIAN'             => 'B01', // contoh unit kerja tujuan
+            'ID_COMPLAINT_REFERENSI'=> $idPrefix . '_' . $idNumber,
+            'ID_BAGIAN'             => 'B01',
             'ID_KLASIFIKASI'        => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'ID_JENIS_MEDIA'        => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'ID_PENYELESAIAN'       => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'ID_JENIS_LAPORAN'      => $tanggal . str_pad(1, 6, '0', STR_PAD_LEFT),
             'TGL_COMPLAINT'         => Carbon::createFromFormat('d-m-Y', '01-05-2024'),
+            'NAME'                  => $faker->name,
+            'NO_TLPN'               => $faker->e164PhoneNumber,
             'TGL_INSROW'            => now(),
             'STATUS'                => 'Open',
             'EVALUASI_COMPLAINT'    => 'Masalah telah diklarifikasi oleh unit.',
@@ -36,7 +39,6 @@ class DataComplaintSeeder extends Seeder
             'TGL_EVALUASI'          => Carbon::createFromFormat('d-m-Y', '02-05-2024'),
             'GRANDING'              => 'Merah',
             'PETUGAS_PELAPOR'       => $faker->name,
-            'KETERANGAN'            => 'Urgensi tinggi',
             'NO_MEDREC'             => 'RM12345678',
             'PENANGGUNG_JAWAB'      => 'dr. Andi',
             'TGL_SELESAI'           => now(),
@@ -48,6 +50,8 @@ class DataComplaintSeeder extends Seeder
             'INFO_DIREKSI'          => 'Akan ditindaklanjuti dalam rapat koordinasi.',
             'PERMASALAHAN'          => 'Keterlambatan layanan medis di IGD.',
             'KD_PENGADUAN'          => 'KDMED001',
+            'RATING_LAPORAN'        => 'Masalah Belum Terselesaikan',
+            'FEEDBACK_PELAPOR'      => 'Saya merasa tidak puas atas klarifikasinya',
             'created_at'            => now(),
             'updated_at'            => now(),
         ]);

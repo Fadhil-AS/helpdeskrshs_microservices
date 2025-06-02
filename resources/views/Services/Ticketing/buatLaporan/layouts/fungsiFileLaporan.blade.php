@@ -1,282 +1,130 @@
- <script>
-     document.addEventListener('DOMContentLoaded', function() {
-         // --- Fungsi validasi file universal (tetap sama) ---
-         function validateFile(file) {
-             const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-             const maxSize = 5 * 1024 * 1024; // 5MB
-             if (!allowedTypes.includes(file.type)) {
-                 return {
-                     valid: false,
-                     message: `Tipe file tidak diizinkan untuk ${file.name}. Harap unggah JPG, PNG, atau PDF.`
-                 };
-             }
-             if (file.size > maxSize) {
-                 return {
-                     valid: false,
-                     message: `Ukuran file ${file.name} terlalu besar. Maksimal 5MB.`
-                 };
-             }
-             return {
-                 valid: true,
-                 message: ''
-             };
-         }
+<script src="{{ asset('assets/js/ticketing/buatLaporan/validation.js') }}"></script>
+<script src="{{ asset('assets/js/ticketing/buatLaporan/buktiPendukungUI.js') }}"></script>
+<script src="{{ asset('assets/js/ticketing/buatLaporan/formSubmitHandler.js') }}"></script>
 
-         // --- 1. Fungsionalitas untuk "Tambahkan Referensi Tiket Sebelumnya" ---
-         const refTicketFileInput = document.getElementById('refTicketFile');
-         const refTicketFileInfo = document.getElementById('refTicketFileInfo');
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Ambil Elemen DOM ---
+        const buktiPendukungFileInput = document.getElementById('buktiPendukungFile');
+        const buktiPendukungDropAreaLabel = document.getElementById('buktiPendukungDropZone');
+        let uploadBoxContent = null;
+        if (buktiPendukungDropAreaLabel) {
+            uploadBoxContent = buktiPendukungDropAreaLabel.querySelector('.upload-box-content');
+            if (!uploadBoxContent) {
+                console.error("Elemen .upload-box-content TIDAK ditemukan di dalam #buktiPendukungDropZone!");
+            }
+        } else {
+            console.error("Elemen #buktiPendukungDropZone TIDAK ditemukan!");
+        }
+        const buktiErrorContainer = document.getElementById('buktiPendukungFileErrors');
 
-         if (!refTicketFileInput) {
-             console.error("DEBUG: Elemen input 'refTicketFile' TIDAK ditemukan!");
-         }
-         if (!refTicketFileInfo) {
-             console.error("DEBUG: Elemen div 'refTicketFileInfo' TIDAK ditemukan!");
-         }
+        // Array GLOBAL untuk menyimpan file bukti pendukung yang valid dari modul UI
+        // Modul buktiPendukungUI.js akan memanipulasi array ini melalui referensi.
+        let validBuktiPendukungFilesGlobal = [];
 
-         if (refTicketFileInput && refTicketFileInfo) {
-             console.log("DEBUG: Listener untuk 'refTicketFile' sedang ditambahkan.");
-             refTicketFileInput.addEventListener('change', function(event) {
-                 console.log("DEBUG: Event 'change' pada 'refTicketFile' terpicu.");
+        const originalUploadBoxHTMLGlobal = `
+            <div class="initial-prompt text-center">
+                <i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem;"></i>
+                <p class="mt-2 mb-0 upload-box-text">Klik untuk upload <span class="fw-light">atau drag and drop</span></p>
+                <small class="text-muted upload-box-hint">Format: JPG, PNG, PDF (Maks. 5MB).</small>
+            </div>`;
 
-                 const file = event.target.files[0];
-                 refTicketFileInfo.innerHTML = '';
+        const formPengaduan = document.getElementById('formPengaduan');
+        let submitButton = null;
+        if (formPengaduan) {
+            submitButton = formPengaduan.querySelector('button[type="submit"]');
+            if (!submitButton) {
+                console.error("Tombol submit TIDAK ditemukan di dalam #formPengaduan!");
+            }
+        } else {
+            console.error("Form #formPengaduan TIDAK ditemukan!");
+        }
+        const formMessageDiv = document.getElementById('formMessage');
+        if (!formMessageDiv) {
+            console.error("Elemen #formMessage TIDAK ditemukan!");
+        }
 
-                 if (file) {
-                     console.log("DEBUG: File dipilih untuk referensi:", file.name, file.size, file
-                     .type);
-                     const validationResult = validateFile(file);
-                     console.log("DEBUG: Hasil validasi referensi:", validationResult);
+        // Variabel Global untuk route dan token (akan di-pass ke handler)
+        const csrfTokenGlobal = '{{ csrf_token() }}';
+        const uploadFileRouteGlobal = '{{ route('ticketing.upload-file') }}';
+        const storeLaporanRouteGlobal = '{{ route('ticketing.store-laporan') }}';
 
-                     if (validationResult.valid) {
-                         refTicketFileInfo.innerHTML =
-                             `File terpilih: <strong>${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
-                         console.log("DEBUG: Info file referensi ditampilkan.");
-                     } else {
-                         refTicketFileInfo.innerHTML =
-                             `<p class="text-danger">${validationResult.message}</p>`;
-                         refTicketFileInput.value = '';
-                         console.warn("DEBUG: File referensi tidak valid:", validationResult.message);
-                     }
-                 } else {
-                     console.log("DEBUG: Tidak ada file referensi yang dipilih (atau dibatalkan).");
-                 }
-             });
-         }
+        // --- Inisialisasi Modul UI Bukti Pendukung ---
+        if (buktiPendukungFileInput && buktiPendukungDropAreaLabel && uploadBoxContent &&
+            typeof initBuktiPendukungUI === 'function') {
+            initBuktiPendukungUI(
+                buktiPendukungFileInput,
+                buktiPendukungDropAreaLabel,
+                uploadBoxContent,
+                buktiErrorContainer,
+                originalUploadBoxHTMLGlobal,
+                validBuktiPendukungFilesGlobal // Pass array global sebagai referensi
+            );
+        } else {
+            let missing = [];
+            if (!buktiPendukungFileInput) missing.push("#buktiPendukungFile");
+            if (!buktiPendukungDropAreaLabel) missing.push("#buktiPendukungDropZone");
+            if (!uploadBoxContent) missing.push(".upload-box-content in #buktiPendukungDropZone");
+            if (typeof initBuktiPendukungUI !== 'function') missing.push("fungsi initBuktiPendukungUI()");
+            console.warn(
+                `Satu atau lebih elemen/fungsi UI untuk Bukti Pendukung tidak ditemukan: ${missing.join(', ')}. Inisialisasi initBuktiPendukungUI dilewati.`
+            );
+        }
 
-         // --- Fungsionalitas untuk "Bukti Pendukung" ---
-         const buktiPendukungFileInput = document.getElementById('buktiPendukungFile');
-         const buktiPendukungDropAreaLabel = document.querySelector('label[for="buktiPendukungFile"]');
-         const uploadBoxContent = buktiPendukungDropAreaLabel ? buktiPendukungDropAreaLabel.querySelector(
-             '.upload-box-content') : null;
-         const buktiErrorContainer = document.getElementById('buktiPendukungFileErrors');
+        // --- Fungsi Getter untuk File Bukti Pendukung dari Modul UI ---
+        // Ini dipanggil oleh formSubmitHandler untuk mendapatkan file yang akan diunggah
+        function getValidBuktiPendukungFilesFromMain() {
+            // validBuktiPendukungFilesGlobal diisi/dimanipulasi oleh modul buktiPendukungUI.js
+            // melalui referensi array yang di-pass saat initBuktiPendukungUI.
+            return Array.isArray(validBuktiPendukungFilesGlobal) ? validBuktiPendukungFilesGlobal : [];
+        }
 
-         let validBuktiPendukungFiles = [];
+        // --- Fungsi untuk Reset UI Setelah Sukses Submit ---
+        // Ini dipanggil oleh formSubmitHandler setelah laporan berhasil disimpan
+        function resetAllUIAfterSuccess() {
+            if (formPengaduan) formPengaduan.reset();
 
-         const originalUploadBoxHTML = `
-        <div class="initial-prompt text-center">
-            <i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem;"></i>
-            <p class="mt-2 mb-0 upload-box-text">Klik untuk upload <span class="fw-light">atau drag and drop</span></p>
-            <small class="text-muted upload-box-hint">Format: JPG, PNG, atau PDF (Maks. 5MB). Boleh lebih dari satu file.</small>
-        </div>`;
+            // Mengosongkan array validBuktiPendukungFilesGlobal
+            // Karena modul UI memanipulasi array ini via referensi, ini akan mengosongkannya juga di sana.
+            if (Array.isArray(validBuktiPendukungFilesGlobal)) {
+                validBuktiPendukungFilesGlobal.length = 0;
+            } else {
+                validBuktiPendukungFilesGlobal = []; // Jika karena suatu hal bukan array, reset jadi array
+            }
 
-         function renderSelectedFilesUI() {
-             if (!uploadBoxContent) return;
-             uploadBoxContent.innerHTML = '';
 
-             if (validBuktiPendukungFiles.length === 0) {
-                 uploadBoxContent.innerHTML = originalUploadBoxHTML;
-                 buktiPendukungDropAreaLabel.classList.remove('has-files');
-                 uploadBoxContent.style.justifyContent = 'center';
-                 uploadBoxContent.style.alignItems = 'center';
-             } else {
-                 buktiPendukungDropAreaLabel.classList.add('has-files');
-                 uploadBoxContent.style.justifyContent = 'flex-start';
-                 uploadBoxContent.style.alignItems = 'stretch';
+            // Panggil renderBuktiPendukungUI dari modul UI untuk mereset tampilan file
+            if (typeof renderBuktiPendukungUI === 'function') {
+                renderBuktiPendukungUI();
+            } else {
+                console.warn("Fungsi renderBuktiPendukungUI tidak ditemukan untuk mereset UI bukti pendukung.");
+            }
 
-                 const filesGridContainer = document.createElement('div');
-                 filesGridContainer.id = 'fileGridContainer';
-                 filesGridContainer.classList.add('d-flex', 'flex-wrap', 'justify-content-start',
-                     'align-items-stretch', 'gap-2');
+            if (buktiErrorContainer) buktiErrorContainer.innerHTML = '';
+            // Form message akan diurus oleh formSubmitHandler (dihilangkan setelah timeout)
+        }
 
-                 validBuktiPendukungFiles.forEach((file, index) => {
-                     const fileBox = document.createElement('div');
-                     fileBox.classList.add('file-item-box');
-
-                     const previewSection = document.createElement('div');
-                     previewSection.classList.add('file-preview-section');
-                     if (file.type.startsWith('image/')) {
-                         const imgPreview = document.createElement('img');
-                         if (!file.previewSrc) {
-                             file.previewSrc = URL.createObjectURL(file);
-                         }
-                         imgPreview.src = file.previewSrc;
-                         imgPreview.alt = file.name;
-                         previewSection.appendChild(imgPreview);
-                     } else {
-                         const fileIconContainer = document.createElement('div');
-                         fileIconContainer.classList.add('file-icon', 'text-muted');
-                         let iconClass = 'bi-file-earmark-text';
-                         if (file.type === 'application/pdf') iconClass =
-                             'bi-file-earmark-pdf text-danger';
-                         else if (file.type.startsWith('image/')) iconClass =
-                             'bi-file-earmark-image text-info';
-                         fileIconContainer.innerHTML = `<i class="bi ${iconClass}"></i>`;
-                         previewSection.appendChild(fileIconContainer);
-                     }
-                     fileBox.appendChild(previewSection);
-
-                     // File Name & Size Section
-                     const nameAndSizeSection = document.createElement('div');
-                     nameAndSizeSection.classList.add('file-details-section');
-                     const fileName = document.createElement('div');
-                     fileName.classList.add('file-name');
-                     fileName.textContent = file.name;
-                     fileName.title = file.name;
-                     nameAndSizeSection.appendChild(fileName);
-                     const fileSize = document.createElement('div');
-                     fileSize.classList.add('file-size', 'text-muted');
-                     fileSize.textContent = `(${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-                     nameAndSizeSection.appendChild(fileSize);
-                     fileBox.appendChild(nameAndSizeSection);
-
-                     // Remove Button Section
-                     const removeButtonSection = document.createElement('div');
-                     removeButtonSection.classList.add('file-remove-section');
-                     const removeBtn = document.createElement('button');
-                     removeBtn.type = 'button';
-                     removeBtn.classList.add('btn', 'btn-danger', 'btn-remove-file');
-                     removeBtn.innerHTML = '<i class="bi bi-trash text-white"></i> Hapus';
-                     removeBtn.setAttribute('aria-label', `Hapus file ${file.name}`);
-                     removeBtn.onclick = function(event) {
-                         event.stopPropagation();
-                         event.preventDefault();
-                         removeFile(index);
-                     };
-                     removeButtonSection.appendChild(removeBtn);
-                     fileBox.appendChild(removeButtonSection);
-
-                     filesGridContainer.appendChild(fileBox);
-                 });
-                 uploadBoxContent.appendChild(filesGridContainer);
-
-                 // Prompt untuk menambah file lagi
-                 const addMorePrompt = document.createElement('div');
-                 addMorePrompt.classList.add('add-more-prompt', 'text-center', 'mt-auto', 'pt-3');
-                 addMorePrompt.innerHTML = `
-                <div class="initial-prompt">
-                    <i class="bi bi-plus-circle-dotted"></i>
-                    <p class="mt-1 mb-0 small">Klik area ini atau drag & drop untuk menambah file lain</p>
-                </div>`;
-                 uploadBoxContent.appendChild(addMorePrompt);
-             }
-             if (buktiPendukungFileInput) buktiPendukungFileInput.value = '';
-         }
-
-         function removeFile(indexToRemove) {
-             if (indexToRemove < 0 || indexToRemove >= validBuktiPendukungFiles.length) return;
-             const fileToRemove = validBuktiPendukungFiles[indexToRemove];
-             if (fileToRemove.previewSrc) {
-                 URL.revokeObjectURL(fileToRemove.previewSrc);
-             }
-             validBuktiPendukungFiles.splice(indexToRemove, 1);
-             renderSelectedFilesUI();
-             if (buktiErrorContainer) buktiErrorContainer.innerHTML = '';
-         }
-
-         function processNewFiles(newlySelectedFiles) {
-             if (buktiErrorContainer) buktiErrorContainer.innerHTML = '';
-             let filesActuallyAdded = 0;
-
-             for (const file of newlySelectedFiles) {
-                 const validationResult = validateFile(file);
-                 if (validationResult.valid) {
-                     const isDuplicate = validBuktiPendukungFiles.some(
-                         existingFile => existingFile.name === file.name &&
-                         existingFile.size === file.size &&
-                         existingFile.lastModified === file.lastModified
-                     );
-                     if (!isDuplicate) {
-                         validBuktiPendukungFiles.push(file);
-                         filesActuallyAdded++;
-                     } else {
-                         if (buktiErrorContainer) buktiErrorContainer.innerHTML +=
-                             `<p class="mb-1">File ${file.name} sudah ada dalam daftar.</p>`;
-                     }
-                 } else {
-                     if (buktiErrorContainer) buktiErrorContainer.innerHTML +=
-                         `<p class="mb-1">${validationResult.message}</p>`;
-                 }
-             }
-
-             if (filesActuallyAdded > 0) {
-                 renderSelectedFilesUI();
-             } else if (newlySelectedFiles.length > 0 && validBuktiPendukungFiles.length === 0) {
-                 renderSelectedFilesUI();
-             }
-             if (buktiPendukungFileInput) buktiPendukungFileInput.value = '';
-         }
-
-         if (buktiPendukungFileInput && buktiPendukungDropAreaLabel && uploadBoxContent) {
-             renderSelectedFilesUI();
-
-             buktiPendukungFileInput.addEventListener('change', function(event) {
-                 processNewFiles(event.target.files);
-             });
-
-             function preventDefaults(e) {
-                 e.preventDefault();
-                 e.stopPropagation();
-             }
-             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                 buktiPendukungDropAreaLabel.addEventListener(eventName, preventDefaults, false);
-                 document.body.addEventListener(eventName, preventDefaults, false);
-             });
-             ['dragenter', 'dragover'].forEach(eventName => {
-                 buktiPendukungDropAreaLabel.addEventListener(eventName, () =>
-                     buktiPendukungDropAreaLabel.classList.add('highlight'), false);
-             });
-             ['dragleave', 'drop'].forEach(eventName => {
-                 buktiPendukungDropAreaLabel.addEventListener(eventName, () =>
-                     buktiPendukungDropAreaLabel.classList.remove('highlight'), false);
-             });
-             buktiPendukungDropAreaLabel.addEventListener('drop', function(event) {
-                 const dt = event.dataTransfer;
-                 processNewFiles(dt.files);
-             }, false);
-         }
-
-         // Handle form submission (tetap sama, menggunakan validBuktiPendukungFiles)
-         const formPengaduan = document.getElementById('formPengaduan');
-         if (formPengaduan) {
-             formPengaduan.addEventListener('submit', function(event) {
-                 event.preventDefault();
-                 const formData = new FormData(formPengaduan);
-
-                 formData.delete(buktiPendukungFileInput.name);
-
-                 if (refTicketFileInput.files.length > 0) {
-                     const refFile = refTicketFileInput.files[0];
-                     const refValidation = validateFile(refFile);
-                     if (refValidation.valid) {
-                         formData.append('referensi_tiket', refFile);
-                     } else {
-                         alert(`File referensi tiket tidak valid: ${refValidation.message}`);
-                     }
-                 }
-                 validBuktiPendukungFiles.forEach((file, index) => {
-                     formData.append('bukti_pendukung[]', file, file.name);
-                 });
-
-                 console.log('Data yang akan dikirim:');
-                 for (let [key, value] of formData.entries()) {
-                     if (value instanceof File) {
-                         console.log(key, value.name, value.type, value.size);
-                     } else {
-                         console.log(key, value);
-                     }
-                 }
-                 alert('Laporan akan dikirim (simulasi). Cek console untuk data FormData.');
-             });
-         }
-     });
- </script>
+        // --- Inisialisasi Form Submit Handler ---
+        if (formPengaduan && submitButton && formMessageDiv && typeof setupFormSubmitHandler === 'function') {
+            setupFormSubmitHandler(
+                formPengaduan,
+                submitButton,
+                formMessageDiv,
+                getValidBuktiPendukungFilesFromMain, // Fungsi getter untuk file
+                csrfTokenGlobal,
+                uploadFileRouteGlobal,
+                storeLaporanRouteGlobal,
+                resetAllUIAfterSuccess // Fungsi callback untuk reset UI
+            );
+        } else {
+            let missing = [];
+            if (!formPengaduan) missing.push("#formPengaduan");
+            if (!submitButton) missing.push("tombol submit di #formPengaduan");
+            if (!formMessageDiv) missing.push("#formMessage");
+            if (typeof setupFormSubmitHandler !== 'function') missing.push("fungsi setupFormSubmitHandler()");
+            console.error(
+                `Satu atau lebih elemen/fungsi krusial untuk form submit tidak ditemukan: ${missing.join(', ')}. Setup FormSubmitHandler dilewati.`
+            );
+        }
+    });
+</script>

@@ -9,7 +9,7 @@
     <!-- Header -->
     <div class="text-center judul mb-5">
         <h3 class="fw-bold" style="color: #267B84;">Layanan Pengaduan Pasien RSHS Bandung</h3>
-        <p style="margin-top: 2vh;">Kami berkomitmen untuk memberikan pelayanan terbaik. Sampaikan laporan Anda untuk
+        <p style="color: black;">Kami berkomitmen untuk memberikan pelayanan terbaik. Sampaikan laporan Anda untuk
             membantu
             kami meningkatkan kualitas layanan.</p>
     </div>

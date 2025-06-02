@@ -16,6 +16,8 @@
     @include('Services.Ticketing.partials.navbarTicketing')
     @yield('containBuatLaporan')
     @include('Services.Ticketing.buatLaporan.layouts.fungsiFileLaporan')
+    @include('Services.Ticketing.buatLaporan.partials.fungsiKlasifikasi')
+    <script src="{{ asset('assets/js/ticketing/buatLaporan/validationNoTelpon.js') }}"></script>
     @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan')
 </body>
 
