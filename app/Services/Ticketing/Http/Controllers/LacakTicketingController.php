@@ -33,31 +33,28 @@ class LacakTicketingController extends Controller
                 return response()->json(['success' => false, 'message' => 'Laporan tidak ditemukan.'], 404);
             }
 
-            if ($laporan->STATUS !== 'Menunggu Konfirmasi') {
+            $statusMenunggu = ['Menunggu Konfirmasi', 'Menunggu Konfirmasi Pelapor'];
+            if (!in_array($laporan->STATUS, $statusMenunggu)) {
                 return response()->json(['success' => false, 'message' => 'Tiket tidak dalam status menunggu konfirmasi. Status saat ini: ' . $laporan->STATUS], 400);
             }
 
             $tanggapan = $request->tanggapan;
-            $tanggalUntukKolomDatabase = Carbon::now()->toDateString();
-
-            $ratingLaporanString = '';
             $pesanSukses = '';
 
             if ($tanggapan === 'selesai') {
                 $laporan->STATUS = 'Close';
-                $ratingLaporanString = 'Masalah terselesaikan';
-                $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
+                $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
+                $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup. Silakan berikan feedback tambahan jika berkenan.';
             } elseif ($tanggapan === 'belum_selesai') {
                 $laporan->STATUS = 'Banding';
-                $ratingLaporanString = 'Masalah belum terselesaikan';
+                $laporan->RATING_LAPORAN = null;
                 $pesanSukses = 'Terima kasih atas informasinya. Laporan Anda telah diajukan untuk peninjauan kembali (banding).';
             }
 
-            $laporan->RATING_LAPORAN = $ratingLaporanString;
-            $laporan->TGL_INSROW = $tanggalUntukKolomDatabase;
+
+            $laporan->TGL_INSROW = Carbon::now()->toDateString();
             $laporan->save();
 
-            $pesanSukses = ($tanggapan === 'selesai') ? 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.' : 'Terima kasih atas informasinya. Laporan Anda akan kami tindak lanjuti kembali.';
             return response()->json(['success' => true, 'message' => $pesanSukses, 'new_status' => $laporan->STATUS]);
 
         } catch (\Exception $e) {
@@ -198,35 +195,34 @@ class LacakTicketingController extends Controller
 
     public function simpanFeedback(Request $request){
         $validator = Validator::make($request->all(), [
-            'id_complaint' => 'required|string|exists:data_complaint,ID_COMPLAINT',
-            'rating_laporan' => 'required|string|in:Masalah terselesaikan,Masalah belum terselesaikan',
-            'feedback_text_optional' => 'nullable|string|max:1000',
+            'id_complaint'  => 'required|string|exists:data_complaint,ID_COMPLAINT',
+            'rating'        => 'required|integer|min:1|max:5',
+            'feedback_text' => 'nullable|string|max:4000',
         ]);
 
         if ($validator->fails()) {
+            Log::warning('Validasi GAGAL untuk simpanFeedback:', [
+                'id' => $request->id_complaint,
+                'errors' => $validator->errors()->toArray(),
+                'request_data_received' => $request->all()
+            ]);
             return response()->json(['success' => false, 'message' => 'Input untuk feedback tidak valid.', 'errors' => $validator->errors()], 422);
         }
 
         try {
             $laporan = Laporan::find($request->id_complaint);
-            if (!$laporan) {
-                return response()->json(['success' => false, 'message' => 'Laporan tidak ditemukan.'], 404);
-            }
+            if (!$laporan) { /* ... handle not found ... */ }
 
-            $laporan->RATING_LAPORAN = $request->rating_laporan;
-
-            if ($request->filled('feedback_text_optional')) {
-                $laporan->FEEDBACK_PELAPOR = $request->feedback_text_optional;
-            }
+            $laporan->RATING_LAPORAN = (string) $request->rating;
+            $laporan->FEEDBACK_PELAPOR = $request->input('feedback_text', null);
 
             $laporan->TGL_INSROW = Carbon::now()->toDateString();
             $laporan->save();
 
-            return response()->json(['success' => true, 'message' => 'Rating laporan berhasil disimpan!']);
-
+            return response()->json(['success' => true, 'message' => 'Terima kasih atas feedback dan penilaian Anda!']);
         } catch (\Exception $e) {
-            Log::error("Error di simpanFeedback untuk ID {$request->id_complaint}: " . $e->getMessage() . "\nStack trace: " . $e->getTraceAsString());
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server internal saat menyimpan feedback.'], 500);
+                Log::error("Error di simpanFeedback untuk ID {$request->id_complaint}: " . $e->getMessage() . "\nStack trace: " . $e->getTraceAsString());
+                return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server internal saat menyimpan feedback.'], 500);
+            }
         }
-    }
 }
