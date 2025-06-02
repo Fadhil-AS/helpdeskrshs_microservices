@@ -1,4 +1,3 @@
-{{-- footerLacakTicketing.blade.php --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous">
 </script>
@@ -100,7 +99,6 @@
             if (result.success && result.tiket) {
                 const tiket = result.tiket;
 
-                // 1. Buat entri timeline awal "Tiket Dibuat"
                 const initialTimelineEntryHtml = `
                     <div class="timeline-item">
                         <div class="fw-bold">Pelapor <span class="text-muted small fw-normal">${tiket.tanggal_complaint_timelineFormat || 'N/A'}</span></div>
@@ -109,7 +107,6 @@
                     </div>
                 `;
 
-                // 2. Buat HTML untuk riwayat penanganan tambahan dari server (jika ada)
                 const additionalRiwayatHtml = (result.riwayat_penanganan && Array.isArray(result
                         .riwayat_penanganan) && result.riwayat_penanganan.length > 0) ?
                     result.riwayat_penanganan.map(item => `
@@ -121,10 +118,9 @@
                     `).join('') :
                     '';
 
-                // 3. Gabungkan entri awal dengan riwayat tambahan
+
                 const fullRiwayatHtml = initialTimelineEntryHtml + additionalRiwayatHtml;
 
-                // 4. Siapkan HTML untuk seluruh bagian timeline
                 const timelineSectionHtml = `
                     <hr class="my-3">
                     <h5 class="fw-bold">Riwayat Penanganan</h5>
@@ -167,10 +163,10 @@
                 if (tiket.status === 'On Progress' || tiket.status === 'Dalam Proses') statusBadgeClass =
                     'bg-primary';
                 else if (tiket.status === 'Menunggu Konfirmasi Pelapor' || tiket.status === 'Menunggu Konfirmasi')
-                    statusBadgeClass = 'bg-warning text-dark'; // Ditambahkan 'Menunggu Konfirmasi'
+                    statusBadgeClass = 'bg-warning text-dark';
                 else if (tiket.status === 'Close' || tiket.status === 'Selesai') statusBadgeClass = 'bg-success';
                 else if (tiket.status === 'Open' || tiket.status === 'Baru' || tiket.status === 'Banding')
-                    statusBadgeClass = 'btn-simpan text-white'; // Ditambahkan 'Banding'
+                    statusBadgeClass = 'btn-simpan text-white';
 
 
                 hasilArea.innerHTML = `
@@ -292,7 +288,6 @@
                 const inputTiketEl = document.getElementById('inputTiket');
 
                 if (jenisTanggapan === 'belum_selesai') {
-                    // PERUBAHAN: Redirect langsung ke form pengaduan
                     window.location.href = `{{ route('ticketing.buat-laporan') }}?ref=${idComplaint}`;
                 } else if (jenisTanggapan === 'selesai') {
                     if (inputTiketEl) inputTiketEl.value = idComplaint;

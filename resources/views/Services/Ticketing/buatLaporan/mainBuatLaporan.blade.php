@@ -63,9 +63,14 @@
                 </select>
             </div>
 
-            <div class="mb-3" id="wrapper_no_tlpn">
-                <label class="form-label fw-bold">Nomor Telepon</label>
-                <input type="number" class="form-control" placeholder="Contoh: 08123456789" name="NO_TLPN" required>
+            <div class="mb-3">
+                <label for="nomorTelepon" class="form-label fw-bold">Nomor Telepon</label>
+                <input type="tel" class="form-control" id="nomorTelepon" name="nomor_telepon"
+                    placeholder="Contoh: 08123456789" required maxlength="15" pattern="^08\d{0,13}$" inputmode="numeric"
+                    aria-describedby="nomorTeleponHelp nomorTeleponError">
+                <div id="nomorTeleponHelp" class="form-text">Nomor telepon harus diawali dengan "08" dan terdiri dari
+                    10-15 digit angka.</div>
+                <div id="nomorTeleponError" class="invalid-feedback"></div>
             </div>
 
             <div class="mb-3" id="wrapper_no_medrec">
