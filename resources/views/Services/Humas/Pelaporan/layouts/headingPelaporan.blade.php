@@ -12,6 +12,7 @@
     <style>
 
     </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/style.css') }}">
 </head>
 
 <body>
