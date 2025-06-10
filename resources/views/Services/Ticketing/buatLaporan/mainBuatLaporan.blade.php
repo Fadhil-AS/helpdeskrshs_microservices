@@ -13,17 +13,14 @@
         <h3 class="text-center fw-bold" style="color: #007b8a;">Form Pengaduan</h3>
         <p class="text-center">Silakan isi formulir di bawah ini untuk menyampaikan pengaduan Anda.</p>
 
-        {{-- Tempat untuk menampilkan pesan sukses/error dari AJAX --}}
         <div id="formMessage" class="mt-3 mb-3"></div>
 
-        {{-- Menampilkan pesan sukses atau error bawaan Laravel (jika ada redirect manual) --}}
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
         @endif
         @if ($errors->any() && !$request->ajax())
-            {{-- Hanya tampilkan jika bukan request AJAX --}}
             <div class="alert alert-danger">
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -48,7 +45,8 @@
 
             <div class="mb-3" id="wrapper_nama">
                 <label class="form-label fw-bold">Nama Lengkap</label>
-                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME" required>
+                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME"
+                    value="{{ old('NAME', $laporanReferensi->NAME ?? '') }}" required>
             </div>
 
             <div class="mb-3">
@@ -56,7 +54,8 @@
                 <select name="ID_KLASIFIKASI" id="ID_KLASIFIKASI" class="form-select" required>
                     <option value="">Pilih Klasifikasi Pengaduan</option>
                     @foreach ($klasifikasiPengaduan as $klasifikasi)
-                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}">
+                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}"
+                            {{ old('ID_KLASIFIKASI', $laporanReferensi->ID_KLASIFIKASI ?? '') == $klasifikasi->ID_KLASIFIKASI ? 'selected' : '' }}>
                             {{ $klasifikasi->KLASIFIKASI_PENGADUAN }}
                         </option>
                     @endforeach
@@ -67,7 +66,8 @@
                 <label for="nomorTelepon" class="form-label fw-bold">Nomor Telepon</label>
                 <input type="tel" class="form-control" id="nomorTelepon" name="NO_TLPN"
                     placeholder="Contoh: 08123456789" required maxlength="15" pattern="^08\d{0,13}$" inputmode="numeric"
-                    aria-describedby="nomorTeleponHelp nomorTeleponError">
+                    aria-describedby="nomorTeleponHelp nomorTeleponError"
+                    value="{{ old('NO_TLPN', $laporanReferensi->NO_TLPN ?? '') }}">
                 <div id="nomorTeleponHelp" class="form-text">Nomor telepon harus diawali dengan "08" dan terdiri dari
                     10-15 digit angka.</div>
                 <div id="nomorTeleponError" class="invalid-feedback"></div>
@@ -76,13 +76,13 @@
             <div class="mb-3" id="wrapper_no_medrec">
                 <label class="form-label fw-bold">Nomor Rekam Medis (Opsional)</label>
                 <input type="text" class="form-control" placeholder="Masukkan nomor rekam medis jika ada"
-                    name="NO_MEDREC">
+                    name="NO_MEDREC" value="{{ old('NO_MEDREC', $laporanReferensi->NO_MEDREC ?? '') }}">
                 <small class="text-muted">Nomor rekam medis membantu kami mengidentifikasi Anda dengan lebih cepat.</small>
             </div>
 
             <div class="mb-3" id="wrapper_deskripsi">
                 <label class="form-label fw-bold">Deskripsi Pengaduan</label>
-                <textarea class="form-control" rows="4" placeholder="Jelaskan secara detail pengaduan anda" name="PERMASALAHAN"
+                <textarea class="form-control" rows="4" placeholder="Jelaskan secara detail pengaduan anda" name="ISI_COMPLAINT"
                     required></textarea>
             </div>
 

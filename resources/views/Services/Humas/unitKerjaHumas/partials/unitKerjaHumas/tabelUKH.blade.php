@@ -33,106 +33,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Induk A -->
-                    <tr class="parent-row" data-child="group-A">
-                        <td><span class="toggle-icon">▸</span> <strong>A</strong></td>
-                        <td>DIREKTUR UTAMA</td>
-                        <td>DIREKTUR UTAMA</td>
-                        <td>DIRUT</td>
-                        <td><span class="badge bg-success">Aktif</span></td>
-                        <td>21 Januari 2016</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditUnitKerja"
-                                onclick="event.stopPropagation()">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash" onclick="event.stopPropagation()"></i>
-                        </td>
-                    </tr>
-                    <!-- Anak dari A -->
-                    <tr class="child-row group-A" style="display: none;">
-                        <td class="text-end pe-4"><strong>A01</strong></td>
-                        <td>KOMITE MEDIK</td>
-                        <td>KOMITE MEDIK</td>
-                        <td>-</td>
-                        <td><span class="badge bg-success">Aktif</span></td>
-                        <td>21 Januari 2016</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditUnitKerja"
-                                onclick="event.stopPropagation()">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash" onclick="event.stopPropagation()"></i>
-                        </td>
-                    </tr>
-                    <tr class="child-row group-A" style="display: none;">
-                        <td class="text-end pe-4"><strong>A02</strong></td>
-                        <td>KOMITE ETIK DAN HUKUM</td>
-                        <td>KOMITE ETIK DAN HUKUM</td>
-                        <td>-</td>
-                        <td><span class="badge bg-success">Aktif</span></td>
-                        <td>21 Januari 2016</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditUnitKerja"
-                                onclick="event.stopPropagation()">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash" onclick="event.stopPropagation()"></i>
-                        </td>
-                    </tr>
-                    <!-- Induk B -->
-                    <tr class="parent-row" data-child="group-B">
-                        <td><span class="toggle-icon">▸</span> <strong>B</strong></td>
-                        <td>DIREKTORAT SDM DAN PENDIDIKAN</td>
-                        <td>DIREKTORAT SDM DAN PENDIDIKAN</td>
-                        <td>DIRSDM</td>
-                        <td><span class="badge bg-success">Aktif</span></td>
-                        <td>21 Januari 2016</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditUnitKerja"
-                                onclick="event.stopPropagation()">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash" onclick="event.stopPropagation()"></i>
-                        </td>
-                    </tr>
-                    <!-- Anak dari B -->
-                    <tr class="child-row group-B" style="display: none;">
-                        <td class="text-end pe-4"><strong>B01</strong></td>
-                        <td>KOMITE SDM</td>
-                        <td>KOMITE SDM</td>
-                        <td>-</td>
-                        <td><span class="badge bg-success">Aktif</span></td>
-                        <td>21 Januari 2016</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditUnitKerja"
-                                onclick="event.stopPropagation()">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash" onclick="event.stopPropagation()"></i>
-                        </td>
-                    </tr>
-                    <tr class="child-row group-B" style="display: none;">
-                        <td class="text-end pe-4"><strong>B02</strong></td>
-                        <td>KOMITE PENDIDIKAN</td>
-                        <td>KOMITE PENDIDIKAN</td>
-                        <td>-</td>
-                        <td><span class="badge bg-success">Aktif</span></td>
-                        <td>21 Januari 2016</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditUnitKerja"
-                                onclick="event.stopPropagation()">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash" onclick="event.stopPropagation()"></i>
-                        </td>
-                    </tr>
+                    @foreach ($parents as $parent)
+                        @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaRow', [
+                            'unit' => $parent,
+                            'children' => $children,
+                            'level' => 0,
+                        ])
+                    @endforeach
                 </tbody>
             </table>
         </div>
         <!-- Pagination -->
         <div class="d-flex justify-content-end mt-3 page-tabel">
-            <nav aria-label="Page navigation example">
+            {{-- <nav aria-label="Page navigation example">
                 <ul class="pagination mb-0">
                     <li class="page-item">
                         <a class="page-link" href="#" aria-label="Previous">
@@ -148,7 +61,8 @@
                         </a>
                     </li>
                 </ul>
-            </nav>
+            </nav> --}}
+            {{ $parents->appends(request()->except('admin_page'))->links() }}
         </div>
     </div>
 </div>

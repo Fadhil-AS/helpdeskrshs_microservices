@@ -1,6 +1,33 @@
 @extends('Services.Humas.Pelaporan.layouts.headingPelaporan')
 @section('containPelaporHumas')
+
     <div class="container my-5 pt-2">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if ($errors->any() && session('showModal'))
+            {{-- Display validation errors if modal was intended to show --}}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Oops! Ada kesalahan validasi:</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
         <!-- Header Box -->
         <div class="p-4 rounded-top" style="background-color: #00B9AD; color: white;">
             <h5 class="mb-1">Sistem Informasi Pengaduan RSHS Bandung</h5>
@@ -15,13 +42,26 @@
                         data-bs-target="#modalTambahPengaduan">
                         <i class="bi bi-plus-circle"></i> Tambah Pengaduan Baru
                     </button>
-                    <select class="selectpicker" data-style="btn-reset" style="width: 150px;">
-                        <option>Semua Status</option>
-                        <option>Open</option>
-                        <option>On Progress</option>
-                        <option>Close</option>
-                    </select>
-                    <button class="btn btn-reset"><i class="bi bi-filter"></i> Reset</button>
+                    <form action="{{ route('humas.pelaporan-humas') }}" method="GET" id="filterForm"
+                        class="d-flex flex-wrap gap-2">
+
+                        <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
+                            <option value="">Semua Status</option>
+                            <option value="Open" {{ request('status') == 'Open' ? 'selected' : '' }}>Open</option>
+                            <option value="On Progress" {{ request('status') == 'On Progress' ? 'selected' : '' }}>On
+                                Progress</option>
+                            <option value="Menunggu Konfirmasi"
+                                {{ request('status') == 'Menunggu Konfirmasi' ? 'selected' : '' }}>Menunggu Konfirmasi
+                            </option>
+                            <option value="Close" {{ request('status') == 'Close' ? 'selected' : '' }}>Close</option>
+                            <option value="Banding" {{ request('status') == 'Banding' ? 'selected' : '' }}>Banding</option>
+                        </select>
+
+                        <button type="button" class="btn btn-outline-secondary" id="resetFilter"
+                            data-url="{{ route('humas.pelaporan-humas') }}"><i class="bi bi-arrow-counterclockwise"></i>
+                            Reset</button>
+
+                    </form>
                 </div>
                 <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
@@ -45,57 +85,71 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>202405_0000001</strong></td>
-                            <td>Pelayanan Lambat di Poli Mata</td>
-                            <td>Website</td>
-                            <td>Instalasi Rawat Jalan</td>
-                            <td><span class="badge bg-success">Open</span></td>
-                            <td><span class="badge bg-info">Sudah</span></td>
-                            <td><span class="badge bg-warning text-light">Kuning</span></td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#detailModal">
-                                    <i class="bi bi-eye me-2"></i>
-                                </a>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#editModal">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>202405_0000002</strong></td>
-                            <td>Kesalahan Pemberian Obat</td>
-                            <td>WhatsApp</td>
-                            <td>Instalasi Farmasi</td>
-                            <td><span class="badge bg-warning text-light">On Progress</span></td>
-                            <td><span class="badge bg-danger text-light">Belum</span></td>
-                            <td><span class="badge bg-danger">Merah</span></td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#detailModal">
-                                    <i class="bi bi-eye me-2"></i>
-                                </a>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#editModal">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>202405_0000003</strong></td>
-                            <td>Kesalahan Tagihan Rawat Inap</td>
-                            <td>Instagram</td>
-                            <td>Bagian Keuangan</td>
-                            <td><span class="badge bg-danger-subtle text-danger">Close</span></td>
-                            <td><span class="badge bg-info">Sudah</span></td>
-                            <td><span class="badge bg-warning text-light">Kuning</span></td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#detailModal">
-                                    <i class="bi bi-eye me-2"></i>
-                                </a>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#editModal">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        @if (isset($dataComplaint) && $dataComplaint != null)
+                            @foreach ($dataComplaint as $dc)
+                                <tr>
+                                    <td><strong>{{ $dc->ID_COMPLAINT }}</strong></td>
+                                    @if ($dc->JUDUL_COMPLAINT != null)
+                                        <td>{{ $dc->JUDUL_COMPLAINT }}</td>
+                                    @else
+                                        <td>{{ $dc->JUDUL_COMPLAINT }}</td>
+                                    @endif
+
+                                    @if ($dc->JenisMedia && $dc->JenisMedia->JENIS_MEDIA !== null)
+                                        <td>{{ $dc->JenisMedia->JENIS_MEDIA }}</td>
+                                    @else
+                                        <td>Website Helpdesk</td>
+                                    @endif
+
+                                    @if ($dc->unitKerja && $dc->unitKerja->NAMA_BAGIAN != null)
+                                        <td>{{ $dc->unitKerja->NAMA_BAGIAN }}</td>
+                                    @else
+                                        <td>Pelapor eksternal</td>
+                                    @endif
+
+                                    @if ($dc->STATUS == 'Open')
+                                        <td><span class="badge bg-success">Open</span></td>
+                                    @elseif ($dc->STATUS == 'On Progress')
+                                        <td><span class="badge bg-info">On Progress</span></td>
+                                    @elseif ($dc->STATUS == 'Menunggu Konfirmasi')
+                                        <td><span class="badge bg-warning">Menunggu Konfirmasi</span></td>
+                                    @elseif ($dc->STATUS == 'Close')
+                                        <td><span class="badge bg-danger text-light">Close</span></td>
+                                    @elseif ($dc->STATUS == 'Banding')
+                                        <td><span class="badge bg-danger text-light">Banding</span></td>
+                                    @endif
+
+                                    @if ($dc->EVALUASI_COMPLAINT == 'Sudah')
+                                        <td><span class="badge bg-info">Sudah</span></td>
+                                    @elseif ($dc->EVALUASI_COMPLAINT == 'Belum')
+                                        <td><span class="badge bg-danger text-light">Belum</span></td>
+                                    @else
+                                        <td><span class="badge bg-danger text-light">Belum</span></td>
+                                    @endif
+
+                                    @if ($dc->GRANDING == 'Merah')
+                                        <td><span class="badge bg-danger text-light">Merah</span></td>
+                                    @elseif ($dc->GRANDING == 'Kuning')
+                                        <td><span class="badge bg-warning text-light">Kuning</span></td>
+                                    @elseif ($dc->GRANDING == 'Hijau')
+                                        <td><span class="badge bg-success text-light">Hijau</span></td>
+                                    @else
+                                        <td><span class="badge bg-warning text-light">Belum dipilih Grading</span></td>
+                                    @endif
+
+                                    <td>
+                                        <a href="javascript:void(0);" class="view-detail-btn" data-bs-toggle="modal"
+                                            data-bs-target="#detailModal" data-id="{{ $dc->ID_COMPLAINT }}">
+                                            <i class="bi bi-eye me-2"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="edit-complaint-btn" data-bs-toggle="modal"
+                                            data-bs-target="#editModal" data-id="{{ $dc->ID_COMPLAINT }}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -103,23 +157,71 @@
             <!-- Pagination -->
             <div class="d-flex justify-content-end mt-3 page-tabel">
                 <nav aria-label="Page navigation example">
-                    <ul class="pagination mb-0">
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
+                    @if ($dataComplaint->hasPages())
+                        <ul class="pagination mb-0">
+
+                            {{-- Tombol Previous ('<<') --}}
+                            @if ($dataComplaint->onFirstPage())
+                                <li class="page-item disabled" aria-disabled="true">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $dataComplaint->previousPageUrl() }}"
+                                        aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Elemen Nomor Halaman --}}
+                            @foreach ($dataComplaint->links()->elements as $element)
+                                {{-- "Three Dots" Separator (...) --}}
+                                @if (is_string($element))
+                                    <li class="page-item disabled" aria-disabled="true"><span
+                                            class="page-link">{{ $element }}</span></li>
+                                @endif
+
+                                {{-- Array Link Halaman --}}
+                                @if (is_array($element))
+                                    @foreach ($element as $page => $url)
+                                        @if ($page == $dataComplaint->currentPage())
+                                            <li class="page-item active" aria-current="page"><a class="page-link"
+                                                    href="#">{{ $page }}</a></li>
+                                        @else
+                                            <li class="page-item"><a class="page-link"
+                                                    href="{{ $url }}">{{ $page }}</a></li>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
+
+                            {{-- Tombol Next ('>>') --}}
+                            @if ($dataComplaint->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $dataComplaint->nextPageUrl() }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    @endif
                 </nav>
             </div>
         </div>
     </div>
+
+    <script>
+        var detailUrlTemplate = "{{ route('humas.pelaporan-humas.detail', ['id_complaint' => ':id']) }}";
+        var storageBaseUrl = "{{ asset('storage') }}";
+        var updateUrlTemplate = "{{ route('humas.pelaporan-humas.update', ['id_complaint' => ':id']) }}";
+    </script>
 @endsection

@@ -1,4 +1,27 @@
 <div class="container my-5 pt-2">
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Whoops! Terjadi kesalahan validasi:</strong>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <!-- Header Box -->
     <div class="p-4 rounded-top" style="background-color: #00B9AD; color: white;">
         <h5 class="mb-1">Manajemen Data Direksi RSHS Bandung</h5>
@@ -34,83 +57,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><strong>1</strong></td>
-                        <td>DIREKTUR UTAMA</td>
-                        <td><i class="bi bi-telephone me-2"></i>081234567890</td>
-                        <td><span class="badge bg-info">DIRUT</span></td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditDireksi">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#hapusModal">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>2</strong></td>
-                        <td>DIREKTORAT MEDIK DAN PERAWATAN</td>
-                        <td><i class="bi bi-telephone me-2"></i>081234567891</td>
-                        <td><span class="badge bg-info">DIRMED</span></td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditDireksi">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#hapusModal">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>3</strong></td>
-                        <td>DIREKTORAT SDM DAN PENDIDIKAN</td>
-                        <td><i class="bi bi-telephone me-2"></i>081234567892</td>
-                        <td><span class="badge bg-info">DIRSDM</span></td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditDireksi">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#hapusModal">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>4</strong></td>
-                        <td>DIREKTORAT PERENCANAAN DAN KEUANGAN</td>
-                        <td><i class="bi bi-telephone me-2"></i>081234567893</td>
-                        <td><span class="badge bg-info">DIRKEU</span></td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditDireksi">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#hapusModal">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>5</strong></td>
-                        <td>DIREKTORAT LAYANAN OPERASIONAL</td>
-                        <td><i class="bi bi-telephone me-2"></i>081234567894</td>
-                        <td><span class="badge bg-info">DIRUM</span></td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditDireksi">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#hapusModal">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
+                    @foreach ($allDireksi as $direksi)
+                        <tr>
+                            <td><strong>{{ $direksi->ID_DIREKSI }}</strong></td>
+                            <td>{{ $direksi->NAMA }}</td>
+                            <td><i class="bi bi-telephone me-2"></i>{{ $direksi->NO_TLPN }}</td>
+                            <td><span class="badge bg-info">{{ $direksi->KET }}</span></td>
+                            <td>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditDireksi"
+                                    data-id="{{ $direksi->ID_DIREKSI }}" data-nama="{{ $direksi->NAMA }}"
+                                    data-no_tlpn="{{ $direksi->NO_TLPN }}" data-ket="{{ $direksi->KET }}">
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                </a>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#hapusModal"
+                                    data-id="{{ $direksi->ID_DIREKSI }}" data-nama="{{ $direksi->NAMA }}">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
         <div class="d-flex justify-content-end mt-3 page-tabel">
-            <nav aria-label="Page navigation example">
+            {{-- <nav aria-label="Page navigation example">
                 <ul class="pagination mb-0">
                     <li class="page-item">
                         <a class="page-link" href="#" aria-label="Previous">
@@ -126,7 +98,8 @@
                         </a>
                     </li>
                 </ul>
-            </nav>
+            </nav> --}}
+            {{ $allDireksi->links() }}
         </div>
     </div>
 </div>

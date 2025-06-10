@@ -15,8 +15,9 @@ class Laporan extends Model {
     public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = true;
-    // const CREATED_AT = 'TGL_INSROW';
-    // const UPDATED_AT = 'TGL_INSROW';
+    const CREATED_AT = 'TGL_INSROW';
+    const UPDATED_AT = 'TGL_INSROW';
+    protected $appends = ['file_list'];
 
     protected $fillable = [
         'ID_COMPLAINT',
@@ -29,6 +30,7 @@ class Laporan extends Model {
         'TGL_COMPLAINT',
         'NAME',
         'NO_TLPN',
+        'ISI_COMPLAINT',
         'TGL_INSROW',
         'STATUS',
         'EVALUASI_COMPLAINT',
@@ -37,19 +39,30 @@ class Laporan extends Model {
         'GRANDING',
         'PETUGAS_PELAPOR',
         'NO_MEDREC',
-        'PENANGGUNG_JAWAB',
+        // 'PENANGGUNG_JAWAB',
         'TGL_SELESAI',
-        'DATA_PENGADUAN',
+        // 'DATA_PENGADUAN',
         'SMS_DIREKSI',
         'FILE_PENGADUAN',
         'TINDAK_LANJUT_HUMAS',
         'DISPOSISI',
-        'INFO_DIREKSI',
+        // 'INFO_DIREKSI',
         'PERMASALAHAN',
-        'KD_PENGADUAN',
+        // 'KD_PENGADUAN',
         'RATING_LAPORAN',
         'FEEDBACK_PELAPOR',
     ];
+
+    public function getFileListAttribute()
+    {
+        $files = $this->attributes['FILE_PENGADUAN'];
+
+        if ($files) {
+            return explode(';', $files);
+        }
+
+        return [];
+    }
 
     public function previous()
     {

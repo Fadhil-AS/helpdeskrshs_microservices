@@ -9,7 +9,10 @@ class UserComplaint extends Model {
     protected $table = 'user_complaint';
     protected $primaryKey = 'NO_REGISTER';
     public $incrementing = false;
+    // protected $keyType = 'string';
     public $timestamps = true;
+    const CREATED_AT = 'TGL_INSROW';
+    const UPDATED_AT = 'TGL_UPDATE';
 
     protected $fillable = [
         'NO_REGISTER',

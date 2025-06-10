@@ -3,35 +3,38 @@
         <div class="modal-content">
             <div class="modal-header flex-column align-items-start">
                 <h6 class="modal-title" id="modalEditUnitKerjaLabel">Edit Unit Kerja</h6>
-                <small class="mt-1">ID: A</small>
+                <small class="mt-1" id="edit-id-bagian-display"></small>
             </div>
-            <div class="modal-body">
-                <form>
+            <form id="formEditUnitKerja" method="POST" action="">
+                @method('PUT')
+                @csrf
+                <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Bagian</label>
-                        <input type="text" class="form-control" value="DIREKTUR UTAMA">
+                        <label class="form-label fw-bold" for="edit_nama_bagian">Nama Bagian</label>
+                        <input id="edit_nama_bagian" type="text" class="form-control" name="NAMA_BAGIAN" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Singular</label>
-                        <input type="text" class="form-control" value="DIREKTUR UTAMA">
+                        <label for="edit_nama_singular" class="form-label fw-bold">Nama Singular</label>
+                        <input id="edit_nama_singular" type="text" class="form-control" name="NAMA_BAGIAN_SINGULAR"
+                            required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Alternatif</label>
-                        <input type="text" class="form-control" value="DIRUT">
+                        <label for="edit_nama_alternatif" class="form-label fw-bold">Nama Alternatif</label>
+                        <input id="edit_nama_alternatif" type="text" class="form-control" name="NAMA_ALTERNATIF">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Status</label>
-                        <select class="form-select">
-                            <option selected>Aktif</option>
-                            <option>Tidak Aktif</option>
+                        <label for="edit_status" class="form-label fw-bold">Status</label>
+                        <select id="edit_status" class="form-select" name="STATUS" required>
+                            <option value="1">Aktif</option>
+                            <option value="0">Tidak Aktif</option>
                         </select>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
-                <button class="btn text-white btn-simpan">Simpan</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn text-white btn-simpan" type="submit">Simpan</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

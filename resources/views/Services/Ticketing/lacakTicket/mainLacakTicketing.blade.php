@@ -44,8 +44,6 @@
                     </div>
                     <div class="modal-body">
                         <p>Mohon berikan saran dan kritik anda untuk membantu kami meningkatkan layanan.</p>
-                        {{-- Anda bisa menambahkan ID tiket di sini jika mau --}}
-                        {{-- <p>Tiket ID: <strong id="feedbackTicketIdInModal"></strong></p> --}}
                         <div class="mb-3">
                             <label class="form-label fw-bold">Penilaian (1-5)</label>
                             <div id="ratingContainer" class="d-flex gap-1">
@@ -64,7 +62,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary btn-simpan" id="btnSubmitFeedback">Kirim
+                        <button type="button" class="btn btn-primary btn-simpan" id="btnSubmitFeedback"
+                            data-id="">Kirim
                             Feedback</button>
                     </div>
                 </div>
@@ -97,7 +96,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary btn-simpan" id="btnBuatTiketBaruDariModal">Buat Tiket
+                        <button type="button" class="btn btn-primary btn-simpan" id="btnBuatTiketBaruDariModal"
+                            data-id="">Buat Tiket
                             Baru</button>
                     </div>
                 </div>
@@ -105,3 +105,6 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+    <script src="{{ asset('assets/js/Ticketing/lacakTicketing/lacak.js') }}"></script>
+@endpush

@@ -6,41 +6,53 @@
                 <h6 class="modal-title" id="modalTambahUnitKerjaLabel">Tambah Unit Kerja</h6>
                 <small class="mt-1">Isi formulir berikut untuk menambahkan unit kerja baru</small>
             </div>
-            <div class="modal-body">
-                <form>
+            <form method="POST" action="{{ route('humas.unit-kerja-humas.store') }}">
+                <div class="modal-body">
+                    @csrf
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Unit Kerja (Direksi)</label>
-                        <select class="form-select">
-                            <option>Unit Kerja A</option>
-                            <option>Unit Kerja B</option>
+                        <label for="parentUnitKerja" class="form-label fw-bold" for="ID_BAGIAN">Pilih Induk Unit
+                            Kerja</label>
+                        <select id="parentUnitKerja" name="id_parent_bagian" class="form-select" name="ID_BAGIAN"
+                            required>
+                            <option value="" disabled selected>-- Pilih induk unit kerja --</option>
+                            @foreach ($parents as $parentUnit)
+                                <option value="{{ $parentUnit->ID_BAGIAN }}">
+                                    {{ $parentUnit->ID_BAGIAN }} - {{ $parentUnit->NAMA_BAGIAN }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Bagian</label>
-                        <input type="text" class="form-control" placeholder="Masukkan nama bagian">
+                        <label class="form-label fw-bold" for="NAMA_BAGIAN">Nama Bagian</label>
+                        <input type="text" class="form-control" placeholder="Masukkan nama bagian" name="NAMA_BAGIAN"
+                            required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Singular</label>
-                        <input type="text" class="form-control" placeholder="Masukkan nama singular">
+                        <label class="form-label fw-bold" for="NAMA_BAGIAN_SINGULAR">Nama Singular</label>
+                        <input type="text" class="form-control" placeholder="Masukkan nama singular"
+                            name="NAMA_BAGIAN_SINGULAR" required>
                         <small class="text-muted">Jika kosong, akan menggunakan nama bagian</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nama Alternatif</label>
-                        <input type="text" class="form-control" placeholder="Masukkan nama alternatif (opsional)">
+                        <label class="form-label fw-bold" for="NAMA_ALTERNATIF">Nama Alternatif</label>
+                        <input type="text" class="form-control" placeholder="Masukkan nama alternatif (opsional)"
+                            name="NAMA_ALTERNATIF">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Status</label>
-                        <select class="form-select">
-                            <option selected>Aktif</option>
-                            <option>Tidak Aktif</option>
+                        <label class="form-label fw-bold" for="STATUS">Status</label>
+                        <select class="form-select" name="STATUS" required>
+                            <option value="" disabled selected>-- Pilih status --</option>
+                            <option value="1">Aktif</option>
+                            <option value="0">Tidak Aktif</option>
                         </select>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
-                <button class="btn text-white btn-simpan">Tambah</button>
-            </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn text-white btn-simpan" type="submit">Tambah</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

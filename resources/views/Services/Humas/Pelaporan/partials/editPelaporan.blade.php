@@ -1,199 +1,244 @@
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content rounded-4">
-            <div class="modal-body p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h6 class="mb-1">Edit Pengaduan</h6>
-                        <small class="text-muted">ID: 202405_0000001</small>
-                    </div>
-                    <!-- <div class="d-flex align-items-center gap-2">
-                            <div>
-                                <label class="form-label fw-bold mb-0">Status</label>
-                                <select class="form-select form-select-sm">
-                                    <option>Open</option>
-                                    <option>On Progress</option>
-                                    <option>Close</option>
-                                </select>
-                            </div>
-                        </div> -->
-                </div>
+            <form id="editComplaintForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="modal-body p-4">
+                    {{-- Ganti dengan kode ini --}}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        {{-- Bagian Kiri: Judul dan ID --}}
+                        <div class="d-flex flex-column">
+                            <h6 class="mb-1" id="editModalLabel">Edit Pengaduan</h6>
+                            <small class="text-muted" id="editComplaintIdText">ID: -</small>
+                        </div>
 
-                <!-- Tabs -->
-                <ul class="nav nav-tabs mb-3" id="tabEditPengaduan" role="tablist">
-                    <li class="nav-item flex-fill text-center" role="presentation">
-                        <button class="nav-link active w-100" id="tab1Edit-tab" data-bs-toggle="tab"
-                            data-bs-target="#tab1Edit" type="button" role="tab">Informasi Pengaduan</button>
-                    </li>
-                    <li class="nav-item flex-fill text-center" role="presentation">
-                        <button class="nav-link w-100" id="tab3Edit-tab" data-bs-toggle="tab" data-bs-target="#tab3Edit"
-                            type="button" role="tab">Evaluasi &
-                            Penyelesaian</button>
-                    </li>
-                </ul>
-
-                <div class="tab-content" id="tabEditContent">
-                    <!-- Informasi Pengaduan -->
-                    <div class="tab-pane fade show active" id="tab1Edit" role="tabpanel">
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Judul Pengaduan</label>
-                                <input type="text" class="form-control" value="Pelayanaan Lambat di Poli Mata">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Tanggal Pengaduan</label>
-                                <input type="text" class="form-control bg-light" value="01 Mei 2024" readonly>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">No. Telepon</label>
-                                <input type="text" class="form-control" value="081234567890">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold d-block mb-3">Grading</label>
-                                <div class="d-flex justify-content-between align-items-center">
-
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="gradingOptions"
-                                            id="gradingHijau" value="hijau" checked> <label class="form-check-label"
-                                            for="gradingHijau">Hijau</label>
-                                    </div>
-
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="gradingOptions"
-                                            id="gradingKuning" value="kuning">
-                                        <label class="form-check-label" for="gradingKuning">Kuning</label>
-                                    </div>
-
-                                    <div class="form-check form-check-inline me-0"> <input class="form-check-input"
-                                            type="radio" name="gradingOptions" id="gradingMerah" value="merah">
-                                        <label class="form-check-label" for="gradingMerah">Merah</label>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Nama Pelapor</label>
-                                <input type="text" class="form-control" value="Ahmad Sulaiman">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Unit Kerja Tujuan</label>
-                                <select class="form-select">
-                                    <option selected>Instalasi Rawat Jalan</option>
-                                    <option>Unit Kerja Dummy 1</option>
-                                    <option>Unit Kerja Dummy 2</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">No. Medrec</label>
-                                <input type="text" class="form-control" value="RM123456">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Jenis Laporan</label>
-                                <select class="form-select">
-                                    <option selected>Keluhan</option>
-                                    <option>Saran</option>
-                                    <option>Kritik</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Media Pengaduan</label>
-                                <select class="form-select">
-                                    <option selected>Website</option>
-                                    <option>Email</option>
-                                    <option>Telepon</option>
-                                    <option>SMS</option>
-                                    <option>WhatsApp</option>
-                                    <option>Instagram</option>
-                                    <option>Facebook</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Petugas Pelapor</label>
-                                <input type="text" class="form-control" value="Admin Humas">
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label fw-bold">Klasifikasi Pengaduan</label>
-                            <input type="text" class="form-control" value="">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label fw-bold">Deskripsi Pengaduan</label>
-                            <textarea class="form-control" rows="3">Pelayanaan di poli mata sangat lambat. Saya sudah menunggu lebih dari 3 jam tetapi belum dipanggil.</textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Rangkuman Permasalahan</label>
-                            <textarea class="form-control" rows="3">Waktu tunggu pelayanan yang terlalu lama di Poli Mata.</textarea>
+                        {{-- Bagian Kanan: Status --}}
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="editStatus" class="form-label fw-bold mb-0 text-nowrap">Status:</label>
+                            <select class="form-select form-select-sm" id="editStatus" name="STATUS"
+                                style="width: auto;">
+                                <option value="Open">Open</option>
+                                <option value="On Progress">On Progress</option>
+                                <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
+                                <option value="Close">Close</option>
+                                <option value="Banding">Banding</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- Evaluasi & Penyelesaian -->
-                    <div class="tab-pane fade" id="tab3Edit" role="tabpanel">
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Petugas Evaluasi</label>
-                                <input type="text" class="form-control bg-light" value="-" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Tanggal Evaluasi</label>
-                                <input type="text" class="form-control bg-light" value="-" readonly>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Penyelesaian Pengaduan</label>
-                                <select class="form-select">
-                                    <option selected>Dibina</option>
-                                    <option>Diberi Sanksi</option>
-                                    <option>Tidak Lanjut</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Tanggal Selesai</label>
-                                <input type="text" class="form-control bg-light" value="-" readonly>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Klarifikasi Unit</label>
-                            <textarea class="form-control bg-light" rows="3" readonly>Isi klarifikasi oleh unit terkait akan ditampilkan di sini.</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                            <div class="d-flex flex-wrap gap-3 mt-2 bg-light" id="buktiKlarifikasiContainer">
-                                <div class="file-klarifikasi-item"> <a href="images\logoRSHS.png" target=""
-                                        rel="noopener noreferrer" title="foto1.jpg">
-                                        <img src="path/to/image.jpg" alt="Bukti Foto" class="img-fluid rounded mb-1">
-                                        <small class="d-block text-truncate">foto1.jpg</small>
-                                    </a>
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-3" id="tabEditPengaduan" role="tablist">
+                        <li class="nav-item flex-fill text-center" role="presentation">
+                            <button class="nav-link active w-100" id="tab1Edit-tab" data-bs-toggle="tab"
+                                data-bs-target="#tab1Edit" type="button" role="tab">Informasi Pengaduan</button>
+                        </li>
+                        <li class="nav-item flex-fill text-center" role="presentation">
+                            <button class="nav-link w-100" id="tab3Edit-tab" data-bs-toggle="tab"
+                                data-bs-target="#tab3Edit" type="button" role="tab">Evaluasi &
+                                Penyelesaian</button>
+                        </li>
+                    </ul>
+
+
+                    <div class="tab-content" id="tabEditContent">
+                        <!-- Informasi Pengaduan -->
+                        <div class="tab-pane fade show active" id="tab1Edit" role="tabpanel">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editJudul">Judul Pengaduan</label>
+                                    <input type="text" class="form-control" value="Pelayanaan Lambat di Poli Mata"
+                                        id="editJudul" name="JUDUL_COMPLAINT">
                                 </div>
-                                <div class="file-klarifikasi-item"> <a href="path/to/document.pdf" target=""
-                                        rel="noopener noreferrer" class="text-decoration-none text-dark"
-                                        title="dokumen1.pdf">
-                                        <i class="bi bi-file-earmark-pdf display-4 text-danger mb-1"></i> <small
-                                            class="d-block text-truncate">dokumen1.pdf</small>
-                                    </a>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editTanggalPengaduan">Tanggal
+                                        Pengaduan</label>
+                                    <input type="text" class="form-control bg-light" id="editTanggalPengaduan"
+                                        readonly>
                                 </div>
                             </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
+                                    <input type="text" class="form-control" id="editNoTelp" name="NO_TLPN"
+                                        value="081234567890">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold d-block mb-3">Grading</label>
+                                    <div class="d-flex justify-content-between align-items-center">
+
+                                        {{-- FIX: ID dan Label untuk 'Hijau' disamakan --}}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="gradingOptions"
+                                                id="editGradingHijau" value="Hijau">
+                                            <label class="form-check-label" for="editGradingHijau">Hijau</label>
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="gradingOptions"
+                                                id="editGradingKuning" value="Kuning">
+                                            <label class="form-check-label" for="editGradingKuning">Kuning</label>
+                                        </div>
+
+                                        {{-- FIX: Hapus 'checked' default agar dikontrol penuh oleh JS --}}
+                                        <div class="form-check form-check-inline me-0">
+                                            <input class="form-check-input" type="radio" name="gradingOptions"
+                                                id="editGradingMerah" value="Merah">
+                                            <label class="form-check-label" for="editGradingMerah">Merah</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Nama Pelapor</label>
+                                    <input type="text" class="form-control" value="Ahmad Sulaiman"
+                                        id="editNamaPelapor" name="NAME">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Unit Kerja Tujuan</label>
+                                    <select class="form-select" id="editIdBagian" name="ID_BAGIAN" required>
+                                        <option value="" selected disabled>Pilih unit kerja</option>
+                                        @if (isset($unitKerja) && $unitKerja->count() > 0)
+                                            @foreach ($unitKerja as $uK)
+                                                <option value="{{ $uK->ID_BAGIAN }}">{{ $uK->NAMA_BAGIAN }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">No. Medrec</label>
+                                    <input type="text" class="form-control" value="RM123456" id="editNoMedrec"
+                                        name="NO_MEDREC">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editIdJenisLaporan">Jenis Laporan</label>
+                                    <select class="form-select" id="editIdJenisLaporan" name="ID_JENIS_LAPORAN"
+                                        required>
+                                        <option value="" selected disabled>Pilih jenis laporan</option>
+                                        @if (isset($JenisLaporan) && $JenisLaporan->count() > 0)
+                                            @foreach ($JenisLaporan as $jl)
+                                                <option value="{{ $jl->ID_JENIS_LAPORAN }}">{{ $jl->JENIS_LAPORAN }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editIdJenisMedia">Media Pengaduan</label>
+                                    <select class="form-select" id="editIdJenisMedia" name="ID_JENIS_MEDIA" required>
+                                        <option value="" selected disabled>Pilih media</option>
+                                        @if (isset($JenisMedia) && $JenisMedia->count() > 0)
+                                            @foreach ($JenisMedia as $jm)
+                                                <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editPetugasPelapor">Petugas Pelapor</label>
+                                    <input type="text" class="form-control" id="editPetugasPelapor"
+                                        name="PETUGAS_PELAPOR">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editIdKlasifikasi">Klasifikasi
+                                        Pengaduan</label>
+                                    <select class="form-select" data-live-search="true" id="editIdKlasifikasi"
+                                        name="ID_KLASIFIKASI" required>
+                                        <option value="" selected disabled>Pilih klasifikasi pengaduan</option>
+                                        @if (isset($klasifikasiPengaduan) && $klasifikasiPengaduan->count() > 0)
+                                            @foreach ($klasifikasiPengaduan as $kp)
+                                                <option value="{{ $kp->ID_KLASIFIKASI }}">
+                                                    {{ $kp->KLASIFIKASI_PENGADUAN }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
+                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
+                                    Permasalahan</label>
+                                <textarea class="form-control" rows="3" id="editPermasalahan" name="PERMASALAHAN"></textarea>
+                            </div>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Tindak Lanjut Humas</label>
-                            <textarea class="form-control" rows="3">Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
+
+                        <!-- Evaluasi & Penyelesaian -->
+                        <div class="tab-pane fade" id="tab3Edit" role="tabpanel">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Petugas Evaluasi</label>
+                                    <input type="text" class="form-control bg-light" id="editPetugasEvaluasi"
+                                        name="PETUGAS_EVALUASI" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Tanggal Evaluasi</label>
+                                    <input type="text" class="form-control bg-light" id="editTanggalEvaluasi"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold" for="editIdPenyelesaian">Penyelesaian
+                                        Pengaduan</label>
+                                    <select class="form-select" id="editIdPenyelesaian" name="ID_PENYELESAIAN">
+                                        <option value="" selected disabled>Pilih penyelesaian</option>
+                                        @if (isset($penyelesaianPengaduan) && $penyelesaianPengaduan->count() > 0)
+                                            @foreach ($penyelesaianPengaduan as $pp)
+                                                <option value="{{ $pp->ID_PENYELESAIAN }}">
+                                                    {{ $pp->PENYELESAIAN_PENGADUAN }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Tanggal Selesai</label>
+                                    <input type="text" class="form-control bg-light" id="editTanggalSelesai"
+                                        readonly>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
+                                    Unit</label>
+                                <textarea class="form-control bg-light" rows="3" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT"
+                                    readonly></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">File Bukti Klarifikasi</label>
+                                <div class="d-flex flex-wrap gap-3 mt-2 p-2 bg-light rounded"
+                                    id="editBuktiKlarifikasiContainer">
+                                    {{-- Konten file akan diisi oleh JavaScript --}}
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold" for="editTindakLanjutHumasContent">Tindak Lanjut
+                                    Humas</label>
+                                <textarea class="form-control" rows="3" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex justify-content-end gap-2">
-                    <button class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
-                    <button class="btn btn-simpan">Simpan Perubahan</button>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
+                        <button class="btn btn-simpan">Simpan Perubahan</button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>

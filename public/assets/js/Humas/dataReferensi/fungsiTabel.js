@@ -63,16 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 event.preventDefault();
                 const input = row.querySelector('.editable-input');
                 switchToViewMode(row, input.dataset.originalValue);
-            } else if (clicked.classList.contains('btn-inline-delete')) {
-                event.preventDefault();
-                const text = row.querySelector('.editable-text');
-                const id = row.cells[0]?.textContent.trim();
-                if (confirm(`Akan menghapus: "${text.textContent.trim()}"?`)) {
-                    console.log(`Hapus data: ID ${id}, Nilai: ${text.textContent.trim()}`);
-                    alert(
-                        'Simulasi: Data berhasil dihapus. Implementasikan backend sesuai kebutuhan.'
-                    );
-                }
             }
         });
     });

@@ -7,22 +7,33 @@
     <!-- Filter & Action -->
     <div class="bg-white p-3 rounded-bottom shadow-sm">
         <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
-            <div class="d-flex flex-wrap gap-2 grup-tombol">
-                <button class="btn btn-tambah-pengaduan text-white btn-teal" data-bs-toggle="modal"
-                    data-bs-target="#modalTambahAdmin">
-                    <i class="bi bi-plus-circle"></i> Tambah Admin Unit Kerja
-                </button>
-                <select class="selectpicker" data-style="btn-reset">
-                    <option>Semua Unit</option>
-                    <option>Unit A</option>
-                    <option>Unit B</option>
-                    <option>Unit C</option>
-                </select>
-                <select class="selectpicker" data-style="btn-reset">
-                    <option>Semua Status</option>
-                    <option>Tervalidasi</option>
-                    <option>Belum Tervalidasi</option>
-                </select>
+            <div class="d-flex flex-wrap gap-2 ">
+                <div class="grup-tombol">
+                    <button class="btn btn-tambah-pengaduan text-white btn-teal" data-bs-toggle="modal"
+                        data-bs-target="#modalTambahAdmin">
+                        <i class="bi bi-plus-circle"></i> Tambah Admin Unit Kerja
+                    </button>
+                </div>
+                <form id="filterForm" action="{{ route('humas.unit-kerja-humas') }}" method="GET"
+                    class="d-flex flex-wrap gap-2 grup-tombol align-items-center">
+                    <select name="filter_unit" class="form-select" style="width: 150px;">
+                        <option value="">Semua Unit</option>
+                        @foreach ($parents as $parent)
+                            <option value="{{ $parent->ID_BAGIAN }}"
+                                {{ request('filter_unit') == $parent->ID_BAGIAN ? 'selected' : '' }}>
+                                {{ $parent->NAMA_BAGIAN }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <select name="filter_status" class="form-select" style="width: 150px;">
+                        <option value="">Semua Status</option>
+                        <option value="Y" {{ request('filter_status') == 'Y' ? 'selected' : '' }}>Tervalidasi
+                        </option>
+                        <option value="N" {{ request('filter_status') == 'N' ? 'selected' : '' }}>Belum Tervalidasi
+                        </option>
+                    </select>
+                </form>
             </div>
             <div class="input-group" style="width: 250px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
@@ -45,66 +56,57 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><strong>2104_00000200</strong></td>
-                        <td>telkom</td>
-                        <td>Mhs Telkom</td>
-                        <td>Admin</td>
-                        <td>123456</td>
-                        <td><span class="badge bg-success">Tervalidasi</span></td>
-                        <td>21 April 2021</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin">
-                                <i class="bi bi-eye me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash"></i>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>2104_00000201</strong></td>
-                        <td>admin_farmasi</td>
-                        <td>Admin Farmasi</td>
-                        <td>Admin</td>
-                        <td>234567</td>
-                        <td><span class="badge bg-success">Tervalidasi</span></td>
-                        <td>10 Mei 2022</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin">
-                                <i class="bi bi-eye me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash"></i>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>2104_00000202</strong></td>
-                        <td>admin_igd</td>
-                        <td>Admin IGD</td>
-                        <td>Admin</td>
-                        <td>345678</td>
-                        <td><span class="badge bg-warning">Belum Tervalidasi</span></td>
-                        <td>05 Jan 2023</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin">
-                                <i class="bi bi-eye me-2"></i>
-                            </a>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin">
-                                <i class="bi bi-pencil-square me-2"></i>
-                            </a>
-                            <i class="bi bi-trash"></i>
-                        </td>
-                    </tr>
+                    @forelse ($admins as $admin)
+                        <tr>
+                            <td><strong>{{ $admin->NO_REGISTER }}</strong></td>
+                            <td>{{ $admin->USERNAME }}</td>
+                            <td>{{ $admin->NAME }}</td>
+                            <td>{{ $admin->unitKerja->NAMA_BAGIAN ?? 'N/A' }}</td>
+                            <td>{{ $admin->NIP }}</td>
+                            <td>
+                                @if ($admin->VALIDASI == 'Y')
+                                    <span class="badge bg-success">Tervalidasi</span>
+                                @else
+                                    <span class="badge bg-warning">Belum tervalidasi</span>
+                                @endif
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($admin->TGL_INSROW)->locale('id')->isoFormat('DD MMMM YYYY') }}
+                            </td>
+                            <td>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin"
+                                    data-admin='{{ json_encode($admin) }}'>
+                                    <i class="bi bi-eye me-2"></i>
+                                </a>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin"
+                                    data-admin='{{ json_encode($admin) }}'>
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                </a>
+                                <form action="{{ route('humas.user-complaint.destroy', $admin) }}" method="POST"
+                                    class="d-inline"
+                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus admin \'{{ $admin->NAME }}\'?');">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit" class="btn btn-link text-danger p-0"
+                                        style="vertical-align: baseline;" onclick="event.stopPropagation()">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <p class="text-muted">Tidak ada data admin yang ditemukan.</p>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
         <!-- Pagination -->
         <div class="d-flex justify-content-end mt-3 page-tabel">
-            <nav aria-label="Page navigation example">
+            {{-- <nav aria-label="Page navigation example">
                 <ul class="pagination mb-0">
                     <li class="page-item">
                         <a class="page-link" href="#" aria-label="Previous">
@@ -120,7 +122,8 @@
                         </a>
                     </li>
                 </ul>
-            </nav>
+            </nav> --}}
+            {{ $admins->appends(request()->except('page'))->links() }}
         </div>
     </div>
 </div>

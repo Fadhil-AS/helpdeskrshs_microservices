@@ -8,9 +8,12 @@ use App\Services\Ticketing\Models\Laporan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use App\Services\Ticketing\Traits\NotifikasiWhatsappPelapor;
 
 class LacakTicketingController extends Controller
 {
+    use NotifikasiWhatsappPelapor;
+
     public function getLacakTicketing()
     {
         return view('Services.Ticketing.lacakTicket.mainLacakTicketing');
@@ -40,6 +43,7 @@ class LacakTicketingController extends Controller
 
             $tanggapan = $request->tanggapan;
             $pesanSukses = '';
+            $redirectUrl = null;
 
             if ($tanggapan === 'selesai') {
                 $laporan->STATUS = 'Close';
@@ -49,13 +53,18 @@ class LacakTicketingController extends Controller
                 $laporan->STATUS = 'Banding';
                 $laporan->RATING_LAPORAN = null;
                 $pesanSukses = 'Terima kasih atas informasinya. Laporan Anda telah diajukan untuk peninjauan kembali (banding).';
+                $redirectUrl = route('ticketing.buat-laporan', ['ref' => $laporan->ID_COMPLAINT]);
             }
 
 
             $laporan->TGL_INSROW = Carbon::now()->toDateString();
             $laporan->save();
 
-            return response()->json(['success' => true, 'message' => $pesanSukses, 'new_status' => $laporan->STATUS]);
+            if ($tanggapan === 'selesai') {
+                $this->kirimNotifikasiStatusKePelapor($laporan);
+            }
+
+            return response()->json(['success' => true, 'message' => $pesanSukses, 'new_status' => $laporan->STATUS, 'redirect_url' => $redirectUrl]);
 
         } catch (\Exception $e) {
             Log::error("Error di tanggapiPenyelesaian untuk ID {$id_complaint}: " . $e->getMessage() . "\nStack trace: " . $e->getTraceAsString());

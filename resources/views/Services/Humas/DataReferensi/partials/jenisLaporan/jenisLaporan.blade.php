@@ -3,13 +3,17 @@
     <p class="mb-0">Kelola daftar jenis laporan yang digunakan dalam sistem</p>
 </div>
 <div class="bg-white p-3 rounded-bottom shadow-sm">
-    <div class="d-flex flex-column flex-md-row gap-2 align-items-start mb-3" style="max-width: 100%;">
-        <input type="text" class="form-control" placeholder="Masukkan Jenis Laporan Baru" style="max-width: 400px;">
-        <button class="btn btn-tambah-pengaduan text-white">
-            <i class="bi bi-plus-circle me-1"></i> Tambah
-        </button>
-    </div>
-    <div class="table-responsive">
+    <form method="POST" action="{{ route('humas.jenis-laporan.store') }}">
+        @csrf
+        <div class="d-flex flex-column flex-md-row gap-2 align-items-start mb-3" style="max-width: 100%;">
+            <input type="text" class="form-control" placeholder="Masukkan Jenis Laporan Baru"
+                style="max-width: 400px;" name="JENIS_LAPORAN" required>
+            <button class="btn btn-tambah-pengaduan text-white">
+                <i class="bi bi-plus-circle me-1"></i> Tambah
+            </button>
+        </div>
+    </form>
+    <div class="table-responsive" id="tabel-jenis-laporan-container">
         <table class="table align-middle">
             <thead>
                 <tr>
@@ -20,100 +24,46 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>20250415000001</strong></td>
-                    <td class="text-uppercase">
-                        <span class="editable-text">APRESIASI</span>
-                        <input type="text" class="form-control form-control-sm editable-input d-none"
-                            value="APRESIASI">
-                    </td>
-                    <td><span class="badge bg-success">Aktif</span></td>
-                    <td>
-                        <div class="view-mode-actions d-inline-block">
-                            <a href="#" class="btn-inline-edit me-2"><i class="bi bi-pencil-square"></i></a>
-                            <a href="#" class="btn-inline-delete text-danger"><i class="bi bi-trash"></i></a>
-                        </div>
-                        <div class="edit-mode-actions d-inline-block d-none">
-                            <a href="#" class="btn-inline-save text-success me-2"><i
-                                    class="bi bi-check-lg fs-5"></i></a>
-                            <a href="#" class="btn-inline-cancel text-danger"><i class="bi bi-x-lg fs-5"></i></a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>20250415000002</strong></td>
-                    <td class="text-uppercase">
-                        <span class="editable-text">KELUHAN</span>
-                        <input type="text" class="form-control form-control-sm editable-input d-none"
-                            value="KELUHAN">
-                    </td>
-                    <td><span class="badge bg-success">Aktif</span></td>
-                    <td>
-                        <div class="view-mode-actions d-inline-block">
-                            <a href="#" class="btn-inline-edit me-2"><i class="bi bi-pencil-square"></i></a>
-                            <a href="#" class="btn-inline-delete text-danger"><i class="bi bi-trash"></i></a>
-                        </div>
-                        <div class="edit-mode-actions d-inline-block d-none">
-                            <a href="#" class="btn-inline-save text-success me-2"><i
-                                    class="bi bi-check-lg fs-5"></i></a>
-                            <a href="#" class="btn-inline-cancel text-danger"><i class="bi bi-x-lg fs-5"></i></a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>20250415000003</strong></td>
-                    <td class="text-uppercase">
-                        <span class="editable-text">INFORMASI</span>
-                        <input type="text" class="form-control form-control-sm editable-input d-none"
-                            value="APRESIASI">
-                    </td>
-                    <td><span class="badge bg-success">Aktif</span></td>
-                    <td>
-                        <div class="view-mode-actions d-inline-block">
-                            <a href="#" class="btn-inline-edit me-2"><i class="bi bi-pencil-square"></i></a>
-                            <a href="#" class="btn-inline-delete text-danger"><i class="bi bi-trash"></i></a>
-                        </div>
-                        <div class="edit-mode-actions d-inline-block d-none">
-                            <a href="#" class="btn-inline-save text-success me-2"><i
-                                    class="bi bi-check-lg fs-5"></i></a>
-                            <a href="#" class="btn-inline-cancel text-danger"><i class="bi bi-x-lg fs-5"></i></a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>20250415000004</strong></td>
-                    <td class="text-uppercase">
-                        <span class="editable-text">PERTANYAAN</span>
-                        <input type="text" class="form-control form-control-sm editable-input d-none"
-                            value="KELUHAN">
-                    </td>
-                    <td><span class="badge bg-success">Aktif</span></td>
-                    <td>
-                        <div class="view-mode-actions d-inline-block">
-                            <a href="#" class="btn-inline-edit me-2"><i class="bi bi-pencil-square"></i></a>
-                            <a href="#" class="btn-inline-delete text-danger"><i class="bi bi-trash"></i></a>
-                        </div>
-                        <div class="edit-mode-actions d-inline-block d-none">
-                            <a href="#" class="btn-inline-save text-success me-2"><i
-                                    class="bi bi-check-lg fs-5"></i></a>
-                            <a href="#" class="btn-inline-cancel text-danger"><i class="bi bi-x-lg fs-5"></i></a>
-                        </div>
-                    </td>
-                </tr>
+                @forelse($jenisLaporan as $item)
+                    <tr>
+                        <td><strong>{{ $item->ID_JENIS_LAPORAN }}</strong></td>
+                        <td class="text-uppercase">
+                            <span class="editable-text">{{ $item->JENIS_LAPORAN }}</span>
+                            <input type="text" class="form-control form-control-sm editable-input d-none"
+                                value="{{ $item->JENIS_LAPORAN }}" name="JENIS_LAPORAN">
+                        </td>
+                        <td>
+                            @if ($item->STATUS == '1')
+                                <span class="badge bg-success">Aktif</span>
+                            @else
+                                <span class="badge bg-danger">Tidak Aktif</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="view-mode-actions d-inline-block">
+                                <a href="#" class="btn-inline-edit me-2"><i class="bi bi-pencil-square"></i></a>
+                                <a href="#" class="btn-inline-delete text-danger"
+                                    data-url="{{ route('humas.jenis-laporan.destroy', $item->ID_JENIS_LAPORAN) }}"
+                                    data-name="{{ $item->JENIS_LAPORAN }}"><i class="bi bi-trash"></i></a>
+                            </div>
+                            <div class="edit-mode-actions d-inline-block d-none">
+                                <a href="#" class="btn-inline-save text-success me-2"
+                                    data-url="{{ route('humas.jenis-laporan.update', $item->ID_JENIS_LAPORAN) }}"><i
+                                        class="bi bi-check-lg fs-5"></i></a>
+                                <a href="#" class="btn-inline-cancel text-danger"><i
+                                        class="bi bi-x-lg fs-5"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center">Data tidak ditemukan.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
     <div class="d-flex justify-content-end mt-3 page-tabel">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination mb-0">
-                <li class="page-item"><a class="page-link" href="#" aria-label="Previous"><span
-                            aria-hidden="true">&laquo;</span></a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#" aria-label="Next"><span
-                            aria-hidden="true">&raquo;</span></a></li>
-            </ul>
-        </nav>
+        {{ $jenisLaporan->links() }}
     </div>
 </div>

@@ -12,14 +12,22 @@ use Carbon\Carbon;
 use App\Services\Ticketing\Models\Laporan;
 use App\Services\Ticketing\Models\KlasifikasiPengaduan;
 use Illuminate\Validation\ValidationException;
+use App\Services\Ticketing\Traits\NotifikasiWhatsappPelapor;
 
 class LaporanController extends Controller
 {
+    use NotifikasiWhatsappPelapor;
+
     public function getBuatLaporan()
     {
         $klasifikasiPengaduan = KlasifikasiPengaduan::where('STATUS', '1')->get();
         $idComplaintReferensi = request()->query('ref');
-        return view('Services.Ticketing.buatLaporan.mainBuatLaporan', compact('klasifikasiPengaduan', 'idComplaintReferensi'));
+        $laporanReferensi = null;
+
+        if ($idComplaintReferensi) {
+            $laporanReferensi = Laporan::find($idComplaintReferensi);
+        }
+        return view('Services.Ticketing.buatLaporan.mainBuatLaporan', compact('klasifikasiPengaduan', 'idComplaintReferensi', 'laporanReferensi'));
     }
 
     // Membuat ID format YYYYMM_0000001
@@ -68,7 +76,7 @@ class LaporanController extends Controller
             'NAME' => 'nullable|string|max:100',
             'NO_TLPN' => 'nullable|string|max:15',
             'ID_KLASIFIKASI' => 'required|string|exists:klasifikasi_pengaduan,ID_KLASIFIKASI',
-            'PERMASALAHAN' => 'required|string|max:4000',
+            'ISI_COMPLAINT' => 'required|string|max:4000',
             'NO_MEDREC' => 'nullable|string|max:10',
             'upload_id' => 'required|string',
             'uploaded_files' => 'nullable|array',
@@ -85,22 +93,18 @@ class LaporanController extends Controller
         $laporan->NAME = $validatedData['NAME'] ?? null;
         $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
         $laporan->ID_KLASIFIKASI = $validatedData['ID_KLASIFIKASI'];
-        $laporan->PERMASALAHAN = $validatedData['PERMASALAHAN'];
+        $laporan->ISI_COMPLAINT = $validatedData['ISI_COMPLAINT'];
         $laporan->NO_MEDREC = $validatedData['NO_MEDREC'] ?? null;
 
         if (!empty($validatedData['ID_COMPLAINT_REFERENSI'])) {
             $laporan->ID_COMPLAINT_REFERENSI = $validatedData['ID_COMPLAINT_REFERENSI'];
         }
 
-        $laporan->FEEDBACK_PELAPOR = $validatedData['PERMASALAHAN'];
+        $laporan->FEEDBACK_PELAPOR = $validatedData['ISI_COMPLAINT'];
 
         return $validatedData;
     }
 
-    /**
-     * Fungsi processAndStoreFiles untuk memproses, memindahkan, dan memberi nama file.
-     * Mengembalikan string path file yang digabung.
-     */
     private function processAndStoreFiles(Laporan $laporan, ?array $tempFilePaths): ?string
     {
         if (empty($tempFilePaths)) {
@@ -155,6 +159,8 @@ class LaporanController extends Controller
             $laporan->save();
             DB::commit();
             Log::info('Laporan saved successfully:', ['id' => $laporan->ID_COMPLAINT]);
+
+            $this->kirimNotifikasiStatusKePelapor($laporan);
 
             if ($uploadIdForCleanup) {
                 Storage::disk('local')->deleteDirectory('temp/' . $uploadIdForCleanup);
