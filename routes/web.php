@@ -14,6 +14,7 @@ use App\Services\Humas\Http\Controllers\KlasifikasiPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisMediaController;
 use App\Services\Humas\Http\Controllers\PenyelesaianPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisLaporanController;
+use App\Services\UnitKerja\Http\Controllers\DashboardUnitKerjaController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -87,4 +88,10 @@ Route::prefix('humas')->name('humas.')->group(function(){
     Route::post('/jenis-laporan', [JenisLaporanController::class, 'store'])->name('jenis-laporan.store');
     Route::put('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'update'])->name('jenis-laporan.update');
     Route::delete('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'destroy'])->name('jenis-laporan.destroy');
+});
+
+
+Route::prefix('unitKerja')->name('unitKerja.')->group(function(){
+    // dashboard
+    Route::get('/dashboard', action: [DashboardUnitKerjaController::class, 'getDashboard'])->name('dashboard-unitKerja');
 });
