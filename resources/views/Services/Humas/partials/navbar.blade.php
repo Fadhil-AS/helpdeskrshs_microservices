@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
     <div class="container-lg">
         <!-- Logo -->
         <a class="navbar-brand" href="{{ route('humas.pelaporan-humas') }}">

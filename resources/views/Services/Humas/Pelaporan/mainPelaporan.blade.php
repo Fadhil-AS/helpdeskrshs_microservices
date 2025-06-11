@@ -1,7 +1,7 @@
 @extends('Services.Humas.Pelaporan.layouts.headingPelaporan')
 @section('containPelaporHumas')
 
-    <div class="container my-5 pt-2">
+    <div class="container rounded container-tabel my-5 pt-2">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}

@@ -7,10 +7,11 @@
     @include('Services.Humas.DataReferensi.partials.log')
 
     <!-- Tabs -->
+    <div class="container mt-5">
     @include('Services.Humas.DataReferensi.partials.tabsDireksi')
 
     <!-- Tab Content -->
-    <div class="tab-content container my-5 pt-2">
+        <div class="tab-content mt-4">
         <!-- Tabel 1 Klasifikasi Pengaduan & Jenis Media -->
         <div class="tab-pane fade show active" id="tab-klasifikasi" role="tabpanel" aria-labelledby="tab-klasifikasi-tab">
 
