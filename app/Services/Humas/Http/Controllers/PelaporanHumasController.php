@@ -208,6 +208,17 @@ class PelaporanHumasController extends Controller {
                 $updateData['TGL_SELESAI'] = Carbon::now();
             }
 
+            if ($request->filled('ID_PENYELESAIAN')) {
+                $penyelesaian = DB::table('penyelesaian_pengaduan')
+                                  ->where('ID_PENYELESAIAN', $request->input('ID_PENYELESAIAN'))
+                                  ->first();
+                if ($penyelesaian) {
+                    $updateData['DISPOSISI'] = $penyelesaian->PENYELESAIAN_PENGADUAN;
+                }
+            } else {
+                $updateData['DISPOSISI'] = null;
+            }
+
             $complaint->update($updateData);
             if ($complaint->wasChanged('STATUS')) {
                 $this->kirimNotifikasiStatusKePelapor($complaint->fresh());

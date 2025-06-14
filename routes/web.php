@@ -92,6 +92,9 @@ Route::prefix('humas')->name('humas.')->group(function(){
 
 
 Route::prefix('unitKerja')->name('unitKerja.')->group(function(){
-    // dashboard
-    Route::get('/dashboard', action: [DashboardUnitKerjaController::class, 'getDashboard'])->name('dashboard-unitKerja');
+    // dashboard unit kerja
+    Route::get('/dashboard', action: [DashboardUnitKerjaController::class, 'getDashboard'])->name('dashboard');
+    Route::get('/dashboard/detail/{id_complaint}', [DashboardUnitKerjaController::class, 'show'])->name('dashboard.show');
+    Route::post('/dashboard/update/{id_complaint}', [DashboardUnitKerjaController::class, 'update'])->name('dashboard.update');
+
 });

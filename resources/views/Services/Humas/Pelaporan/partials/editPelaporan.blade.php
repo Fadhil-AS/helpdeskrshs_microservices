@@ -204,7 +204,6 @@
                                             @endforeach
                                         @endif
                                     </select>
-
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Selesai</label>
@@ -234,7 +233,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <button class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
+                        <button class="btn btn-outline-danger" data-bs-dismiss="modal" type="button">Batal</button>
                         <button class="btn btn-simpan">Simpan Perubahan</button>
                     </div>
                 </div>

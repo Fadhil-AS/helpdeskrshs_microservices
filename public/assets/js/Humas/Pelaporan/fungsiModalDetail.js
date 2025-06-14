@@ -33,13 +33,13 @@ $(document).ready(function () {
 
                 $('#detailTanggalPengaduan').text(tglComplaint);
                 $('#detailNoTelp').text(data.NO_TLPN || '-');
-                $('#detailKlarifikasiStatus').removeClass().addClass('badge').text(data.EVALUASI_COMPLAINT || 'Belum dipilih');
+                $('#detailKlarifikasiStatus').removeClass().addClass('badge').text(data.EVALUASI_COMPLAINT || 'Belum');
                 if (data.EVALUASI_COMPLAINT === 'Sudah')
                     $('#detailKlarifikasiStatus').addClass('bg-info');
                 else if (data.EVALUASI_COMPLAINT === 'Belum')
                     $('#detailKlarifikasiStatus').addClass('bg-danger text-light');
                 else
-                    $('#detailKlarifikasiStatus').addClass('bg-warning text-light');
+                    $('#detailKlarifikasiStatus').addClass('bg-danger text-light');
                 $('#detailNamaPelapor').text(data.NAME || '-');
                 $('#detailGrading').removeClass().addClass('badge').text(data.GRANDING || 'Belum dipilih Grading');
                 if (data.GRANDING === 'Merah')
@@ -49,7 +49,7 @@ $(document).ready(function () {
                 else if (data.GRANDING === 'Hijau')
                     $('#detailGrading').addClass('bg-success text-light');
                 else
-                    $('#detailGrading').addClass('bg-warning');
+                    $('#detailGrading').addClass('bg-danger text-light');
                 $('#detailNoMedrec').text(data.NO_MEDREC || '-');
                 $('#detailUnitKerja').text(data.unit_kerja ? data.unit_kerja.NAMA_BAGIAN : '-');
                 $('#detailMediaPengaduan').text(data.jenis_media ? data.jenis_media.JENIS_MEDIA : '-');

@@ -90,6 +90,7 @@ class LaporanController extends Controller
         $laporan->TGL_INSROW = Carbon::now()->toDateString();
         $laporan->STATUS = 'Open';
 
+        $laporan->ID_JENIS_MEDIA = '20250613000016';
         $laporan->NAME = $validatedData['NAME'] ?? null;
         $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
         $laporan->ID_KLASIFIKASI = $validatedData['ID_KLASIFIKASI'];

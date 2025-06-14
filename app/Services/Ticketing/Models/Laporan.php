@@ -35,6 +35,7 @@ class Laporan extends Model {
         'STATUS',
         'EVALUASI_COMPLAINT',
         'JUDUL_COMPLAINT',
+        'PETUGAS_EVALUASI',
         'TGL_EVALUASI',
         'GRANDING',
         'PETUGAS_PELAPOR',
@@ -97,5 +98,22 @@ class Laporan extends Model {
     public function jenisLaporan()
     {
         return $this->belongsTo(JenisLaporan::class, 'ID_JENIS_LAPORAN', 'ID_JENIS_LAPORAN');
+    }
+
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? false, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('ID_COMPLAINT', 'like', '%' . $search . '%')
+                  ->orWhere('JUDUL_COMPLAINT', 'like', '%' . $search . '%')
+                  ->orWhereHas('jenisMedia', function ($subQuery) use ($search) {
+                    $subQuery->where('JENIS_MEDIA', 'like', '%' . $search . '%');
+                });
+            });
+        });
+
+        $query->when($filters['status'] ?? false, function ($query, $status) {
+            return $query->where('STATUS', $status);
+        });
     }
 }

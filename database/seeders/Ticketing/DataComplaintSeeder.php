@@ -37,6 +37,7 @@ class DataComplaintSeeder extends Seeder
             'STATUS'                => 'Open',
             'EVALUASI_COMPLAINT'    => 'Masalah telah diklarifikasi oleh unit.',
             'JUDUL_COMPLAINT'       => 'Layanan medis tidak sesuai prosedur',
+            'PETUGAS_EVALUASI'       => $faker->name,
             'TGL_EVALUASI'          => Carbon::createFromFormat('d-m-Y', '02-05-2024'),
             'GRANDING'              => 'Merah',
             'PETUGAS_PELAPOR'       => $faker->name,

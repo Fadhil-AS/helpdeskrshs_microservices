@@ -116,8 +116,7 @@
                         <!-- Klarifikasi Unit -->
                         <div class="mb-3">
                             <strong>Klarifikasi Unit</strong>
-                            <textarea class="form-control bg-light" rows="3" id="detailKlarifikasiUnitContent"
-                                readonly>-</textarea>
+                            <textarea class="form-control bg-light" rows="3" id="detailKlarifikasiUnitContent" readonly>-</textarea>
                         </div>
 
                         <!-- File Bukti Klarifikasi -->
@@ -144,8 +143,7 @@
                         <!-- Tindak Lanjut Humas -->
                         <div class="mb-4">
                             <strong>Tindak Lanjut Humas</strong>
-                            <textarea class="form-control bg-light" rows="3" id="detailTindakLanjutHumasContent"
-                                readonly>Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
+                            <textarea class="form-control bg-light" rows="3" id="detailTindakLanjutHumasContent" readonly>Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">

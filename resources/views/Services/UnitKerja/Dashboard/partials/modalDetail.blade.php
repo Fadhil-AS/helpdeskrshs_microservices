@@ -1,15 +1,16 @@
-<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true"
+    data-url-template="{{ route('unitKerja.dashboard.show', ['id_complaint' => 'PLACEHOLDER']) }}">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content rounded-4">
             <div class="modal-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <h6 class="mb-1">Detail Pengaduan</h6>
-                        <small class="text-muted">ID: 202405_0000001</small>
+                        <small class="text-muted">ID: <span id="detail-id"></span></small>
                     </div>
                     <div>
                         <small class="text-bold">Status: </small>
-                        <span class="badge bg-warning">On Progress</span>
+                        <span id="detail-status-badge"></span>
                     </div>
                 </div>
 
@@ -30,57 +31,56 @@
                     <div class="tab-pane fade show active" id="tab1" role="tabpanel">
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <strong>Judul Pengaduan</strong><br>Pelayanaan Lambat di Poli Mata
+                                <strong>Judul Pengaduan</strong><br><span id="detail-judul"></span>
                             </div>
                             <div class="col-md-6">
-                                <strong>Tanggal Pengaduan</strong><br>01 Mei 2024
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <strong>No. Telepon</strong><br>081234567890
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Grading</strong><br><span class="badge bg-warning text-light">Kuning</span>
+                                <strong>Tanggal Pengaduan</strong><br><span id="detail-tanggal-pengaduan"></span>
                             </div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <strong>Nama Pelapor</strong><br>Ahmad Sulaiman
+                                <strong>No. Telepon</strong><br><span id="detail-no-tlpn"></span>
                             </div>
                             <div class="col-md-6">
-                                <strong>Unit Kerja Tujuan</strong><br>Instalasi Rawat Jalan
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <strong>No. Medrec</strong><br>RM123456
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Jenis Laporan</strong><br>Keluhan
+                                <strong>Grading</strong><br><span id="detail-grading-badge"></span>
                             </div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <strong>Media Pengaduan</strong><br>Website
+                                <strong>Nama Pelapor</strong><br><span id="detail-nama-pelapor"></span>
                             </div>
                             <div class="col-md-6">
-                                <strong>Petugas Pelapor</strong><br>Admin Humas
+                                <strong>Unit Kerja Tujuan</strong><br><span id="detail-unit-kerja"></span>
                             </div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <strong>Klasifikasi Pengaduan</strong><br>-
+                                <strong>No. Medrec</strong><br><span id="detail-no-medrec"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Jenis Laporan</strong><br><span id="detail-jenis-laporan"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <strong>Media Pengaduan</strong><br><span id="detail-media-pengaduan"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Petugas Pelapor</strong><br><span id="detail-petugas-pelapor"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <strong>Klasifikasi Pengaduan</strong><br><span id="detail-klasifikasi"></span>
                             </div>
                         </div>
                         <div class="mb-2">
                             <strong>Deskripsi Pengaduan</strong>
-                            <div class="bg-light p-2 rounded">Pelayanaan di poli mata sangat lambat. Saya sudah
-                                menunggu lebih dari 3 jam tetapi belum dipanggil.</div>
+                            <div class="bg-light p-2 rounded" id="detail-deskripsi"></div>
                         </div>
                         <div class="mb-4">
                             <strong>Rangkuman Permasalahan</strong>
-                            <div class="bg-light p-2 rounded">Waktu tunggu pelayanan yang terlalu lama di Poli Mata.
+                            <div class="bg-light p-2 rounded" id="detail-permasalahan">
                             </div>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
@@ -93,41 +93,40 @@
                     <div class="tab-pane fade" id="tab3" role="tabpanel">
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <strong>Petugas Evaluasi</strong><br>-
+                                <strong>Petugas Evaluasi</strong><br><span id="detail-petugas-evaluasi">-</span>
                             </div>
                             <div class="col-md-6">
-                                <strong>Tanggal Evaluasi</strong><br>-
+                                <strong>Tanggal Evaluasi</strong><br><span id="detail-tanggal-evaluasi"></span>
                             </div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-6">
-                                <strong>Penyelesaian Pengaduan</strong><br>Dibina
+                                <strong>Penyelesaian Pengaduan</strong><br><span id="detail-penyelesaian"></span>
                             </div>
                             <div class="col-md-6">
-                                <strong>Tanggal Selesai</strong><br>-
+                                <strong>Tanggal Selesai</strong><br><span id="detail-tanggal-selesai"></span>
                             </div>
                         </div>
 
                         <!-- Klarifikasi Unit -->
                         <div class="mb-3">
                             <strong>Klarifikasi Unit</strong>
-                            <textarea class="form-control bg-light" rows="3"
-                                readonly>Isi klarifikasi oleh unit terkait akan ditampilkan di sini.</textarea>
+                            <textarea class="form-control bg-light" rows="3" id="detail-klarifikasi-unit" readonly></textarea>
                         </div>
 
                         <!-- File Bukti Klarifikasi -->
                         <div class="mb-3">
                             <strong>File Bukti Klarifikasi</strong>
-                            <div class="d-flex flex-wrap gap-3 mt-2">
+                            <div class="d-flex flex-wrap gap-3 mt-2" id="detail-file-list">
                                 <!-- File preview dummy -->
-                                <div class="border rounded p-2" style="width: 120px; text-align: center;">
+                                {{-- <div class="border rounded p-2" style="width: 120px; text-align: center;">
                                     <img src="path/to/image.jpg" alt="Bukti" class="img-fluid rounded mb-1">
                                     <small class="d-block text-truncate">foto1.jpg</small>
                                 </div>
                                 <div class="border rounded p-2" style="width: 120px; text-align: center;">
                                     <i class="bi bi-file-earmark-pdf fs-1 text-danger"></i>
                                     <small class="d-block text-truncate">dokumen1.pdf</small>
-                                </div>
+                                </div> --}}
                                 <!-- Tambahkan elemen serupa untuk file lainnya -->
                             </div>
                         </div>
@@ -135,8 +134,7 @@
                         <!-- Tindak Lanjut Humas -->
                         <div class="mb-4">
                             <strong>Tindak Lanjut Humas</strong>
-                            <textarea class="form-control bg-light" rows="3"
-                                readonly>Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
+                            <textarea class="form-control bg-light" rows="3" id="detail-tindak-lanjut-humas" readonly></textarea>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
