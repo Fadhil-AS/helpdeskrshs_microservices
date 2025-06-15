@@ -15,6 +15,7 @@ use App\Services\Humas\Http\Controllers\JenisMediaController;
 use App\Services\Humas\Http\Controllers\PenyelesaianPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisLaporanController;
 use App\Services\UnitKerja\Http\Controllers\DashboardUnitKerjaController;
+use App\Services\Admin\Http\Controllers\DashboardAdminController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -98,3 +99,11 @@ Route::prefix('unitKerja')->name('unitKerja.')->group(function(){
     Route::post('/dashboard/update/{id_complaint}', [DashboardUnitKerjaController::class, 'update'])->name('dashboard.update');
 
 });
+
+Route::prefix('admin')->name('admin.')->group(function(){
+    Route::get('/dashboard', action: [DashboardAdminController::class, 'getDashboard'])->name('dashboard');
+});
+
+// Route::prefix(prefix: 'admin')->name('admin.')->group(function(){
+//     Route::get('/dashboard', action: [DashboardAdminController::class, 'getDashboard'])->name('dashboard');
+// });
