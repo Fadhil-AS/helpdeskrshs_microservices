@@ -61,10 +61,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary btn-simpan" id="btnSubmitFeedback"
-                            data-id="">Kirim
-                            Feedback</button>
+                        <button type="button" class="btn btn-simpan" id="btnSubmitFeedback"
+                            data-id="">Kirim Feedback</button>
                     </div>
                 </div>
             </div>
@@ -95,10 +93,9 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary btn-simpan" id="btnBuatTiketBaruDariModal"
-                            data-id="">Buat Tiket
-                            Baru</button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-simpan" id="btnBuatTiketBaruDariModal"
+                            data-id="">Buat Tiket Baru</button>
                     </div>
                 </div>
             </div>
