@@ -61,8 +61,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-simpan" id="btnSubmitFeedback"
-                            data-id="">Kirim Feedback</button>
+                        <button type="button" class="btn btn-simpan" id="btnSubmitFeedback" data-id="">Kirim
+                            Feedback</button>
                     </div>
                 </div>
             </div>
@@ -94,8 +94,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-simpan" id="btnBuatTiketBaruDariModal"
-                            data-id="">Buat Tiket Baru</button>
+                        <button type="button" class="btn btn-simpan" id="btnBuatTiketBaruDariModal" data-id="">Buat Tiket
+                            Baru</button>
                     </div>
                 </div>
             </div>
@@ -103,5 +103,21 @@
     </div>
 @endsection
 @push('scripts')
+    <script>
+        // Menangani klik pada tombol rating
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('rating-btn')) {
+                const clickedButton = event.target;
+                const ratingContainer = clickedButton.closest('#ratingContainer');
+                if (!ratingContainer) return;
+
+                const allButtons = ratingContainer.querySelectorAll('.rating-btn');
+
+                allButtons.forEach(btn => btn.classList.remove('active'));
+
+                clickedButton.classList.add('active');
+            }
+        });
+    </script>
     <script src="{{ asset('assets/js/Ticketing/lacakTicketing/lacak.js') }}"></script>
 @endpush
