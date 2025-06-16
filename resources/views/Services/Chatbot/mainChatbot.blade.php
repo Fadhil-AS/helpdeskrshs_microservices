@@ -26,4 +26,4 @@
     </div>
 </div>
 
-@include('Services.Chatbot.layouts.footerChatbot')
+<script src="{{ asset('assets/js/Chatbot/chatbot.js') }}"></script>
