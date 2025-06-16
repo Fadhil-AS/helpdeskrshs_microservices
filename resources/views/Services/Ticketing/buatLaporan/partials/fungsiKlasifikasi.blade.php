@@ -1,53 +1,73 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
+        // Fungsi untuk menangani perubahan pada dropdown klasifikasi
+        function handleKlasifikasiChange() {
+            const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
+            if (!klasifikasiSelect) return;
 
-        // Daftar ID wrapper field yang akan diatur
-        const fieldsToToggle = [
-            'wrapper_nama',
-            'wrapper_no_tlpn',
-            'wrapper_no_medrec',
-            // 'wrapper_bukti'
-        ];
+            // Ambil elemen-elemen yang akan diubah
+            const fileInput = document.getElementById('buktiPendukungFile');
+            const fileLabel = document.querySelector('label[for="buktiPendukungFile"]');
+            const selectedOptionText = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim().toLowerCase();
 
-        // Daftar field yang persyaratannya diubah (required/tidak)
-        const inputsToToggleRequired = [
-            'NAME',
-            'NO_TLPN'
-        ];
+            // Daftar field yang disembunyikan/ditampilkan untuk kasus Gratifikasi
+            const fieldsToToggle = [
+                'wrapper_nama',
+                'wrapper_no_tlpn',
+                'wrapper_no_medrec',
+            ];
+            const inputsToToggleRequired = [
+                'NAME',
+                'NO_TLPN',
+            ];
 
-        function toggleGratifikasiFields() {
-            // Ambil teks dari opsi yang dipilih
-            const selectedOptionText = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text;
-
-            // Cek apakah teksnya adalah "Gratifikasi" (sesuaikan jika teksnya berbeda)
-            const isGratifikasi = selectedOptionText.trim().toLowerCase() === 'gratifikasi';
-
-            // Lakukan loop untuk menyembunyikan atau menampilkan field
-            fieldsToToggle.forEach(fieldId => {
-                const wrapper = document.getElementById(fieldId);
-                if (wrapper) {
-                    wrapper.style.display = isGratifikasi ? 'none' : '';
-                }
+            // Reset semua field ke kondisi default terlebih dahulu
+            fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
+            fileInput.required = false;
+            fieldsToToggle.forEach(id => {
+                const wrapper = document.getElementById(id);
+                if(wrapper) wrapper.style.display = '';
+            });
+            inputsToToggleRequired.forEach(name => {
+                const input = document.querySelector(`[name="${name}"]`);
+                if(input) input.required = true;
             });
 
-            // Lakukan loop untuk mengubah status 'required' pada input
-            inputsToToggleRequired.forEach(inputName => {
-                const inputElement = document.querySelector(`[name="${inputName}"]`);
-                if (inputElement) {
-                    inputElement.required = !isGratifikasi;
-                }
-            });
 
-            // Field referensi tiket dan deskripsi selalu terlihat, jadi tidak perlu diapa-apakan.
+            // Terapkan logika berdasarkan pilihan
+            if (selectedOptionText === 'sponsorship') {
+                // SPONSORSHIP
+                fileLabel.innerHTML = 'Surat Undangan (Wajib)';
+                fileInput.required = true;
+
+            } else if (selectedOptionText === 'gratifikasi') {
+                // GRATIFIKASI
+                fileLabel.innerHTML = 'Bukti Pendukung (Wajib)';
+                fileInput.required = true;
+
+                // Sembunyikan field lain dan hapus 'required'-nya
+                fieldsToToggle.forEach(fieldId => {
+                    const wrapper = document.getElementById(fieldId);
+                    if (wrapper) {
+                        wrapper.style.display = 'none';
+                    }
+                });
+                inputsToToggleRequired.forEach(inputName => {
+                    const inputElement = document.querySelector(`[name="${inputName}"]`);
+                    if (inputElement) {
+                        inputElement.required = false;
+                    }
+                });
+            }
+
         }
 
         // Tambahkan event listener untuk memanggil fungsi saat pilihan berubah
+        const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
         if (klasifikasiSelect) {
-            klasifikasiSelect.addEventListener('change', toggleGratifikasiFields);
+            klasifikasiSelect.addEventListener('change', handleKlasifikasiChange);
 
-            // Panggil fungsi sekali saat halaman dimuat untuk menangani kasus old value dari server
-            toggleGratifikasiFields();
+            handleKlasifikasiChange();
         }
     });
 </script>

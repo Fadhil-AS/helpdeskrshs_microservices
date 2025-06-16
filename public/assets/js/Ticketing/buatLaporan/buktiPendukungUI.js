@@ -123,7 +123,7 @@ function renderBuktiPendukungUI() {
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.classList.add('btn', 'btn-sm', 'btn-danger', 'btn-remove-file');
-            removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+            removeBtn.innerHTML = '<i class="bi bi-trash text-white"></i>';
             removeBtn.setAttribute('aria-label', `Hapus file ${file.name}`);
             removeBtn.onclick = function(event) {
                 event.stopPropagation();
