@@ -45,13 +45,15 @@
                     <div class="modal-body">
                         <p>Mohon berikan saran dan kritik anda untuk membantu kami meningkatkan layanan.</p>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Penilaian (1-5)</label>
-                            <div id="ratingContainer" class="d-flex gap-1">
-                                <button type="button" class="btn btn-outline-secondary rating-btn">1</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">2</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">3</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">4</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">5</button>
+                            <label class="form-label fw-bold text-center d-block">Penilaian (1-5)</label>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <div id="ratingContainer">
+                                    <button type="button" class="rating-btn">1</button>
+                                    <button type="button" class="rating-btn">2</button>
+                                    <button type="button" class="rating-btn">3</button>
+                                    <button type="button" class="rating-btn">4</button>
+                                    <button type="button" class="rating-btn">5</button>
+                                </div>
                             </div>
                         </div>
                         <div class="mb-3">
