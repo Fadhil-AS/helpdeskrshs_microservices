@@ -15,7 +15,11 @@
 
                         {{-- Bagian Kanan: Status --}}
                         <div class="d-flex align-items-center gap-2">
-                            <label for="editStatus" class="form-label fw-bold mb-0 text-nowrap">Status:</label>
+                            <div>
+                                <small class="text-bold">Status: </small>
+                                <span class="badge bg-success">Open</span>
+                            </div>
+                            {{-- <label for="editStatus" class="form-label fw-bold mb-0 text-nowrap">Status:</label>
                             <select class="form-select form-select-sm" id="editStatus" name="STATUS"
                                 style="width: auto;">
                                 <option value="Open">Open</option>
@@ -23,7 +27,7 @@
                                 <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
                                 <option value="Close">Close</option>
                                 <option value="Banding">Banding</option>
-                            </select>
+                            </select> --}}
                         </div>
                     </div>
 
@@ -53,8 +57,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editTanggalPengaduan">Tanggal
                                         Pengaduan</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalPengaduan"
-                                        readonly>
+                                    <input type="text" class="form-control bg-light" id="editTanggalPengaduan" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -94,8 +97,8 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Pelapor</label>
-                                    <input type="text" class="form-control" value="Ahmad Sulaiman"
-                                        id="editNamaPelapor" name="NAME">
+                                    <input type="text" class="form-control" value="Ahmad Sulaiman" id="editNamaPelapor"
+                                        name="NAME">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Unit Kerja Tujuan</label>
@@ -167,12 +170,14 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
+                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT"
+                                    required></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
                                     Permasalahan</label>
-                                <textarea class="form-control" rows="3" id="editPermasalahan" name="PERMASALAHAN"></textarea>
+                                <textarea class="form-control" rows="3" id="editPermasalahan"
+                                    name="PERMASALAHAN"></textarea>
                             </div>
                         </div>
 
@@ -186,8 +191,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Evaluasi</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalEvaluasi"
-                                        readonly>
+                                    <input type="text" class="form-control bg-light" id="editTanggalEvaluasi" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -207,15 +211,14 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Selesai</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalSelesai"
-                                        readonly>
+                                    <input type="text" class="form-control bg-light" id="editTanggalSelesai" readonly>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
                                     Unit</label>
-                                <textarea class="form-control bg-light" rows="3" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT"
-                                    readonly></textarea>
+                                <textarea class="form-control bg-light" rows="3" id="editKlarifikasiUnitContent"
+                                    name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
@@ -227,7 +230,8 @@
                             <div class="mb-4">
                                 <label class="form-label fw-bold" for="editTindakLanjutHumasContent">Tindak Lanjut
                                     Humas</label>
-                                <textarea class="form-control" rows="3" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
+                                <textarea class="form-control" rows="3" id="editTindakLanjutHumasContent"
+                                    name="TINDAK_LANJUT_HUMAS"></textarea>
                             </div>
                         </div>
                     </div>
