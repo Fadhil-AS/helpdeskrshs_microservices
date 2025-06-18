@@ -102,12 +102,18 @@ class LaporanController extends Controller
             'NO_TLPN.regex' => 'Format nomor telepon tidak valid.'
         ]);
 
+        $jenisMedia = DB::table('jenis_media')->where('JENIS_MEDIA', 'Website Helpdesk')->first();
+        if (!$jenisMedia) {
+            Log::critical("Konfigurasi sistem error: Jenis Media 'Website Helpdesk' tidak ditemukan di database.");
+            throw new \Exception("Konfigurasi Jenis Media tidak ditemukan. Silakan hubungi administrator.");
+        }
+
         $laporan->ID_COMPLAINT = $this->generateCustomComplaintId();
         // Log::info('Generated Laporan ID:', ['id' => $laporan->ID_COMPLAINT]);
         $laporan->TGL_COMPLAINT = Carbon::now()->toDateString();
         $laporan->TGL_INSROW = Carbon::now()->toDateString();
         $laporan->STATUS = 'Open';
-        $laporan->ID_JENIS_MEDIA = '20250613000016';
+        $laporan->ID_JENIS_MEDIA = $jenisMedia->ID_JENIS_MEDIA;
         $laporan->ID_KLASIFIKASI = $validatedData['ID_KLASIFIKASI'];
         $laporan->ISI_COMPLAINT = $validatedData['ISI_COMPLAINT'];
         $laporan->NAME = $validatedData['NAME'] ?? null;

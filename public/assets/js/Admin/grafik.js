@@ -46,6 +46,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
+
+        if (filtered.data.length === 0) {
+            createChart(null); // Panggil ulang dengan null untuk menampilkan pesan "Data Tidak Tersedia"
+            return;
+        }
         const finalBackgroundColor = Array.isArray(config.backgroundColor) ? filtered.colors : config.backgroundColor;
         if(loadingState) loadingState.style.display = 'none';
         chartCanvas.style.display = 'block';
@@ -126,31 +131,65 @@ document.addEventListener('DOMContentLoaded', function () {
     /**
      * Fungsi untuk mengisi dropdown sub-unit.
      */
+    // GANTI LAGI FUNGSI INI DENGAN VERSI FINAL DI BAWAH
     function populateSubUnitFilter(selectedParentId) {
-        subUnitFilter.innerHTML = '<option value="">Semua Sub Unit</option>';
+        const $select = $(subUnitFilter);
+
+        // 1. HANCURKAN instance plugin bootstrap-select yang ada.
+        // Ini akan mengembalikan dropdown ke bentuk <select> HTML standar.
+        $select.selectpicker('destroy');
+
+        // 2. Sekarang kita aman untuk memanipulasi <select> standar.
+        // Kosongkan semua opsi dan tambahkan kembali opsi default.
+        $select.empty().append('<option value="">Semua Sub Unit</option>');
+
+        // 3. Logika untuk mengisi sub-unit (tetap sama)
         if (selectedParentId && typeof AllUnitKerja !== 'undefined') {
             const subUnits = AllUnitKerja.filter(unit => unit.parent_id == selectedParentId);
+
             if (subUnits.length > 0) {
                 subUnits.forEach(unit => {
-                    subUnitFilter.add(new Option(unit.nama, unit.id));
+                    $select.append(new Option(unit.nama, unit.id));
                 });
-                subUnitContainer.style.display = 'inline-block'; // Tampilkan dropdown
+                subUnitContainer.style.display = 'inline-block';
             } else {
-                subUnitContainer.style.display = 'none'; // Sembunyikan jika tidak ada sub unit
+                subUnitContainer.style.display = 'none';
             }
         } else {
-            subUnitContainer.style.display = 'none'; // Sembunyikan jika "Semua Unit Kerja" dipilih
+            subUnitContainer.style.display = 'none';
         }
-        $(subUnitFilter).selectpicker('refresh'); // Refresh tampilan bootstrap-select
+
+        // 4. INISIALISASI KEMBALI plugin pada elemen <select> yang sudah diperbarui.
+        // Ini akan membangun ulang tampilan "fancy" dari awal.
+        $select.selectpicker();
     }
+
+    function handleCategoryChange() {
+        if (categoryFilter.value === 'unitKerja') {
+            unitKerjaContainer.style.display = 'inline-block';
+            // Hanya tampilkan sub-unit container jika ada parent yang dipilih
+            if (unitKerjaFilter.value) {
+                 populateSubUnitFilter(unitKerjaFilter.value); // panggil populate untuk cek
+            } else {
+                 subUnitContainer.style.display = 'none';
+            }
+        } else {
+            unitKerjaContainer.style.display = 'none';
+            subUnitContainer.style.display = 'none';
+        }
+        // Langsung update tampilan chart dari data yang sudah ada
+        createChart(dynamicChartData[categoryFilter.value]);
+    }
+
+    categoryFilter.addEventListener('change', handleCategoryChange);
 
 
     // --- 3. Pendaftaran Event Listeners ---
-    categoryFilter.addEventListener('change', function () {
-        if (dynamicChartData[this.value]) {
-            createChart(dynamicChartData[this.value]);
-        }
-    });
+    // categoryFilter.addEventListener('change', function () {
+    //     if (dynamicChartData[this.value]) {
+    //         createChart(dynamicChartData[this.value]);
+    //     }
+    // });
 
     timeFilter.addEventListener('change', updateCharts);
     subUnitFilter.addEventListener('change', updateCharts);
@@ -162,5 +201,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- 4. Inisialisasi ---
     subUnitContainer.style.display = 'none'; // Sembunyikan sub-unit di awal
+    handleCategoryChange();
     updateCharts();
 });

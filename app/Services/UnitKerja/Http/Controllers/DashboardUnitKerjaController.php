@@ -92,11 +92,12 @@ class DashboardUnitKerjaController extends Controller {
             $updatedComplaint = Laporan::find($id_complaint);
 
             if ($updatedComplaint && $updatedComplaint->NO_TLPN) {
-                $message = "Yth. Bpk/Ibu {$updatedComplaint->NAME},\n\n" .
+                $message = "Yth.\nBapak/Ibu {$updatedComplaint->NAME},\n\n" .
                            "Laporan Anda dengan ID *{$updatedComplaint->ID_COMPLAINT}* telah diperbarui.\n\n" .
                            "Status saat ini: *{$updatedComplaint->STATUS}*.\n" .
                            "Klarifikasi dari unit kami: '{$updatedComplaint->EVALUASI_COMPLAINT}'\n\n" .
-                           "Terima kasih atas perhatian Anda.";
+                           "Terima kasih atas perhatian Anda.".
+                           "\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
 
                 $this->sendWhatsappNotification($updatedComplaint->NO_TLPN, $message);
             }

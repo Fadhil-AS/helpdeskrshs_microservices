@@ -35,8 +35,8 @@ trait NotifikasiWhatsappPelapor {
         $idLaporan = $laporan->ID_COMPLAINT;
         $judulLaporan = $laporan->JUDUL_COMPLAINT ?? substr($laporan->ISI_COMPLAINT, 0, 30) . '...';
 
-        $pesanHeader = "Yth. Bpk/Ibu *" . $namaPelapor . "*,\n\n";
-        $pesanFooter = "\n\nTerima kasih atas kepercayaan Anda kepada layanan kami.";
+        $pesanHeader = "Yth.\nBapak/Ibu *" . $namaPelapor . "*,\n\n";
+        $pesanFooter = "\n\nTerima kasih atas kepercayaan Anda kepada layanan kami"."\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
         $pesanBody = "";
 
         switch ($laporan->STATUS) {

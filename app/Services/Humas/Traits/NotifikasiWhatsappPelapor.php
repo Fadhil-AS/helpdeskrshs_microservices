@@ -36,8 +36,8 @@ trait NotifikasiWhatsappPelapor
         $idLaporan = $laporan->ID_COMPLAINT;
         $judulLaporan = $laporan->JUDUL_COMPLAINT;
 
-        $pesanHeader = "Yth. Bpk/Ibu *" . $namaPelapor . "*,\n\n";
-        $pesanFooter = "\n\nTerima kasih atas kepercayaan Anda.";
+        $pesanHeader = "Yth.\nBapak/Ibu *" . $namaPelapor . "*,\n\n";
+        $pesanFooter = "\n\nTerima kasih atas kepercayaan Anda kepada layanan kami"."\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
         $pesanBody = "";
 
         switch ($laporan->STATUS) {

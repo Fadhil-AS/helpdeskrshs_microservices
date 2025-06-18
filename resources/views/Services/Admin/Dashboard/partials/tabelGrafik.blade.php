@@ -28,8 +28,8 @@
                 <div id="unitKerjaFilterContainer" style="display: none;">
                     <select class="selectpicker select-panjang" data-style="btn-reset" data-live-search="true"
                         id="unitKerjaFilter">
-                        <option>Semua Unit Kerja</option>
-                        @foreach ($unitKerjaList->where('ID_PARENT_BAGIAN', null) as $unit)
+                        <option value="">Semua Unit Kerja</option>
+                        @foreach ($unitKerjaList as $unit)
                             <option value="{{ $unit->ID_BAGIAN }}">{{ $unit->NAMA_BAGIAN }}</option>
                         @endforeach
                     </select>
@@ -38,7 +38,7 @@
                 <div id="subUnitFilterContainer" style="display: none;">
                     <select class="selectpicker select-panjang" data-style="btn-reset" data-live-search="true"
                         id="subUnitFilter">
-                        <option>Semua Sub Unit</option>
+                        <option value="">Semua Sub Unit</option>
                         {{-- @foreach ($unitKerjaList as $unit)
                             <option value="{{ $unit->ID_BAGIAN }}">{{ $unit->NAMA_BAGIAN_SINGULAR }}</option>
                         @endforeach --}}
