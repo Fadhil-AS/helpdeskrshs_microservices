@@ -23,7 +23,9 @@ trait NotifikasiWhatsappPelapor {
             }
 
         } catch (\Exception $e) {
-            Log::error('Gagal mengirim notifikasi WA ke pelapor: ' . $e->getMessage());
+            Log::error('Gagal mengirim notifikasi WA ke pelapor: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
@@ -31,7 +33,7 @@ trait NotifikasiWhatsappPelapor {
     {
         $namaPelapor = $laporan->NAME;
         $idLaporan = $laporan->ID_COMPLAINT;
-        $judulLaporan = $laporan->JUDUL_COMPLAINT ?? 'Laporan Anda';
+        $judulLaporan = $laporan->JUDUL_COMPLAINT ?? substr($laporan->ISI_COMPLAINT, 0, 30) . '...';
 
         $pesanHeader = "Yth. Bpk/Ibu *" . $namaPelapor . "*,\n\n";
         $pesanFooter = "\n\nTerima kasih atas kepercayaan Anda kepada layanan kami.";
@@ -75,13 +77,20 @@ trait NotifikasiWhatsappPelapor {
             return;
         }
 
-        Http::withHeaders(['Authorization' => $token])
+        $response = Http::withHeaders(['Authorization' => $token])
             ->post($apiUrl, [
                 'target' => $target,
                 'message' => $message,
                 'countryCode' => '62',
             ]);
 
-        Log::info('Notifikasi status terkirim ke pelapor: ' . $target);
+        if ($response->successful()) {
+            Log::info('Notifikasi status berhasil terkirim ke pelapor: ' . $target, ['response' => $response->json()]);
+        } else {
+            Log::error('Gagal mengirim notifikasi status ke pelapor: ' . $target, [
+                'status' => $response->status(),
+                'response' => $response->body()
+            ]);
+        }
     }
 }

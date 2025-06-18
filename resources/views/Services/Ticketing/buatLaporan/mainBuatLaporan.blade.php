@@ -31,7 +31,8 @@
         @endif
 
         <form id="formPengaduan" method="POST" action="{{ route('ticketing.store-laporan') }}"
-            enctype="multipart/form-data">
+            data-upload-url="{{ route('ticketing.upload-file') }}" data-csrf-token="{{ csrf_token() }}"
+            data-redirect-url="{{ url('/') }}" enctype="multipart/form-data" novalidate>
             @csrf
 
             @if (isset($idComplaintReferensi) && !empty($idComplaintReferensi))
@@ -87,7 +88,8 @@
             </div>
 
             <div class="mb-4" id="wrapper_bukti">
-                <label for="buktiPendukungFile" class="form-label fw-bold">Bukti Pendukung (Opsional)</label>
+                <label for="buktiPendukungFile" class="form-label fw-bold" id="buktiPendukungLabel">Bukti Pendukung
+                    (Opsional)</label>
                 <input type="file" id="buktiPendukungFile" name="bukti_pendukung[]" class="d-none"
                     accept=".jpg, .jpeg, .png, .pdf" multiple>
 

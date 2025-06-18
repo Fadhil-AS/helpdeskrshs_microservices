@@ -1,5 +1,26 @@
+const form = document.getElementById('formPengaduan');
+const submitButton = form ? form.querySelector('button[type="submit"]') : null;
+const formMessageDiv = document.getElementById('formMessage');
+
+if (typeof setupFormSubmitHandler === 'function' && form) {
+    setupFormSubmitHandler(
+       form,
+       submitButton,
+       formMessageDiv,
+       () => _validBuktiPendukungFiles,
+       '{{ csrf_token() }}',
+       '{{ route("ticketing.upload-file") }}',
+       '{{ route("ticketing.store-laporan") }}',
+       () => {
+           form.reset();
+           _validBuktiPendukungFiles.length = 0;
+           if(typeof renderBuktiPendukungUI === 'function') renderBuktiPendukungUI();
+       }
+   );
+}
+
 function setupFormSubmitHandler(
-    formPengaduan,
+    form,
     submitButton,
     formMessageDiv,
     getValidBuktiPendukungFiles,
@@ -11,7 +32,41 @@ function setupFormSubmitHandler(
     if (formPengaduan && submitButton) {
         formPengaduan.addEventListener('submit', async function(event) {
             event.preventDefault();
+
             if (formMessageDiv) formMessageDiv.innerHTML = '';
+            form.classList.remove('was-validated');
+            // if (!form.checkValidity()) {
+            //     form.classList.add('was-validated');
+            //     const firstInvalid = form.querySelector(':invalid:not(fieldset)');
+            //     if (firstInvalid) {
+            //         firstInvalid.focus();
+            //     }
+            //     return;
+            // }
+
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                const firstInvalid = form.querySelector(':invalid:not(fieldset)');
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+
+            const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
+            const selectedKlasifikasi = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim().toLowerCase();
+            const buktiFiles = getValidBuktiPendukungFiles();
+
+            if ((selectedKlasifikasi === 'Gratifikasi' || selectedKlasifikasi === 'Sponsorship') && buktiFiles.length === 0) {
+                if (formMessageDiv) {
+                    formMessageDiv.innerHTML = `<div class="alert alert-danger">Untuk klasifikasi '${selectedKlasifikasi}', bukti pendukung wajib diunggah.</div>`;
+                }
+                const dropzone = document.getElementById('buktiPendukungDropZone');
+                if (dropzone) {
+                    dropzone.style.border = '2px dashed red';
+                    setTimeout(() => { dropzone.style.border = ''; }, 3000);
+                }
+                return;
+            }
+
             submitButton.disabled = true;
             submitButton.innerHTML =
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim Laporan...';

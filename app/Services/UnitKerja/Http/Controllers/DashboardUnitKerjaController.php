@@ -74,7 +74,7 @@ class DashboardUnitKerjaController extends Controller {
                     'EVALUASI_COMPLAINT' => $request->input('klarifikasi_unit'),
                     'PETUGAS_EVALUASI'   => $request->input('PETUGAS_EVALUASI'),
                     'TGL_EVALUASI'       => $request->input('TGL_EVALUASI'),
-                    'STATUS'             => 'Menunggu Konfirmasi',
+                    'STATUS'             => 'On Progress',
                     'TGL_SELESAI'        => Carbon::now(),
                 ];
 
@@ -96,7 +96,6 @@ class DashboardUnitKerjaController extends Controller {
                            "Laporan Anda dengan ID *{$updatedComplaint->ID_COMPLAINT}* telah diperbarui.\n\n" .
                            "Status saat ini: *{$updatedComplaint->STATUS}*.\n" .
                            "Klarifikasi dari unit kami: '{$updatedComplaint->EVALUASI_COMPLAINT}'\n\n" .
-                           "Mohon Konfirmasi pada fitur Lacak Ticketing\n\n" .
                            "Terima kasih atas perhatian Anda.";
 
                 $this->sendWhatsappNotification($updatedComplaint->NO_TLPN, $message);

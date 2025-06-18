@@ -72,36 +72,48 @@ class LaporanController extends Controller
 
     private function validateAndPrepareLaporanData(Request $request, Laporan $laporan): array
     {
-        $validatedData = $request->validate([
-            'NAME' => 'nullable|string|max:100',
-            'NO_TLPN' => 'nullable|string|max:15',
+        $klasifikasi = KlasifikasiPengaduan::find($request->ID_KLASIFIKASI);
+        $klasifikasiText = $klasifikasi ? strtolower($klasifikasi->KLASIFIKASI_PENGADUAN) : '';
+
+        $rules = [
             'ID_KLASIFIKASI' => 'required|string|exists:klasifikasi_pengaduan,ID_KLASIFIKASI',
             'ISI_COMPLAINT' => 'required|string|max:4000',
-            'NO_MEDREC' => 'nullable|string|max:10',
             'upload_id' => 'required|string',
             'uploaded_files' => 'nullable|array',
             'uploaded_files.*' => 'string',
-            'ID_COMPLAINT_REFERENSI' => 'nullable|string|exists:data_complaint,ID_COMPLAINT'
+            'ID_COMPLAINT_REFERENSI' => 'nullable|string|exists:data_complaint,ID_COMPLAINT',
+            'NO_MEDREC' => 'nullable|string|max:10',
+        ];
+
+        if ($klasifikasiText === 'gratifikasi') {
+            $rules['NAME'] = 'nullable|string|max:100';
+            $rules['NO_TLPN'] = 'nullable|string|max:15';
+            $rules['uploaded_files'] = 'required|array|min:1';
+        } else {
+            $rules['NAME'] = 'required|string|max:100';
+            $rules['NO_TLPN'] = 'required|string|max:15|regex:/^08\d{8,13}$/';
+            if ($klasifikasiText === 'sponsorship') {
+                 $rules['uploaded_files'] = 'required|array|min:1';
+            }
+        }
+
+        $validatedData = $request->validate($rules, [
+            'uploaded_files.required' => 'Bukti pendukung wajib diisi untuk klasifikasi ini.',
+            'NO_TLPN.regex' => 'Format nomor telepon tidak valid.'
         ]);
 
         $laporan->ID_COMPLAINT = $this->generateCustomComplaintId();
-        Log::info('Generated Laporan ID:', ['id' => $laporan->ID_COMPLAINT]);
+        // Log::info('Generated Laporan ID:', ['id' => $laporan->ID_COMPLAINT]);
         $laporan->TGL_COMPLAINT = Carbon::now()->toDateString();
         $laporan->TGL_INSROW = Carbon::now()->toDateString();
         $laporan->STATUS = 'Open';
-
         $laporan->ID_JENIS_MEDIA = '20250613000016';
-        $laporan->NAME = $validatedData['NAME'] ?? null;
-        $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
         $laporan->ID_KLASIFIKASI = $validatedData['ID_KLASIFIKASI'];
         $laporan->ISI_COMPLAINT = $validatedData['ISI_COMPLAINT'];
+        $laporan->NAME = $validatedData['NAME'] ?? null;
+        $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
         $laporan->NO_MEDREC = $validatedData['NO_MEDREC'] ?? null;
-
-        if (!empty($validatedData['ID_COMPLAINT_REFERENSI'])) {
-            $laporan->ID_COMPLAINT_REFERENSI = $validatedData['ID_COMPLAINT_REFERENSI'];
-        }
-
-        $laporan->FEEDBACK_PELAPOR = $validatedData['ISI_COMPLAINT'];
+        $laporan->ID_COMPLAINT_REFERENSI = $validatedData['ID_COMPLAINT_REFERENSI'] ?? null;
 
         return $validatedData;
     }

@@ -34,12 +34,14 @@ $(document).ready(function () {
                 $('#detailTanggalPengaduan').text(tglComplaint);
                 $('#detailNoTelp').text(data.NO_TLPN || '-');
                 $('#detailKlarifikasiStatus').removeClass().addClass('badge').text(data.EVALUASI_COMPLAINT || 'Belum');
-                if (data.EVALUASI_COMPLAINT === 'Sudah')
-                    $('#detailKlarifikasiStatus').addClass('bg-info');
-                else if (data.EVALUASI_COMPLAINT === 'Belum')
-                    $('#detailKlarifikasiStatus').addClass('bg-danger text-light');
-                else
-                    $('#detailKlarifikasiStatus').addClass('bg-danger text-light');
+                var klarifikasiStatusBadge = $('#detailKlarifikasiStatus');
+                klarifikasiStatusBadge.removeClass().addClass('badge');
+
+                if (data.EVALUASI_COMPLAINT && data.EVALUASI_COMPLAINT.trim() !== '') {
+                    klarifikasiStatusBadge.text('Sudah').addClass('bg-info');
+                } else {
+                    klarifikasiStatusBadge.text('Belum').addClass('bg-danger text-light');
+                }
                 $('#detailNamaPelapor').text(data.NAME || '-');
                 $('#detailGrading').removeClass().addClass('badge').text(data.GRANDING || 'Belum dipilih Grading');
                 if (data.GRANDING === 'Merah')
@@ -55,7 +57,7 @@ $(document).ready(function () {
                 $('#detailMediaPengaduan').text(data.jenis_media ? data.jenis_media.JENIS_MEDIA : '-');
                 $('#detailJenisLaporan').text(data.jenis_laporan ? data.jenis_laporan.JENIS_LAPORAN : '-');
                 $('#detailKlasifikasiPengaduan').text(data.klasifikasi_pengaduan ? data.klasifikasi_pengaduan.KLASIFIKASI_PENGADUAN : '-');
-                $('#detailPetugasPelapor').text(data.PETUGAS_PELAPOR || 'Admin Humas');
+                $('#detailPetugasPelapor').text(data.PETUGAS_PELAPOR || '-');
                 $('#detailDeskripsiPengaduanContent').text(data.ISI_COMPLAINT || '-');
                 $('#detailRangkumanPermasalahanContent').text(data.PERMASALAHAN || '-');
 
@@ -69,7 +71,7 @@ $(document).ready(function () {
                     }) : '-';
 
                     $('#detailTanggalSelesai').text(tglSelesai);
-                    $('#detailKlarifikasiUnitContent').val(data.KLARIFIKASI_UNIT_TEXT || '');
+                    $('#detailKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '');
                     var buktiKlarifikasiHtml = '<p class="text-muted">Tidak ada file bukti klarifikasi.</p>';
                     if (data.FILE_PENGADUAN) {
                         console.log('storageBaseUrl:', storageBaseUrl);

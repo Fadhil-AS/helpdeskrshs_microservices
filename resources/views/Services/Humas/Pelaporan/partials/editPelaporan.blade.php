@@ -5,15 +5,12 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body p-4">
-                    {{-- Ganti dengan kode ini --}}
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        {{-- Bagian Kiri: Judul dan ID --}}
                         <div class="d-flex flex-column">
                             <h6 class="mb-1" id="editModalLabel">Edit Pengaduan</h6>
                             <small class="text-muted" id="editComplaintIdText">ID: -</small>
                         </div>
 
-                        {{-- Bagian Kanan: Status --}}
                         <div class="d-flex align-items-center gap-2">
                             <label for="editStatus" class="form-label fw-bold mb-0 text-nowrap">Status:</label>
                             <select class="form-select form-select-sm" id="editStatus" name="STATUS"
@@ -60,27 +57,22 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
-                                    <input type="text" class="form-control" id="editNoTelp" name="NO_TLPN"
+                                    <input type="text" class="form-control readonly-on-helpdesk" id="editNoTelp" name="NO_TLPN"
                                         value="081234567890">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold d-block mb-3">Grading</label>
                                     <div class="d-flex justify-content-between align-items-center">
-
-                                        {{-- FIX: ID dan Label untuk 'Hijau' disamakan --}}
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
                                                 id="editGradingHijau" value="Hijau">
                                             <label class="form-check-label" for="editGradingHijau">Hijau</label>
                                         </div>
-
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
                                                 id="editGradingKuning" value="Kuning">
                                             <label class="form-check-label" for="editGradingKuning">Kuning</label>
                                         </div>
-
-                                        {{-- FIX: Hapus 'checked' default agar dikontrol penuh oleh JS --}}
                                         <div class="form-check form-check-inline me-0">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
                                                 id="editGradingMerah" value="Merah">
@@ -94,7 +86,7 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Pelapor</label>
-                                    <input type="text" class="form-control" value="Ahmad Sulaiman"
+                                    <input type="text" class="form-control readonly-on-helpdesk" value="Ahmad Sulaiman"
                                         id="editNamaPelapor" name="NAME">
                                 </div>
                                 <div class="col-md-6">
@@ -112,7 +104,7 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">No. Medrec</label>
-                                    <input type="text" class="form-control" value="RM123456" id="editNoMedrec"
+                                    <input type="text" class="form-control readonly-on-helpdesk" value="RM123456" id="editNoMedrec"
                                         name="NO_MEDREC">
                                 </div>
                                 <div class="col-md-6">
@@ -152,7 +144,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdKlasifikasi">Klasifikasi
                                         Pengaduan</label>
-                                    <select class="form-select" data-live-search="true" id="editIdKlasifikasi"
+                                    <select class="form-select readonly-on-helpdesk" data-live-search="true" id="editIdKlasifikasi"
                                         name="ID_KLASIFIKASI" required>
                                         <option value="" selected disabled>Pilih klasifikasi pengaduan</option>
                                         @if (isset($klasifikasiPengaduan) && $klasifikasiPengaduan->count() > 0)
@@ -167,7 +159,7 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
+                                <textarea class="form-control readonly-on-helpdesk" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
@@ -221,7 +213,6 @@
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
                                 <div class="d-flex flex-wrap gap-3 mt-2 p-2 bg-light rounded"
                                     id="editBuktiKlarifikasiContainer">
-                                    {{-- Konten file akan diisi oleh JavaScript --}}
                                 </div>
                             </div>
                             <div class="mb-4">

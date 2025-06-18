@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-judul').value = data.JUDUL_COMPLAINT || '';
         document.getElementById('edit-deskripsi').value = data.ISI_COMPLAINT || '';
         document.getElementById('edit-permasalahan').value = data.PERMASALAHAN || '';
-        document.getElementById('edit-petugas-evaluasi').value = data.PETUGAS_PELAPOR || 'Admin Unit Kerja';
+        document.getElementById('edit-petugas-evaluasi').value = data.PETUGAS_EVALUASI || 'Admin Unit Kerja';
 
         document.getElementById('edit-tanggal-evaluasi').value = toInputDate(data.TGL_EVALUASI);
 

@@ -41,7 +41,7 @@
                     <th>ID</th>
                     <th>Judul</th>
                     <th>Media</th>
-                    <th>Info Direksi</th>
+                    <th>Klarifikasi</th>
                     <th>Status</th>
                     <th>Grading</th>
                     <th>Aksi</th>
@@ -51,9 +51,13 @@
                 @forelse ($dataComplaint as $complaint)
                     <tr>
                         <td><strong>{{ $complaint->ID_COMPLAINT }}</strong></td>
-                        <td>{{ $complaint->JUDUL_COMPLAINT }}</td>
+                        <td>{{ $complaint->JUDUL_COMPLAINT ?? 'Belum ada judul' }}</td>
                         <td>{{ $complaint->jenisMedia?->JENIS_MEDIA ?? '-' }}</td>
-                        <td>{{ $complaint->DISPOSISI ?? '-' }}</td>
+                        @if (!empty($complaint->EVALUASI_COMPLAINT))
+                            <td><span class="badge bg-info">Sudah</span></td>
+                        @else
+                            <td><span class="badge bg-danger text-light">Belum</span></td>
+                        @endif
                         <td>
                             @if ($complaint->STATUS == 'Open')
                                 <span class="badge bg-success">Open</span>
@@ -77,7 +81,8 @@
                             @elseif ($complaint->GRANDING == 'Hijau')
                                 <span class="badge bg-success text-light">Hijau</span>
                             @else
-                                <span class="badge bg-light text-dark">{{ $complaint->GRANDING ?? '-' }}</span>
+                                <span
+                                    class="badge bg-light text-dark">{{ $complaint->GRANDING ?? 'Belum dinilai' }}</span>
                             @endif
                         </td>
                         <td>

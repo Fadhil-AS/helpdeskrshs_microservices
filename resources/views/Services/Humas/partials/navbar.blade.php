@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
     <div class="container-lg">
         <!-- Logo -->
-        <a class="navbar-brand" href="{{ route('humas.pelaporan-humas') }}">
+        <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
             <img src="{{ asset('assets/images/logoRSHS.png') }}" alt="Logo" height="40" />
         </a>
 
@@ -15,6 +15,7 @@
         <!-- Desktop Menu -->
         <div class="collapse navbar-collapse d-none d-lg-flex justify-content-between" id="navbarContent">
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('humas.pelaporan-humas') }}">Daftar
                         Pelaporan</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('humas.unit-kerja-humas') }}">Unit Kerja</a>

@@ -102,8 +102,7 @@ Route::prefix('unitKerja')->name('unitKerja.')->group(function(){
 
 Route::prefix('admin')->name('admin.')->group(function(){
     Route::get('/dashboard', action: [DashboardAdminController::class, 'getDashboard'])->name('dashboard');
+    Route::get('/admin/dashboard/chart-data', [DashboardAdminController::class, 'getFilteredChartData'])->name('dashboard.chart-data');
 });
 
-// Route::prefix(prefix: 'admin')->name('admin.')->group(function(){
-//     Route::get('/dashboard', action: [DashboardAdminController::class, 'getDashboard'])->name('dashboard');
-// });
+

@@ -92,7 +92,7 @@
                                     @if ($dc->JUDUL_COMPLAINT != null)
                                         <td>{{ $dc->JUDUL_COMPLAINT }}</td>
                                     @else
-                                        <td>{{ $dc->JUDUL_COMPLAINT }}</td>
+                                        <td>Belum ada judul</td>
                                     @endif
 
                                     @if ($dc->JenisMedia && $dc->JenisMedia->JENIS_MEDIA !== null)
@@ -104,7 +104,7 @@
                                     @if ($dc->unitKerja && $dc->unitKerja->NAMA_BAGIAN != null)
                                         <td>{{ $dc->unitKerja->NAMA_BAGIAN }}</td>
                                     @else
-                                        <td>Pelapor eksternal</td>
+                                        <td>Belum dipilih unit kerja</td>
                                     @endif
 
                                     @if ($dc->STATUS == 'Open')
@@ -119,10 +119,8 @@
                                         <td><span class="badge bg-danger text-light">Banding</span></td>
                                     @endif
 
-                                    @if ($dc->EVALUASI_COMPLAINT == 'Sudah')
+                                    @if (!empty($dc->EVALUASI_COMPLAINT))
                                         <td><span class="badge bg-info">Sudah</span></td>
-                                    @elseif ($dc->EVALUASI_COMPLAINT == 'Belum')
-                                        <td><span class="badge bg-danger text-light">Belum</span></td>
                                     @else
                                         <td><span class="badge bg-danger text-light">Belum</span></td>
                                     @endif

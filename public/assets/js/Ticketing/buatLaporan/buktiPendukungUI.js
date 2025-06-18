@@ -1,5 +1,21 @@
 let _validBuktiPendukungFiles = [];
-let _buktiPendukungFileInput, _buktiPendukungDropAreaLabel, _uploadBoxContent, _buktiErrorContainer, _originalUploadBoxHTML;
+// let _buktiPendukungFileInput, _buktiPendukungDropAreaLabel, _uploadBoxContent, _buktiErrorContainer, _originalUploadBoxHTML;
+const buktiPendukungFileInput = document.getElementById('buktiPendukungFile');
+const buktiPendukungDropAreaLabel = document.getElementById('buktiPendukungDropZone');
+const uploadBoxContent = buktiPendukungDropAreaLabel ? buktiPendukungDropAreaLabel.querySelector('.upload-box-content') : null;
+const buktiErrorContainer = document.getElementById('buktiPendukungFileErrors');
+const originalUploadBoxHTML = `<div class="initial-prompt text-center"><i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem;"></i><p class="mt-2 mb-0 upload-box-text">Klik untuk upload <span class="fw-light">atau drag and drop</span></p><small class="text-muted upload-box-hint">Format: JPG, PNG, PDF (Maks. 5MB).</small></div>`;
+
+if (typeof initBuktiPendukungUI === 'function') {
+    initBuktiPendukungUI(
+        buktiPendukungFileInput,
+        buktiPendukungDropAreaLabel,
+        uploadBoxContent,
+        buktiErrorContainer,
+        originalUploadBoxHTML,
+        _validBuktiPendukungFiles
+    );
+}
 
 function initBuktiPendukungUI(
     buktiFileInput,
@@ -9,47 +25,47 @@ function initBuktiPendukungUI(
     originalHTML,
     filesArrayReference
 ) {
-    _buktiPendukungFileInput = buktiFileInput;
-    _buktiPendukungDropAreaLabel = dropAreaLabel;
-    _uploadBoxContent = uploadContent;
-    _buktiErrorContainer = errorContainer;
-    _originalUploadBoxHTML = originalHTML;
+    buktiPendukungFileInput = buktiFileInput;
+    buktiPendukungDropAreaLabel = dropAreaLabel;
+    uploadBoxContent = uploadContent;
+    buktiErrorContainer = errorContainer;
+    originalUploadBoxHTML = originalHTML;
 
     _validBuktiPendukungFiles = filesArrayReference;
 
     console.log("initBuktiPendukungUI: _validBuktiPendukungFiles diinisialisasi dengan:", _validBuktiPendukungFiles, Array.isArray(_validBuktiPendukungFiles));
 
 
-    if (_buktiPendukungFileInput && _buktiPendukungDropAreaLabel && _uploadBoxContent) {
+    if (buktiPendukungFileInput && _buktiPendukungDropAreaLabel && uploadBoxContent) {
         renderBuktiPendukungUI();
-        _buktiPendukungFileInput.addEventListener('change', (event) => processNewBuktiPendukungFiles(event.target.files));
+        buktiPendukungFileInput.addEventListener('change', (event) => processNewBuktiPendukungFiles(event.target.files));
 
         function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
 
-        if (_buktiPendukungDropAreaLabel) {
+        if (buktiPendukungDropAreaLabel) {
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                _buktiPendukungDropAreaLabel.addEventListener(eventName, preventDefaults, false);
+                buktiPendukungDropAreaLabel.addEventListener(eventName, preventDefaults, false);
                 if (eventName === 'dragover' || eventName === 'drop') {
                      document.body.addEventListener(eventName, preventDefaults, false);
                 }
             });
 
             ['dragenter', 'dragover'].forEach(eventName => {
-                _buktiPendukungDropAreaLabel.addEventListener(eventName, () => {
-                    if(_buktiPendukungDropAreaLabel) _buktiPendukungDropAreaLabel.classList.add('highlight');
+                buktiPendukungDropAreaLabel.addEventListener(eventName, () => {
+                    if(buktiPendukungDropAreaLabel) buktiPendukungDropAreaLabel.classList.add('highlight');
                 }, false);
             });
             ['dragleave', 'drop'].forEach(eventName => {
-                _buktiPendukungDropAreaLabel.addEventListener(eventName, () => {
-                    if(_buktiPendukungDropAreaLabel) _buktiPendukungDropAreaLabel.classList.remove('highlight');
+                buktiPendukungDropAreaLabel.addEventListener(eventName, () => {
+                    if(buktiPendukungDropAreaLabel) buktiPendukungDropAreaLabel.classList.remove('highlight');
                 }, false);
             });
-            _buktiPendukungDropAreaLabel.addEventListener('drop', function(event) {
+            buktiPendukungDropAreaLabel.addEventListener('drop', function(event) {
                 const dt = event.dataTransfer;
                 processNewBuktiPendukungFiles(dt.files);
             }, false);
         } else {
-            console.error("initBuktiPendukungUI: _buktiPendukungDropAreaLabel (target drop zone) null, event listener TIDAK DIPASANG.");
+            console.error("initBuktiPendukungUI: buktiPendukungDropAreaLabel (target drop zone) null, event listener TIDAK DIPASANG.");
         }
     } else {
          console.warn("Satu atau lebih elemen UI untuk Bukti Pendukung tidak ditemukan saat initBuktiPendukungUI.");
@@ -57,11 +73,11 @@ function initBuktiPendukungUI(
 }
 
 function renderBuktiPendukungUI() {
-    if (!_uploadBoxContent) {
-        console.warn("renderBuktiPendukungUI: _uploadBoxContent tidak ada.");
+    if (!uploadBoxContent) {
+        console.warn("renderBuktiPendukungUI: uploadBoxContent tidak ada.");
         return;
     }
-    _uploadBoxContent.innerHTML = '';
+    uploadBoxContent.innerHTML = '';
 
     if (!Array.isArray(_validBuktiPendukungFiles)) {
         console.error("renderBuktiPendukungUI: _validBuktiPendukungFiles BUKAN array!", _validBuktiPendukungFiles);
@@ -69,14 +85,14 @@ function renderBuktiPendukungUI() {
     }
 
     if (_validBuktiPendukungFiles.length === 0) {
-        _uploadBoxContent.innerHTML = _originalUploadBoxHTML;
-        if (_buktiPendukungDropAreaLabel) _buktiPendukungDropAreaLabel.classList.remove('has-files');
-        _uploadBoxContent.style.justifyContent = 'center';
-        _uploadBoxContent.style.alignItems = 'center';
+        uploadBoxContent.innerHTML = originalUploadBoxHTML;
+        if (buktiPendukungDropAreaLabel) buktiPendukungDropAreaLabel.classList.remove('has-files');
+        uploadBoxContent.style.justifyContent = 'center';
+        uploadBoxContent.style.alignItems = 'center';
     } else {
-        if (_buktiPendukungDropAreaLabel) _buktiPendukungDropAreaLabel.classList.add('has-files');
-        _uploadBoxContent.style.justifyContent = 'flex-start';
-        _uploadBoxContent.style.alignItems = 'stretch';
+        if (buktiPendukungDropAreaLabel) buktiPendukungDropAreaLabel.classList.add('has-files');
+        uploadBoxContent.style.justifyContent = 'flex-start';
+        uploadBoxContent.style.alignItems = 'stretch';
 
         const filesGridContainer = document.createElement('div');
         filesGridContainer.id = 'fileGridContainer';
@@ -135,16 +151,16 @@ function renderBuktiPendukungUI() {
 
             filesGridContainer.appendChild(fileBox);
         });
-        _uploadBoxContent.appendChild(filesGridContainer);
+        uploadBoxContent.appendChild(filesGridContainer);
 
         if (_validBuktiPendukungFiles.length > 0) {
              const addMorePrompt = document.createElement('div');
              addMorePrompt.classList.add('add-more-prompt', 'text-center', 'w-100', 'p-3', 'border-top', 'mt-2');
              addMorePrompt.innerHTML = `<small class="text-muted">Klik area ini lagi atau drag & drop untuk menambah file lain.</small>`;
-             _uploadBoxContent.appendChild(addMorePrompt);
+             uploadBoxContent.appendChild(addMorePrompt);
         }
     }
-    if (_buktiPendukungFileInput) _buktiPendukungFileInput.value = '';
+    if (buktiPendukungFileInput) buktiPendukungFileInput.value = '';
 }
 
 function removeBuktiPendukungFile(indexToRemove) {
@@ -155,11 +171,11 @@ function removeBuktiPendukungFile(indexToRemove) {
     if (indexToRemove < 0 || indexToRemove >= _validBuktiPendukungFiles.length) return;
     _validBuktiPendukungFiles.splice(indexToRemove, 1);
     renderBuktiPendukungUI();
-    if (_buktiErrorContainer) _buktiErrorContainer.innerHTML = '';
+    if (buktiErrorContainer) buktiErrorContainer.innerHTML = '';
 }
 
 function processNewBuktiPendukungFiles(newlySelectedFiles) {
-    if (_buktiErrorContainer) _buktiErrorContainer.innerHTML = '';
+    if (buktiErrorContainer) buktiErrorContainer.innerHTML = '';
     let filesActuallyAdded = 0;
 
     if (!Array.isArray(_validBuktiPendukungFiles)) {
@@ -179,10 +195,10 @@ function processNewBuktiPendukungFiles(newlySelectedFiles) {
                 _validBuktiPendukungFiles.push(file);
                 filesActuallyAdded++;
             } else {
-                if (_buktiErrorContainer) _buktiErrorContainer.innerHTML += `<p class="mb-1 text-warning">File ${file.name} sudah ada.</p>`;
+                if (buktiErrorContainer) buktiErrorContainer.innerHTML += `<p class="mb-1 text-warning">File ${file.name} sudah ada.</p>`;
             }
         } else {
-            if (_buktiErrorContainer) _buktiErrorContainer.innerHTML += `<p class="mb-1 text-danger">${validationResult.message}</p>`;
+            if (buktiErrorContainer) buktiErrorContainer.innerHTML += `<p class="mb-1 text-danger">${validationResult.message}</p>`;
         }
     }
     if (filesActuallyAdded > 0) {

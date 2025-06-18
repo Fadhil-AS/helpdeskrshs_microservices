@@ -94,7 +94,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-simpan" id="btnBuatTiketBaruDariModal" data-id="">Buat Tiket
+                        <button type="button" class="btn btn-simpan" id="btnBuatTiketBaruDariModal" data-id="">Buat
+                            Tiket
                             Baru</button>
                     </div>
                 </div>
@@ -104,8 +105,7 @@
 @endsection
 @push('scripts')
     <script>
-        // Menangani klik pada tombol rating
-        document.addEventListener('click', function (event) {
+        document.addEventListener('click', function(event) {
             if (event.target.classList.contains('rating-btn')) {
                 const clickedButton = event.target;
                 const ratingContainer = clickedButton.closest('#ratingContainer');

@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
             database_path('migrations/ticketing'),
             database_path('migrations/unit_kerja'),
             database_path('migrations/ssd'),
+            database_path('migrations/chatbot'),
         ]);
     }
 }
