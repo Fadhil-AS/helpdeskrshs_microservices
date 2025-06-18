@@ -32,7 +32,7 @@ class DashboardAdminController extends Controller
 
             $queryData = $queryBuilder->get()->pluck('total', 'label');
 
-        } else { // type 'relation'
+        } else {
             $laporanModel = new Laporan();
             if (!method_exists($laporanModel, $name)) {
                 return ['labels' => $definedLabels, 'data' => array_fill(0, count($definedLabels), 0)];
@@ -61,20 +61,6 @@ class DashboardAdminController extends Controller
 
     public function getDashboard()
     {
-        // try {
-        //     $tableName = (new UnitKerja)->getTable();
-        //     // Kita cari data HANYA untuk "DIREKTUR UTAMA"
-        //     $dirutData = DB::select("SELECT ID_BAGIAN, NAMA_BAGIAN, ID_PARENT_BAGIAN, STATUS FROM {$tableName} WHERE NAMA_BAGIAN = 'DIREKTUR UTAMA'");
-
-        //     dd([
-        //         'CATATAN' => 'Melihat data mentah untuk baris DIREKTUR UTAMA',
-        //         'DATA_DITEMUKAN' => $dirutData
-        //     ]);
-
-        // } catch (\Exception $e) {
-        //     dd('GAGAL MENCARI DATA DIREKTUR UTAMA: ' . $e->getMessage());
-        // }
-
         $unitKerjaList = UnitKerja::where('STATUS', '1')->orderBy('NAMA_BAGIAN')->get();
 
         $topLevelUnitList = UnitKerja::where('STATUS', '1')

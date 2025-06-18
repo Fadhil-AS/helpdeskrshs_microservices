@@ -1,7 +1,5 @@
-// GANTI ISI FILE JS ANDA DENGAN KODE INI YANG SUDAH DITAMBAHKAN LOG
 document.addEventListener('DOMContentLoaded', function () {
 
-    // --- 1. Definisi Elemen & Variabel (Semua di satu tempat) ---
     const categoryFilter = document.getElementById('categoryFilter');
     const timeFilter = document.getElementById('timeFilter');
     const unitKerjaFilter = document.getElementById('unitKerjaFilter');
@@ -19,17 +17,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let activeChart = null;
     let dynamicChartData = {};
 
-    // --- 2. Definisi Fungsi ---
-
-    /**
-     * Fungsi untuk membuat atau memperbarui chart.
-     */
     function createChart(config) {
-        // LOG #3: Lihat konfigurasi final yang akan digambar oleh Chart.js
         console.log("LOG 3: Konfigurasi yang diterima oleh fungsi createChart:", config);
 
         if (activeChart) activeChart.destroy();
-        if (!config || !config.labels || !config.data || config.data.length === 0) { // Ditambah cek panjang data
+        if (!config || !config.labels || !config.data || config.data.length === 0) {
             chartTitle.textContent = 'Data Tidak Tersedia';
             chartSubtitle.textContent = 'Tidak ada data untuk filter yang dipilih.';
             if (loadingState) loadingState.style.display = 'block';
@@ -48,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         if (filtered.data.length === 0) {
-            createChart(null); // Panggil ulang dengan null untuk menampilkan pesan "Data Tidak Tersedia"
+            createChart(null);
             return;
         }
         const finalBackgroundColor = Array.isArray(config.backgroundColor) ? filtered.colors : config.backgroundColor;
@@ -86,9 +78,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /**
-     * Fungsi untuk mengambil data dari server secara dinamis.
-     */
     async function updateCharts() {
         const category = categoryFilter.value;
         const time = timeFilter.value;
@@ -113,10 +102,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             dynamicChartData = await response.json();
 
-            // LOG #1: Lihat semua data yang berhasil diterima dari server
             console.log("LOG 1: Semua data yang diterima dari server:", dynamicChartData);
 
-            // LOG #2: Lihat data spesifik yang akan digunakan untuk chart saat ini
             console.log("LOG 2: Data yang akan digunakan untuk kategori '" + category + "':", dynamicChartData[category]);
 
             createChart(dynamicChartData[category]);
@@ -128,22 +115,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    /**
-     * Fungsi untuk mengisi dropdown sub-unit.
-     */
-    // GANTI LAGI FUNGSI INI DENGAN VERSI FINAL DI BAWAH
     function populateSubUnitFilter(selectedParentId) {
         const $select = $(subUnitFilter);
 
-        // 1. HANCURKAN instance plugin bootstrap-select yang ada.
-        // Ini akan mengembalikan dropdown ke bentuk <select> HTML standar.
         $select.selectpicker('destroy');
 
-        // 2. Sekarang kita aman untuk memanipulasi <select> standar.
-        // Kosongkan semua opsi dan tambahkan kembali opsi default.
         $select.empty().append('<option value="">Semua Sub Unit</option>');
 
-        // 3. Logika untuk mengisi sub-unit (tetap sama)
         if (selectedParentId && typeof AllUnitKerja !== 'undefined') {
             const subUnits = AllUnitKerja.filter(unit => unit.parent_id == selectedParentId);
 
@@ -159,17 +137,15 @@ document.addEventListener('DOMContentLoaded', function () {
             subUnitContainer.style.display = 'none';
         }
 
-        // 4. INISIALISASI KEMBALI plugin pada elemen <select> yang sudah diperbarui.
-        // Ini akan membangun ulang tampilan "fancy" dari awal.
         $select.selectpicker();
     }
 
     function handleCategoryChange() {
         if (categoryFilter.value === 'unitKerja') {
             unitKerjaContainer.style.display = 'inline-block';
-            // Hanya tampilkan sub-unit container jika ada parent yang dipilih
+
             if (unitKerjaFilter.value) {
-                 populateSubUnitFilter(unitKerjaFilter.value); // panggil populate untuk cek
+                 populateSubUnitFilter(unitKerjaFilter.value);
             } else {
                  subUnitContainer.style.display = 'none';
             }
@@ -177,19 +153,11 @@ document.addEventListener('DOMContentLoaded', function () {
             unitKerjaContainer.style.display = 'none';
             subUnitContainer.style.display = 'none';
         }
-        // Langsung update tampilan chart dari data yang sudah ada
+
         createChart(dynamicChartData[categoryFilter.value]);
     }
 
     categoryFilter.addEventListener('change', handleCategoryChange);
-
-
-    // --- 3. Pendaftaran Event Listeners ---
-    // categoryFilter.addEventListener('change', function () {
-    //     if (dynamicChartData[this.value]) {
-    //         createChart(dynamicChartData[this.value]);
-    //     }
-    // });
 
     timeFilter.addEventListener('change', updateCharts);
     subUnitFilter.addEventListener('change', updateCharts);
