@@ -64,9 +64,9 @@ class DashboardAdminController extends Controller
 
             // --- DEBUG BARU (SEBELUM .get()) ---
             // Kita debug chart pertama (grading) untuk melihat query dasarnya
-            if ($name === 'GRANDING') {
-                dd($queryBuilder->toSql(), $queryBuilder->getBindings());
-            }
+            // if ($name === 'GRANDING') {
+            //     dd($queryBuilder->toSql(), $queryBuilder->getBindings());
+            // }
             // ------------------------------------
 
             $queryData = $queryBuilder->get()->pluck('total', 'label');
@@ -88,9 +88,9 @@ class DashboardAdminController extends Controller
             // --- DEBUG BARU (SEBELUM .get()) ---
             // Kita juga debug di sini. Jika 'grading' lolos, mungkin chart relasi ini yang error.
             // Ganti 'sumberMedia' dengan nama relasi lain jika perlu.
-            if ($name === 'sumberMedia') {
-                 dd($queryBuilder->toSql(), $queryBuilder->getBindings());
-            }
+            // if ($name === 'sumberMedia') {
+            //      dd($queryBuilder->toSql(), $queryBuilder->getBindings());
+            // }
             // ------------------------------------
 
             $queryData = $queryBuilder->get()->pluck('total', 'label');
@@ -130,23 +130,21 @@ class DashboardAdminController extends Controller
         $laporanTable = (new Laporan)->getTable();
 
         // Prioritaskan filter Sub Unit jika ada
-        if (!empty($subUnitId)) {
+        if (!empty($subUnitId) && is_numeric($subUnitId)) {
             // Gunakan nama tabel untuk membuat kolom tidak ambigu
             $query->where("{$laporanTable}.ID_BAGIAN", $subUnitId);
         }
         // Jika tidak, gunakan filter Unit Kerja utama
-        elseif (!empty($unitKerjaId)) {
+        elseif (!empty($unitKerjaId) && is_numeric($unitKerjaId)) {
             // 1. Ambil semua ID sub-unit yang berada di bawah unit kerja yang dipilih
             $subUnitIds = UnitKerja::where('ID_PARENT_BAGIAN', $unitKerjaId)
                                       ->pluck('ID_BAGIAN');
 
             // 2. Jika tidak ada sub-unit, maka filter berdasarkan unit kerja itu sendiri
             if ($subUnitIds->isEmpty()) {
-                // Gunakan nama tabel untuk membuat kolom tidak ambigu
                 $query->where("{$laporanTable}.ID_BAGIAN", $unitKerjaId);
             } else {
                 // 3. Jika ada sub-unit, filter berdasarkan SEMUA ID sub-unit tersebut
-                // Gunakan nama tabel untuk membuat kolom tidak ambigu
                 $query->whereIn("{$laporanTable}.ID_BAGIAN", $subUnitIds);
             }
         }
@@ -189,13 +187,47 @@ class DashboardAdminController extends Controller
 
 // Definisikan metadata statis untuk setiap chart
         $baseConfigs = [
-            'grading' => [ 'title' => 'Grading (Hijau, Kuning, Merah)', 'subtitle' => 'Distribusi pengaduan berdasarkan tingkat waktu penanganan komplain', 'type' => 'bar', 'backgroundColor' => ['#347433', '#FFD600', '#D50000'] ],
-            'sumberMedia' => [ 'title' => 'Sumber Media', 'subtitle' => 'Distribusi pengaduan berdasarkan sumber media pelaporan', 'type' => 'bar', 'backgroundColor' => '#e65100' ],
-            'statusPengaduan' => [ 'title' => 'Status Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan status penanganan', 'type' => 'pie', 'backgroundColor' => ['#28a745', '#ffc107', '#17a2b8', '#6f42c1', '#dc3545'] ],
-            'unitKerja' => [ 'title' => 'Unit Kerja', 'subtitle' => 'Distribusi pengaduan berdasarkan unit kerja tujuan', 'type' => 'bar', 'backgroundColor' => '#E0440E' ],
-            'jenisLaporan' => [ 'title' => 'Jenis Laporan', 'subtitle' => 'Distribusi pengaduan berdasarkan jenis laporan', 'type' => 'pie', 'backgroundColor' => ['#2962FF', '#D84315', '#FF9800', '#2E7D32'] ],
-            'klasifikasiPengaduan' => [ 'title' => 'Klasifikasi Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan klasifikasi pengaduan', 'type' => 'pie', 'backgroundColor' => ['#2962FF', '#D84315', '#FF9800'] ],
-            'penyelesaianPengaduan' => [ 'title' => 'Penyelesaian Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan status penyelesaian', 'type' => 'bar', 'backgroundColor' => '#6f42c1' ]
+            'grading' => [
+                'title' => 'Grading (Hijau, Kuning, Merah)',
+                'subtitle' => 'Distribusi pengaduan berdasarkan tingkat waktu penanganan komplain',
+                'type' => 'bar',
+                'backgroundColor' => ['#347433', '#FFD600', '#D50000'] ],
+            'sumberMedia' => [
+                'title' => 'Sumber Media',
+                'subtitle' => 'Distribusi pengaduan berdasarkan sumber media pelaporan',
+                'type' => 'bar',
+                'backgroundColor' => '#e65100'
+            ],
+            'statusPengaduan' => [
+                'title' => 'Status Pengaduan',
+                'subtitle' => 'Distribusi pengaduan berdasarkan status penanganan',
+                'type' => 'pie',
+                'backgroundColor' => ['#28a745', '#ffc107', '#17a2b8', '#6f42c1', '#dc3545']
+            ],
+            'unitKerja' => [
+                'title' => 'Unit Kerja',
+                'subtitle' => 'Distribusi pengaduan berdasarkan unit kerja tujuan',
+                'type' => 'bar',
+                'backgroundColor' => '#E0440E'
+            ],
+            'jenisLaporan' => [
+                'title' => 'Jenis Laporan',
+                'subtitle' => 'Distribusi pengaduan berdasarkan jenis laporan',
+                'type' => 'pie',
+                'backgroundColor' => ['#2962FF', '#D84315', '#FF9800', '#2E7D32']
+            ],
+            'klasifikasiPengaduan' => [
+                'title' => 'Klasifikasi Pengaduan',
+                'subtitle' => 'Distribusi pengaduan berdasarkan klasifikasi pengaduan',
+                'type' => 'pie',
+                'backgroundColor' => ['#2962FF', '#D84315', '#FF9800']
+            ],
+            'penyelesaianPengaduan' => [
+                'title' => 'Penyelesaian Pengaduan',
+                'subtitle' => 'Distribusi pengaduan berdasarkan status penyelesaian',
+                'type' => 'bar',
+                'backgroundColor' => '#6f42c1'
+            ]
         ];
 
         // Buat peta konfigurasi yang jelas untuk setiap chart

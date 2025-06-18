@@ -16,6 +16,8 @@ use App\Services\Humas\Http\Controllers\PenyelesaianPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisLaporanController;
 use App\Services\UnitKerja\Http\Controllers\DashboardUnitKerjaController;
 use App\Services\Admin\Http\Controllers\DashboardAdminController;
+use App\Services\Chatbot\Http\Controllers\ChatbotController;
+use App\Services\Chatbot\Models\Chatbot;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -105,4 +107,38 @@ Route::prefix('admin')->name('admin.')->group(function(){
     Route::get('/admin/dashboard/chart-data', [DashboardAdminController::class, 'getFilteredChartData'])->name('dashboard.chart-data');
 });
 
+// Route::prefix('chatbot')->name('chatbot.')->group(function(){
+//     Route::get('/chat', action: [ChatbotController::class, 'getChatbot'])->name('chat');
+
+//     //Pengiriman Chat
+//     Route::post('/chatbot', [ChatbotController::class, 'handleChat'])->name('handle');
+
+//     //Upload File Excel
+//     Route::post('/upload', [ChatbotController::class, 'uploadData'])->name('handle');
+// });
+
+Route::post('/chatbot', [ChatbotController::class, 'handleChat']);
+
+//Upload File Excel
+Route::post('/upload', [ChatbotController::class, 'uploadData']);
+
+//View Chatbot
+Route::get('/chat', function () {
+    return view('Services.Chatbot.mainChatbot');
+});
+
+
+//Menampilkan data di tabel
+Route::get('/upload', function () {
+    $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+    return view('Services.Chatbot.uploadData', compact('files'));
+});
+
+//Hapus File
+Route::delete('/file/{id}', function ($id) {
+    $file = Chatbot::findOrFail($id);
+    $file->delete();
+
+    return redirect('/upload')->with('status', 'File berhasil dihapus.');
+})->name('delete.file');
 
