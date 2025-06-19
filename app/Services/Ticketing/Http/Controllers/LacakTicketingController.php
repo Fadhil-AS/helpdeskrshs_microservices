@@ -152,7 +152,7 @@ class LacakTicketingController extends Controller
                     }
 
                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI ?? $laporan->updated_at)->format('d M Y'),
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_EVALUASI)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Sudah ditindak lanjuti oleh Humas',
                         'deskripsi_aksi' => $deskripsiTindakLanjut,
@@ -170,7 +170,7 @@ class LacakTicketingController extends Controller
                     ];
                }
 
-                $waktuTanggapan = $laporan->TGL_INSROW ?? $laporan->updated_at;
+                $waktuTanggapan = $laporan->TGL_SELESAI ?? $laporan->updated_at;
                 if ($laporan->STATUS === 'Banding') {
                      $riwayatPenanganan[] = [
                         'tanggal_aksi' => Carbon::parse($waktuTanggapan)->format('d M Y'),

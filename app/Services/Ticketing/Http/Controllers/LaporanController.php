@@ -85,16 +85,13 @@ class LaporanController extends Controller
             'NO_MEDREC' => 'nullable|string|max:10',
         ];
 
-        if ($klasifikasiText === 'gratifikasi') {
+        if ($klasifikasiText === 'gratifikasi' || $klasifikasiText === 'sponsorship') {
             $rules['NAME'] = 'nullable|string|max:100';
             $rules['NO_TLPN'] = 'nullable|string|max:15';
             $rules['uploaded_files'] = 'required|array|min:1';
-        } else {
+        }else {
             $rules['NAME'] = 'required|string|max:100';
             $rules['NO_TLPN'] = 'required|string|max:15|regex:/^08\d{8,13}$/';
-            if ($klasifikasiText === 'sponsorship') {
-                 $rules['uploaded_files'] = 'required|array|min:1';
-            }
         }
 
         $validatedData = $request->validate($rules, [
@@ -120,6 +117,14 @@ class LaporanController extends Controller
         $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
         $laporan->NO_MEDREC = $validatedData['NO_MEDREC'] ?? null;
         $laporan->ID_COMPLAINT_REFERENSI = $validatedData['ID_COMPLAINT_REFERENSI'] ?? null;
+
+        if ($klasifikasiText === 'gratifikasi' || $klasifikasiText === 'sponsorship') {
+            $laporan->NAME = empty($validatedData['NAME']) ? 'Anonimus' : $validatedData['NAME'];
+            $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
+        } else {
+            $laporan->NAME = $validatedData['NAME'];
+            $laporan->NO_TLPN = $validatedData['NO_TLPN'];
+        }
 
         return $validatedData;
     }

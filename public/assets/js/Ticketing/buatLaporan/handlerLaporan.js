@@ -79,15 +79,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputNama = document.querySelector('[name="NAME"]');
         const inputNoTlpn = document.querySelector('[name="NO_TLPN"]');
         const fileLabel = document.getElementById('buktiPendukungLabel');
+        const labelNama = wrapperNama.querySelector('label');
+        const labelTelepon = wrapperNoTlpn.querySelector('label');
 
         wrapperNama.style.display = 'block';
         wrapperNoTlpn.style.display = 'block';
         wrapperNoMedrec.style.display = 'block';
         inputNama.required = true;
         inputNoTlpn.required = true;
+        labelNama.innerHTML = 'Nama Lengkap';
+        labelTelepon.innerHTML = 'Nomor Telepon';
         fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
 
         if (selectedOptionText === 'Sponsorship') {
+            inputNama.required = false;
+            inputNoTlpn.required = false;
+            labelNama.innerHTML = 'Nama Lengkap';
+            labelTelepon.innerHTML = 'Nomor Telepon';
             fileLabel.innerHTML = 'Surat Undangan (Wajib)';
             wrapperNoMedrec.style.display = 'none';
         } else if (selectedOptionText === 'Gratifikasi') {

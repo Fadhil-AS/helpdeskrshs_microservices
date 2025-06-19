@@ -3,7 +3,7 @@ $(document).ready(function () {
     console.log('fungsiModalDetail.js: Document is ready, jQuery is available.');
     $('.view-detail-btn').on('click', function () {
         var complaintId = $(this).data('id');
-        var detailModal = $('#detailModal');
+        // var detailModal = $('#detailModal');
         var modalInstance = new bootstrap.Modal(document.getElementById('detailModal'));
 
         $.ajax({
@@ -104,34 +104,52 @@ $(document).ready(function () {
                     var buktiContainer = $('#buktiKlarifikasiContainer');
                     buktiContainer.html('');
 
-                    if (data.file_list && data.file_list.length > 0) {
+                    let displayedFileCount = 0;
 
-                        data.file_list.forEach(function(filePath) {
-                            if (!filePath || filePath.trim() === '') return;
+                    if (data.FILE_PENGADUAN && data.FILE_PENGADUAN.trim() !== '') {
+                        const filePaths = data.FILE_PENGADUAN.split(';');
 
-                            var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
-                            var fileName = filePath.split(/[\\/]/).pop();
+                        filePaths.forEach(function(filePath) {
+                            const trimmedPath = filePath.trim();
+                            if (trimmedPath === '') return;
 
-                            var buktiHtml = '<div class="file-klarifikasi-item" style="max-width: 150px;">';
-
-                            if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
-                                buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}">
-                                                <img src="${fileUrl}" alt="Bukti Foto" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;">
-                                                <small class="d-block text-truncate">${fileName}</small>
-                                              </a>`;
-                            } else {
-                                buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}">
-                                                <i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i>
-                                                <small class="d-block text-truncate">${fileName}</small>
-                                              </a>`;
+                            let finalPath = trimmedPath;
+                            if (!trimmedPath.includes('/')) {
+                                finalPath = 'bukti_klarifikasi/' + trimmedPath;
                             }
-                            buktiHtml += '</div>';
 
-                            buktiContainer.append(buktiHtml);
+                            if (finalPath.startsWith('bukti_klarifikasi/')) {
+
+                                displayedFileCount++;
+
+                                var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + finalPath;
+                                var fileName = trimmedPath.split(/[\\/]/).pop();
+
+                                var buktiHtml = '<div class="file-klarifikasi-item" style="max-width: 150px;">';
+
+                                if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
+                                    buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}">
+                                                    <img src="${fileUrl}" alt="Bukti Foto" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;">
+                                                    <small class="d-block text-truncate">${fileName}</small>
+                                                </a>`;
+                                } else if (/\.pdf$/i.test(fileName)) {
+                                    buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}">
+                                                    <i class="bi bi-file-earmark-pdf display-4 text-danger mb-1"></i>
+                                                    <small class="d-block text-truncate">${fileName}</small>
+                                                </a>`;
+                                } else {
+                                    buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}">
+                                                    <i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i>
+                                                    <small class="d-block text-truncate">${fileName}</small>
+                                                </a>`;
+                                }
+                                buktiHtml += '</div>';
+
+                                buktiContainer.append(buktiHtml);
+                            }
                         });
 
-                    } else {
-
+                    } if (displayedFileCount === 0) {
                         buktiContainer.html('<p class="text-muted p-2">Tidak ada file bukti klarifikasi.</p>');
                     }
                     modalInstance.show();

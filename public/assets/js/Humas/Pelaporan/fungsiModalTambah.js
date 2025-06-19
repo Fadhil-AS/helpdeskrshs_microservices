@@ -13,28 +13,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const noMedrecInput = document.getElementById('NO_MEDREC');
 
     function togglePelaporFields() {
-        const elements = [klasifikasiSelect, nameWrapper, noTlpnWrapper, noMedrecWrapper, nameInput, noTelpInput, noMedrecInput];
-        if (elements.some(el => el === null)) {
+        if (!klasifikasiSelect || !nameWrapper || !noTlpnWrapper || !noMedrecWrapper || !nameInput || !noTelpInput) {
             return;
         }
 
         const selectedOption = klasifikasiSelect.options[klasifikasiSelect.selectedIndex];
         const klasifikasiNama = selectedOption ? selectedOption.getAttribute('data-nama') : null;
 
-        const isGratifikasi = (klasifikasiNama === 'Gratifikasi');
+        const isExceptionalCase = (klasifikasiNama === 'Gratifikasi' || klasifikasiNama === 'Sponsorship');
 
         // Tampilkan atau sembunyikan wrapper
-        nameWrapper.style.display = isGratifikasi ? 'none' : 'block';
-        noTlpnWrapper.style.display = isGratifikasi ? 'none' : 'block';
-        noMedrecWrapper.style.display = isGratifikasi ? 'none' : 'block';
+        nameWrapper.style.display = isExceptionalCase ? 'none' : 'block';
+        noTlpnWrapper.style.display = isExceptionalCase ? 'none' : 'block';
+        noMedrecWrapper.style.display = isExceptionalCase ? 'none' : 'block';
 
         // Atur atribut 'required' dan kosongkan nilai jika gratifikasi
-        if (isGratifikasi) {
+        if (isExceptionalCase) {
             nameInput.removeAttribute('required');
             noTelpInput.removeAttribute('required');
             nameInput.value = '';
             noTelpInput.value = '';
             noMedrecInput.value = '';
+            if (noMedrecInput) {
+                noMedrecInput.value = '';
+            }
         } else {
             nameInput.setAttribute('required', 'required');
             noTelpInput.setAttribute('required', 'required');

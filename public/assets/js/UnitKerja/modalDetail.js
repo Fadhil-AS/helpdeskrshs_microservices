@@ -109,51 +109,49 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const fileListContainer = document.getElementById('detail-file-list');
         fileListContainer.innerHTML = '';
+        let displayedFileCount = 0;
 
-        if (data.file_list && data.file_list.length > 0) {
-            data.file_list.forEach(file => {
-                const fileName = file.split('/').pop();
-                const fileExtension = fileName.split('.').pop().toLowerCase();
+        if (data.FILE_PENGADUAN && data.FILE_PENGADUAN.trim() !== '') {
+            const filePaths = data.FILE_PENGADUAN.split(';');
+            filePaths.forEach(filePath => {
+                const trimmedPath = filePath.trim();
+                if (trimmedPath === '') return;
 
-                const publicUrl = `/storage/${file}`;
-
-                let previewHtml = '';
-
-                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-
-                if (imageExtensions.includes(fileExtension)) {
-                    previewHtml = `
-                        <img src="${publicUrl}"
-                             alt="${fileName}"
-                             class="img-fluid rounded mb-2"
-                             style="height: 60px; width: 100%; object-fit: cover;"
-                             onerror="this.onerror=null; this.src='/path/to/default-image.jpg';">
-                    `;
-                } else {
-                    let iconClass = 'bi-file-earmark-text text-secondary';
-                    if (fileExtension === 'pdf') {
-                        iconClass = 'bi-file-earmark-pdf text-danger';
-                    } else if (['doc', 'docx'].includes(fileExtension)) {
-                        iconClass = 'bi-file-earmark-word text-primary';
-                    } else if (['xls', 'xlsx'].includes(fileExtension)) {
-                        iconClass = 'bi-file-earmark-excel text-success';
-                    }
-                    previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                // 5. Tentukan path final (tambahkan prefix jika perlu)
+                let finalPath = trimmedPath;
+                if (!trimmedPath.includes('/')) {
+                    finalPath = 'bukti_klarifikasi/' + trimmedPath;
                 }
 
-                fileListContainer.innerHTML += `
-                    <a href="${publicUrl}" target="_blank"
-                       class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between"
-                       style="width: 120px; text-align: center;">
+                // 6. FILTER: Hanya tampilkan jika path berasal dari 'bukti_klarifikasi/'
+                if (finalPath.startsWith('bukti_klarifikasi/')) {
+                    displayedFileCount++;
 
-                        ${previewHtml}
+                    const publicUrl = `/storage/${finalPath}`;
+                    const fileName = trimmedPath.split('/').pop();
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
 
-                        <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
-                    </a>
-                `;
+                    let previewHtml = '';
+                    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+
+                    if (imageExtensions.includes(fileExtension)) {
+                        previewHtml = `<img src="${publicUrl}" alt="${fileName}" class="img-fluid rounded mb-2" style="height: 60px; width: 100%; object-fit: cover;">`;
+                    } else {
+                        let iconClass = 'bi-file-earmark-text text-secondary';
+                        if (fileExtension === 'pdf') iconClass = 'bi-file-earmark-pdf text-danger';
+                        else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'bi-file-earmark-word text-primary';
+                        previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                    }
+
+                    fileListContainer.innerHTML += `
+                        <a href="${publicUrl}" target="_blank" class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between" style="width: 120px; text-align: center;">
+                            ${previewHtml}
+                            <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
+                        </a>`;
+                }
             });
-        } else {
-            fileListContainer.innerHTML = '<p class="text-muted small">Tidak ada file lampiran.</p>';
+        } if (displayedFileCount === 0) {
+            fileListContainer.innerHTML = '<p class="text-muted small">Tidak ada file bukti klarifikasi.</p>';
         }
 
         const editButton = detailModalElement.querySelector('.btn-edit');

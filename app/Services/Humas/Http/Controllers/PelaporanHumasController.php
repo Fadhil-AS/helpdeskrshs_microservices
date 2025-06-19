@@ -70,16 +70,19 @@ class PelaporanHumasController extends Controller {
     public function storePelaporanHumas(Request $request)
     {
         // dd($request->all());
-        $gratifikasiId = null;
         $gratifikasiKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Gratifikasi')->first();
-        if ($gratifikasiKlasifikasi) {
-            $gratifikasiId = $gratifikasiKlasifikasi->ID_KLASIFIKASI;
-        }
+        $sponsorshipKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Sponsorship')->first();
+
+        $gratifikasiId = $gratifikasiKlasifikasi ? $gratifikasiKlasifikasi->ID_KLASIFIKASI : null;
+        $sponsorshipId = $sponsorshipKlasifikasi ? $sponsorshipKlasifikasi->ID_KLASIFIKASI : null;
+
+        $excludedIds = array_filter([$gratifikasiId, $sponsorshipId]);
+        $excludedIdsString = implode(',', $excludedIds);
 
         $rules = [
             'JUDUL_COMPLAINT' => 'required|string|max:255',
-            'NO_TLPN' => 'required_unless:ID_KLASIFIKASI,' . $gratifikasiId . '|nullable|string|max:20',
-            'NAME' => 'required_unless:ID_KLASIFIKASI,' . $gratifikasiId . '|nullable|string|max:150',
+            'NO_TLPN' => 'required_unless:ID_KLASIFIKASI,' . $excludedIdsString . '|nullable|string|max:20',
+            'NAME' => 'required_unless:ID_KLASIFIKASI,' . $excludedIdsString . '|nullable|string|max:150',
             'ID_BAGIAN' => 'required|string|exists:unit_kerja,ID_BAGIAN',
             'NO_MEDREC' => 'nullable|string|max:50',
             'ID_JENIS_LAPORAN' => 'required|string|exists:jenis_laporan,ID_JENIS_LAPORAN',
@@ -92,7 +95,7 @@ class PelaporanHumasController extends Controller {
 
         $messages = [
             'required' => 'Kolom :attribute wajib diisi.',
-            'required_unless' => 'Kolom :attribute wajib diisi kecuali untuk klasifikasi Gratifikasi.',
+            'required_unless' => 'Kolom :attribute wajib diisi kecuali untuk klasifikasi Gratifikasi atau Sponsorship.',
             'string' => 'Kolom :attribute harus berupa teks.',
             'max' => 'Kolom :attribute tidak boleh lebih dari :max karakter/KB.',
             'exists' => ':attribute yang dipilih tidak valid.',
@@ -134,21 +137,23 @@ class PelaporanHumasController extends Controller {
                 'STATUS' => 'Open',
             ]);
 
-            $isGratifikasi = $request->input('ID_KLASIFIKASI') == $gratifikasiId;
+            $selectedKlasifikasiId = $request->input('ID_KLASIFIKASI');
+            $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
 
-            if (!$isGratifikasi) {
-                $dataToCreate['NO_TLPN'] = $request->input('NO_TLPN');
-                $dataToCreate['NAME'] = $request->input('NAME');
-                $dataToCreate['NO_MEDREC'] = $request->input('NO_MEDREC');
-            } else {
+            if ($isExcluded) {
+                $submittedName = $request->input('NAME');
+                $dataToCreate['NAME'] = empty($submittedName) ? 'Anonimus' : $submittedName;
                 $dataToCreate['NO_TLPN'] = null;
-                $dataToCreate['NAME'] = null;
                 $dataToCreate['NO_MEDREC'] = null;
+            } else {
+                $dataToCreate['NAME'] = $request->input('NAME');
+                $dataToCreate['NO_TLPN'] = $request->input('NO_TLPN');
+                $dataToCreate['NO_MEDREC'] = $request->input('NO_MEDREC');
             }
 
             $laporanBaru = Laporan::create($dataToCreate);
-
-            if (!$isGratifikasi) {
+            $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
+            if (!$isExcluded) {
                 $this->kirimNotifikasiStatusKePelapor($laporanBaru);
             }
 
