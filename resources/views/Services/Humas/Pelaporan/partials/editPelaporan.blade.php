@@ -54,14 +54,14 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editTanggalPengaduan">Tanggal
                                         Pengaduan</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalPengaduan" readonly>
+                                    <input type="text" class="form-control " id="editTanggalPengaduan" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
-                                    <input type="text" class="form-control readonly-on-helpdesk" id="editNoTelp" name="NO_TLPN"
-                                        value="081234567890">
+                                    <input type="text" class="form-control readonly-on-helpdesk" id="editNoTelp"
+                                        name="NO_TLPN" value="081234567890" readonly>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold d-block mb-3">Grading</label>
@@ -90,7 +90,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Pelapor</label>
                                     <input type="text" class="form-control" value="Ahmad Sulaiman" id="editNamaPelapor"
-                                        name="NAME">
+                                        name="NAME" readonly>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Unit Kerja Tujuan</label>
@@ -107,8 +107,8 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">No. Medrec</label>
-                                    <input type="text" class="form-control readonly-on-helpdesk" value="RM123456" id="editNoMedrec"
-                                        name="NO_MEDREC">
+                                    <input type="text" class="form-control readonly-on-helpdesk" value="RM123456"
+                                        id="editNoMedrec" name="NO_MEDREC" readonly>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdJenisLaporan">Jenis Laporan</label>
@@ -147,8 +147,8 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdKlasifikasi">Klasifikasi
                                         Pengaduan</label>
-                                    <select class="form-select readonly-on-helpdesk" data-live-search="true" id="editIdKlasifikasi"
-                                        name="ID_KLASIFIKASI" required>
+                                    <select class="form-select readonly-on-helpdesk" data-live-search="true"
+                                        id="editIdKlasifikasi" name="ID_KLASIFIKASI" required>
                                         <option value="" selected disabled>Pilih klasifikasi pengaduan</option>
                                         @if (isset($klasifikasiPengaduan) && $klasifikasiPengaduan->count() > 0)
                                             @foreach ($klasifikasiPengaduan as $kp)
@@ -178,12 +178,12 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Petugas Evaluasi</label>
-                                    <input type="text" class="form-control bg-light" id="editPetugasEvaluasi"
+                                    <input type="text" class="form-control " id="editPetugasEvaluasi"
                                         name="PETUGAS_EVALUASI" readonly>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Evaluasi</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalEvaluasi" readonly>
+                                    <input type="text" class="form-control" id="editTanggalEvaluasi" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -203,26 +203,33 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Selesai</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalSelesai" readonly>
+                                    <input type="text" class="form-control" id="editTanggalSelesai" readonly>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
                                     Unit</label>
-                                <textarea class="form-control bg-light" rows="3" id="editKlarifikasiUnitContent"
+                                <textarea class="form-control" rows="3" id="editKlarifikasiUnitContent"
                                     name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                                <div class="d-flex flex-wrap gap-3 mt-2 p-2 bg-light rounded"
-                                    id="editBuktiKlarifikasiContainer">
+                                <div class="d-flex flex-wrap gap-3 mt-2 p-2 rounded" id="editBuktiKlarifikasiContainer">
                                 </div>
                             </div>
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label class="form-label fw-bold" for="editTindakLanjutHumasContent">Tindak Lanjut
                                     Humas</label>
                                 <textarea class="form-control" rows="3" id="editTindakLanjutHumasContent"
                                     name="TINDAK_LANJUT_HUMAS"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold" for="FILE_PENGADUAN_input">File Tindak Lanjut Humas (Jika Ada)</label>
+                                <input type="file" class="form-control @error('FILE_PENGADUAN') is-invalid @enderror"
+                                    id="FILE_PENGADUAN_input" name="FILE_PENGADUAN">
+                                @error('FILE_PENGADUAN')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>

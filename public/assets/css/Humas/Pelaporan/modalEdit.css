@@ -1,4 +1,6 @@
-.form-control-readonly {
-    background-color: #e9ecef !important;
+.form-control[readonly],
+textarea.form-control[readonly] {
+    background-color: #EBEBEB;
     opacity: 1;
+    color: black;
 }

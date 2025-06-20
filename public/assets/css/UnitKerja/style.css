@@ -108,6 +108,10 @@
     width: 160px !important;
 }
 
+.bootstrap-select .filter-option-inner-inner {
+    color: black;
+}
+
 .bootstrap-select .btn:focus,
 .bootstrap-select .btn:active,
 .bootstrap-select .btn-reset:focus,
@@ -410,4 +414,11 @@ tr.editing-row .editable-input {
 tr.editing-row .editable-input:focus {
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 185, 173, 0.25) !important;
+}
+
+.form-control[readonly],
+textarea.form-control[readonly] {
+    background-color: #EBEBEB;
+    opacity: 1;
+    color: black;
 }

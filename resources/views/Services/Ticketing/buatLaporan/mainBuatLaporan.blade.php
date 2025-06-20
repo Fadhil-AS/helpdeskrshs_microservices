@@ -44,16 +44,10 @@
                 </div>
             @endif
 
-            <div class="mb-3" id="wrapper_nama">
-                <label class="form-label fw-bold">Nama Lengkap</label>
-                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME"
-                    value="{{ old('NAME', $laporanReferensi->NAME ?? '') }}" required>
-            </div>
-
             <div class="mb-3">
                 <label class="form-label fw-bold" for="jenisPelapor">Jenis Pelapor</label>
                 <select name="jenis_pelapor" id="jenisPelapor" class="form-select" required>
-                    <option value="">Pilih Jenis Pelapor</option>
+                    <option value="" selected disabled>Pilih Jenis Pelapor</option>
                     <option value="Pasien" {{ old('jenis_pelapor') == 'Pasien' ? 'selected' : '' }}>Pasien</option>
                     <option value="Non-Pasien" {{ old('jenis_pelapor') == 'Non-Pasien' ? 'selected' : '' }}>Non-Pasien
                     </option>
@@ -63,13 +57,19 @@
             <div class="mb-3">
                 <label class="form-label fw-bold" for="ID_KLASIFIKASI">Klasifikasi Pengaduan</label>
                 <select name="ID_KLASIFIKASI" id="ID_KLASIFIKASI" class="form-select" required>
-                    <option value="">Pilih Klasifikasi Pengaduan</option>
+                    <option value="" selected disabled>Pilih Klasifikasi Pengaduan</option>
                     @foreach ($klasifikasiPengaduan as $klasifikasi)
                         <option value="{{ $klasifikasi->ID_KLASIFIKASI }}" {{ old('ID_KLASIFIKASI', $laporanReferensi->ID_KLASIFIKASI ?? '') == $klasifikasi->ID_KLASIFIKASI ? 'selected' : '' }}>
                             {{ $klasifikasi->KLASIFIKASI_PENGADUAN }}
                         </option>
                     @endforeach
                 </select>
+            </div>
+
+            <div class="mb-3" id="wrapper_nama">
+                <label class="form-label fw-bold">Nama Lengkap</label>
+                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME"
+                    value="{{ old('NAME', $laporanReferensi->NAME ?? '') }}" required>
             </div>
 
             <div class="mb-3" id="wrapper_no_tlpn">

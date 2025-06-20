@@ -15,7 +15,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Judul Pengaduan</label>
-                        <input type="text" class="form-control" id="edit-judul" name="JUDUL_COMPLAINT">
+                        <input type="text" class="form-control" id="edit-judul" name="JUDUL_COMPLAINT" readonly>
                     </div>
 
                     <div class="mb-3">
@@ -52,7 +52,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Batal</button>
+                        <button class="btn btn-outline-danger" data-bs-dismiss="modal" type="button">Batal</button>
                         <button class="btn btn-simpan" type="submit">Simpan Klarifikasi</button>
                     </div>
                 </div>
