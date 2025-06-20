@@ -16,6 +16,7 @@
     @include('Services.Ticketing.partials.navbarTicketing')
     @yield('containBuatLaporan')
     <script src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}"></script>
+    @include('Services.Ticketing.buatLaporan.partials.fungsiJenisPelaporan')
     {{-- @include('Services.Ticketing.buatLaporan.layouts.fungsiFileLaporan') --}}
     {{-- @include('Services.Ticketing.buatLaporan.partials.fungsiKlasifikasi')
     @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan') --}}
