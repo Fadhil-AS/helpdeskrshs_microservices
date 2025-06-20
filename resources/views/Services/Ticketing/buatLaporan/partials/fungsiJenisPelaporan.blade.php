@@ -9,7 +9,6 @@
             const noMedrecLabel = document.querySelector('label[for="nomorRekamMedis"]');
             const noMedrecInput = document.getElementById('nomorRekamMedis');
 
-            // Pastikan elemen-elemennya ada sebelum dimanipulasi
             if (!noMedrecLabel || !noMedrecInput) return;
 
             const selectedPelapor = jenisPelaporSelect.value;

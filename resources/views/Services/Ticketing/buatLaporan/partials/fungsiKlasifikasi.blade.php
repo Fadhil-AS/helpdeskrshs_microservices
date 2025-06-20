@@ -1,65 +1,87 @@
+{{-- File: fungsiKlasifikasi.blade.php --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        function handleKlasifikasiChange() {
-            const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
-            if (!klasifikasiSelect) return;
+document.addEventListener('DOMContentLoaded', function() {
+    const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
+    const form = document.getElementById('formPengaduan');
 
+    // Fungsi untuk menangani perubahan pada dropdown klasifikasi
+    function handleKlasifikasiChange() {
+        if (!klasifikasiSelect) return;
+
+        const fileInput = document.getElementById('buktiPendukungFile');
+        const fileLabel = document.querySelector('label[for="buktiPendukungFile"]');
+        const selectedKlasifikasi = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim().toLowerCase();
+
+        const namaWrapper = document.getElementById('wrapper_nama');
+        const noTlpnWrapper = document.getElementById('wrapper_no_tlpn');
+        const noMedrecWrapper = document.getElementById('wrapper_no_medrec');
+
+        const namaLabel = document.querySelector('#wrapper_nama .form-label');
+        const noTlpnLabel = document.querySelector('#wrapper_no_tlpn .form-label');
+
+        const namaInput = document.querySelector('[name="NAME"]');
+        const noTlpnInput = document.querySelector('[name="NO_TLPN"]');
+        const noMedrecInput = document.getElementById('nomorRekamMedis');
+
+        if (namaWrapper) namaWrapper.style.display = 'block';
+        if (noTlpnWrapper) noTlpnWrapper.style.display = 'block';
+        if (noMedrecWrapper) noMedrecWrapper.style.display = 'block';
+
+        if (namaLabel) namaLabel.innerHTML = 'Nama Lengkap';
+        if (noTlpnLabel) noTlpnLabel.innerHTML = 'Nomor Telepon';
+
+        if (namaInput) namaInput.required = true;
+        if (noTlpnInput) noTlpnInput.required = true;
+
+        fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
+        fileInput.required = false;
+
+        // logika khusus untuk setiap klasifikasi
+        if (selectedKlasifikasi === 'sponsorship') {
+            // SPONSORSHIP
+            fileLabel.innerHTML = 'Surat Undangan (Wajib)';
+            fileInput.required = true;
+
+            if (noMedrecWrapper) noMedrecWrapper.style.display = 'none';
+            if (noMedrecInput) noMedrecInput.required = false;
+
+            if (namaLabel) namaLabel.innerHTML = 'Nama Lengkap (Opsional)';
+            if (noTlpnLabel) noTlpnLabel.innerHTML = 'Nomor Telepon (Opsional)';
+            if (namaInput) namaInput.required = false;
+            if (noTlpnInput) noTlpnInput.required = false;
+
+        } else if (selectedKlasifikasi === 'gratifikasi') {
+            // GRATIFIKASI
+            fileLabel.innerHTML = 'Bukti Pendukung (Wajib)';
+            fileInput.required = true;
+
+            const fieldsToHide = [namaWrapper, noTlpnWrapper, noMedrecWrapper];
+            const inputsToMakeOptional = [namaInput, noTlpnInput, noMedrecInput];
+
+            fieldsToHide.forEach(wrapper => { if (wrapper) wrapper.style.display = 'none'; });
+            inputsToMakeOptional.forEach(input => { if (input) input.required = false; });
+        }
+    }
+
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            const selectedKlasifikasiText = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim().toLowerCase();
+            const isFileRequired = selectedKlasifikasiText === 'sponsorship' || selectedKlasifikasiText === 'gratifikasi';
             const fileInput = document.getElementById('buktiPendukungFile');
-            const fileLabel = document.querySelector('label[for="buktiPendukungFile"]');
+            const fileErrorDiv = document.getElementById('buktiPendukungFileErrors');
 
-            const namaWrapper = document.getElementById('wrapper_nama');
-            const noTlpnWrapper = document.getElementById('wrapper_no_tlpn');
-            const noMedrecWrapper = document.getElementById('wrapper_no_medrec');
-
-            const namaInput = document.querySelector('[name="NAME"]');
-            const noTlpnInput = document.querySelector('[name="NO_TLPN"]');
-
-            const selectedOptionText = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim().toLowerCase();
-
-            // --- 1. Reset semua field ke kondisi default terlebih dahulu ---
-            fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
-            fileInput.required = false;
-
-            if (namaWrapper) namaWrapper.style.display = '';
-            if (noTlpnWrapper) noTlpnWrapper.style.display = '';
-            if (noMedrecWrapper) noMedrecWrapper.style.display = '';
-
-            if (namaInput) namaInput.required = true;
-            if (noTlpnInput) noTlpnInput.required = true;
-
-
-            // --- 2. Terapkan logika baru berdasarkan pilihan ---
-            if (selectedOptionText === 'sponsorship') {
-                // SPONSORSHIP
-                fileLabel.innerHTML = 'Surat Undangan (Wajib)';
-                fileInput.required = true;
-
-                // Sembunyikan field Nomor Rekam Medis
-                if (noMedrecWrapper) {
-                    noMedrecWrapper.style.display = 'none';
-                }
-
-            } else if (selectedOptionText === 'gratifikasi') {
-                // GRATIFIKASI
-                fileLabel.innerHTML = 'Bukti Pendukung (Wajib)';
-                fileInput.required = true;
-
-                // Sembunyikan field nama, no telepon, dan no medrec
-                if (namaWrapper) namaWrapper.style.display = 'none';
-                if (noTlpnWrapper) noTlpnWrapper.style.display = 'none';
-                if (noMedrecWrapper) noMedrecWrapper.style.display = 'none';
-
-                // Jadikan inputnya tidak wajib diisi
-                if (namaInput) namaInput.required = false;
-                if (noTlpnInput) noTlpnInput.required = false;
+            if (isFileRequired && fileInput.files.length === 0) {
+                event.preventDefault();
+                fileErrorDiv.textContent = 'Anda wajib mengunggah file untuk klasifikasi ini.';
+            } else {
+                fileErrorDiv.textContent = '';
             }
-        }
+        });
+    }
 
-        const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
-        if (klasifikasiSelect) {
-            klasifikasiSelect.addEventListener('change', handleKlasifikasiChange);
-
-            handleKlasifikasiChange();
-        }
-    });
+    if (klasifikasiSelect) {
+        klasifikasiSelect.addEventListener('change', handleKlasifikasiChange);
+        handleKlasifikasiChange();
+    }
+});
 </script>
