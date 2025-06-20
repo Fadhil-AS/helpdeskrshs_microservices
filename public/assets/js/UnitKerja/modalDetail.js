@@ -11,60 +11,53 @@ document.addEventListener('DOMContentLoaded', function () {
     const detailModal = new bootstrap.Modal(detailModalElement);
     const editModal = new bootstrap.Modal(editModalElement);
 
-    let complaintIdForTransition = null;
+    let complaintIdForEdit = null;
 
     detailModalElement.addEventListener('show.bs.modal', async function (event) {
         const button = event.relatedTarget;
+        if (!button) return;
         const complaintId = button.getAttribute('data-id');
-        // console.log('ID yang akan dicari:', activeComplaintId);
 
         resetModalFields();
 
         try {
             const urlTemplate = detailModalElement.dataset.urlTemplate;
             const finalUrl = urlTemplate.replace('PLACEHOLDER', complaintId);
-            // console.log('URL yang akan di-fetch:', finalUrl);
             const response = await fetch(finalUrl);
             if (!response.ok) throw new Error('Data pengaduan tidak ditemukan.');
             const data = await response.json();
-            populateDetailFields(data);
 
+            populateDetailFields(data);
         } catch (error) {
             console.error('Error fetching detail:', error);
             const body = detailModalElement.querySelector('.modal-body');
-            if(body) body.innerHTML = `<p class="text-center text-danger p-5">${error.message}</p>`;
+            if (body) body.innerHTML = `<p class="text-center text-danger p-5">${error.message}</p>`;
         }
     });
 
     detailModalElement.addEventListener('click', function(event) {
         const editButton = event.target.closest('.btn-edit');
         if (editButton) {
-            const complaintId = editButton.dataset.id;
+            const complaintId = editButton.getAttribute('data-id');
             if (complaintId) {
-                complaintIdForTransition = complaintId;
+                complaintIdForEdit = complaintId;
                 detailModal.hide();
             }
         }
     });
 
-    detailModalElement.addEventListener('hidden.bs.modal', function (event) {
-        if (complaintIdForTransition) {
+    detailModalElement.addEventListener('hidden.bs.modal', function () {
+        if (complaintIdForEdit) {
             editModal.show();
         }
     });
 
-    editModalElement.addEventListener('show.bs.modal', async function (event) {
-        let complaintId;
-        if (complaintIdForTransition) {
-            complaintId = complaintIdForTransition;
-            complaintIdForTransition = null;
-        } else {
-            const button = event.relatedTarget;
-            if (!button) return;
-            complaintId = button.getAttribute('data-id');
-        }
 
-        if (!complaintId) return;
+    editModalElement.addEventListener('show.bs.modal', async function () {
+        if (!complaintIdForEdit) return;
+
+        const complaintId = complaintIdForEdit;
+
         const urlTemplate = editModalElement.dataset.urlTemplate;
         editForm.action = urlTemplate.replace('PLACEHOLDER', complaintId);
 
@@ -77,6 +70,10 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error saat mempersiapkan modal edit:', error);
             editModal.hide();
         }
+    });
+
+    editModalElement.addEventListener('hidden.bs.modal', function() {
+        complaintIdForEdit = null;
     });
 
     function populateDetailFields(data) {
@@ -117,13 +114,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const trimmedPath = filePath.trim();
                 if (trimmedPath === '') return;
 
-                // 5. Tentukan path final (tambahkan prefix jika perlu)
                 let finalPath = trimmedPath;
                 if (!trimmedPath.includes('/')) {
                     finalPath = 'bukti_klarifikasi/' + trimmedPath;
                 }
 
-                // 6. FILTER: Hanya tampilkan jika path berasal dari 'bukti_klarifikasi/'
                 if (finalPath.startsWith('bukti_klarifikasi/')) {
                     displayedFileCount++;
 
@@ -154,10 +149,10 @@ document.addEventListener('DOMContentLoaded', function () {
             fileListContainer.innerHTML = '<p class="text-muted small">Tidak ada file bukti klarifikasi.</p>';
         }
 
-        const editButton = detailModalElement.querySelector('.btn-edit');
-        if(editButton) {
-            editButton.setAttribute('data-id', data.ID_COMPLAINT);
-        }
+        const editButtons = detailModalElement.querySelectorAll('.btn-edit');
+        editButtons.forEach(button => {
+            button.setAttribute('data-id', data.ID_COMPLAINT);
+        });
     }
 
     function populateEditForm(data) {

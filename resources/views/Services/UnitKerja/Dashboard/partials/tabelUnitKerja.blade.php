@@ -91,7 +91,8 @@
                                 <i class="bi bi-eye me-2"></i>
                             </a>
                             <a href="#" data-bs-toggle="modal" data-bs-target="#editModal"
-                                data-id="{{ $complaint->ID_COMPLAINT }}" title="Isi Klarifikasi">
+                                data-id="{{ $complaint->ID_COMPLAINT }}" title="Isi Klarifikasi"
+                                class="tombol-edit-klarifikasi">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                         </td>

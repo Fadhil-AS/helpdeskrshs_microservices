@@ -228,84 +228,43 @@ class PelaporanHumasController extends Controller {
 
         DB::beginTransaction();
         try {
-            // $updateData = $request->only([
-            //     'JUDUL_COMPLAINT', 'PETUGAS_PELAPOR', 'ID_BAGIAN', 'ID_JENIS_LAPORAN',
-            //     'PERMASALAHAN', 'STATUS', 'ID_PENYELESAIAN',
-            //     'TINDAK_LANJUT_HUMAS'
-            // ]);
             $updateData = $request->except(['_token', '_method']);
-            $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
-            $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
-            $statusSekarang = $complaint->STATUS;
+            // $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
+            // $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
+            // $statusSekarang = $complaint->STATUS;
 
-            if (in_array($statusSekarang, ['Open', 'On Progress'])) {
-                // Jika laporan masih aktif, sistem mengambil alih penentuan status
-                if ($penyelesaianDiisi || $tindakLanjutDiisi) {
-                    // Aturan 1: Jika solusi diisi, status PASTI 'Menunggu Konfirmasi'
-                    $updateData['STATUS'] = 'Menunggu Konfirmasi';
-                } else {
-                    // Aturan 2: Jika belum ada solusi, statusnya menjadi 'On Progress'
-                    $updateData['STATUS'] = 'On Progress';
-                }
-            } else {
-                // Aturan 3: Jika status sudah lanjut, gunakan nilai dari dropdown
-                $updateData['STATUS'] = $request->input('STATUS');
+            $newStatus = $complaint->STATUS;
+            if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
+                $newStatus = 'Menunggu Konfirmasi';
+            } else if ($complaint->STATUS === 'Open' && $request->filled('gradingOptions')) {
+                $newStatus = 'On Progress';
+            }
+            $updateData['STATUS'] = $newStatus;
+
+            if ($newStatus === 'On Progress' && is_null($complaint->TGL_PENUGASAN)) {
+                $updateData['TGL_PENUGASAN'] = Carbon::now();
             }
 
-            if (!$isFromWebsite) {
-                $editableFields = $request->only([
-                    'NAME', 'NO_TLPN', 'NO_MEDREC', 'ID_KLASIFIKASI', 'ISI_COMPLAINT', 'ID_JENIS_MEDIA',
-                ]);
-                $updateData = array_merge($updateData, $editableFields);
-            }
-
-            $originalData = $complaint->getOriginal();
-            $hasChanges = false;
-            foreach ($updateData as $key => $value) {
-                if ($key === 'STATUS') continue;
-                if (array_key_exists($key, $originalData) && $originalData[$key] != $value) {
-                    $hasChanges = true;
-                    break;
+             if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
+                if (!is_null($complaint->TGL_EVALUASI) && is_null($complaint->TGL_SELESAI)) {
+                    $now = Carbon::now();
+                    $evaluationTime = Carbon::parse($complaint->TGL_EVALUASI);
+                    $updateData['TGL_SELESAI'] = $now->max($evaluationTime);
                 }
             }
 
-            if (!$hasChanges && $request->input('TINDAK_LANJUT_HUMAS') != $complaint->EVALUASI_COMPLAINT) {
-                $hasChanges = true;
-            }
-
-            if ($hasChanges && $complaint->STATUS === 'Open' && $request->input('STATUS') === 'Open') {
-                $updateData['STATUS'] = 'On Progress';
-            }
-
-            // $updateData['EVALUASI_COMPLAINT'] = $request->input('TINDAK_LANJUT_HUMAS');
-
-            if ($request->has('gradingOptions')) {
-                $updateData['GRANDING'] = $request->input('gradingOptions');
-            } else {
-                $updateData['GRANDING'] = null;
-            }
-
-            $finalStatus = $updateData['STATUS'];
-
-            if ($finalStatus == 'On Progress' && is_null($complaint->TGL_EVALUASI)) {
-                $updateData['TGL_EVALUASI'] = Carbon::now();
-            }
-
-            if(in_array($finalStatus, ['Menunggu Konfirmasi', 'Close']) && is_null($complaint->TGL_SELESAI)) {
-                $updateData['TGL_SELESAI'] = Carbon::now();
-            }
+            $updateData['GRANDING'] = $request->input('gradingOptions');
 
             if ($request->filled('ID_PENYELESAIAN')) {
                 $penyelesaian = DB::table('penyelesaian_pengaduan')
-                                  ->where('ID_PENYELESAIAN', $request->input('ID_PENYELESAIAN'))
-                                  ->first();
+                    ->where('ID_PENYELESAIAN', $request->input('ID_PENYELESAIAN'))
+                    ->first();
                 if ($penyelesaian) {
                     $updateData['DISPOSISI'] = $penyelesaian->PENYELESAIAN_PENGADUAN;
                 }
             } else {
                 $updateData['DISPOSISI'] = null;
             }
-
             $complaint->update($updateData);
 
             if ($complaint->wasChanged('STATUS')) {

@@ -49,19 +49,37 @@ class DashboardUnitKerjaController extends Controller {
 
     public function update(Request $request, $id_complaint)
     {
-        $validator = Validator::make($request->all(), [
+        $complaint = Laporan::findOrFail($id_complaint);
+
+        $minEvaluationDate = $complaint->TGL_PENUGASAN ? Carbon::parse($complaint->TGL_PENUGASAN)->format('Y-m-d') : null;
+
+        $rules = [
             'JUDUL_COMPLAINT'    => 'required|string|max:255',
             'klarifikasi_unit'   => 'required|string|max:5000',
             'file_bukti'         => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
             'PETUGAS_EVALUASI'   => 'required|string|max:150',
-            'TGL_EVALUASI'       => 'required|date',
-        ], [
+            'TGL_EVALUASI'       => ['required', 'date'],
+        ];
+
+        if ($minEvaluationDate) {
+            $rules['TGL_EVALUASI'][] = 'after_or_equal:' . $minEvaluationDate;
+        }
+         $messages = [
             'klarifikasi_unit.required' => 'Kolom Klarifikasi Unit wajib diisi.',
-            'TGL_EVALUASI.required' => 'Kolom Tanggal Evaluasi wajib diisi.'
-        ]);
+            'TGL_EVALUASI.required'     => 'Kolom Tanggal Evaluasi wajib diisi.',
+            'TGL_EVALUASI.after_or_equal' => 'Tanggal evaluasi tidak boleh sebelum tanggal penugasan (' . ($minEvaluationDate ? Carbon::parse($minEvaluationDate)->format('d M Y') : '') . ').',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput()->with('show_modal_on_error', '#editModal');
+            return redirect()
+            ->back()
+            ->
+            withErrors($validator)
+            ->withInput()
+            ->with('error_complaint_id', $id_complaint);
+            // ->with('show_modal_on_error', '#editModal');
         }
 
         try {
@@ -75,7 +93,7 @@ class DashboardUnitKerjaController extends Controller {
                     'PETUGAS_EVALUASI'   => $request->input('PETUGAS_EVALUASI'),
                     'TGL_EVALUASI'       => $request->input('TGL_EVALUASI'),
                     'STATUS'             => 'On Progress',
-                    'TGL_SELESAI'        => Carbon::now(),
+                    // 'TGL_SELESAI'        => Carbon::now(),
                 ];
 
                 if ($request->hasFile('file_bukti')) {

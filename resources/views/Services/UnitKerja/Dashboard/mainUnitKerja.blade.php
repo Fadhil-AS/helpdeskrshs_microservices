@@ -24,11 +24,15 @@
     <script src="{{ asset('assets/js/UnitKerja/dashboard.js') }}"></script>
     <script src="{{ asset('assets/js/UnitKerja/modalDetail.js') }}"></script>
     <script src="{{ asset('assets/js/UnitKerja/modalEdit.js') }}"></script>
-    @if (session('show_modal_on_error') && $errors->any())
+    @if (session('error_complaint_id'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                var errorModal = new bootstrap.Modal(document.querySelector("{{ session('show_modal_on_error') }}"));
-                errorModal.show();
+                var complaintIdWithError = '{{ session('error_complaint_id') }}';
+                var buttonToClick = document.querySelector('.tombol-edit-klarifikasi[data-id="' + complaintIdWithError +
+                    '"]');
+                if (buttonToClick) {
+                    buttonToClick.click();
+                }
             });
         </script>
     @endif

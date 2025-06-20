@@ -36,6 +36,7 @@ class Laporan extends Model {
         'EVALUASI_COMPLAINT',
         'JUDUL_COMPLAINT',
         'PETUGAS_EVALUASI',
+        'TGL_PENUGASAN',
         'TGL_EVALUASI',
         'GRANDING',
         'PETUGAS_PELAPOR',
