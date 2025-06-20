@@ -115,4 +115,19 @@
             </div>
         </form>
     </div>
+
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4.5rem;"></i>
+                    </div>
+                    <h5 class="mb-2" id="modalTicketNumber">Nomor tiket anda:</h5>
+                    <p class="text-muted">Simpan nomor tiket ini untuk melacak status laporan anda.</p>
+                    <button type="button" class="btn btn-simpan mt-2" id="modalOkButton">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

@@ -215,3 +215,42 @@
         margin-right: 16px !important;
     }
 }
+
+/* Style Modal */
+#successModal .modal-content {
+    border: 3px solid white;
+    border-radius: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+#successModal .modal-body {
+    padding: 3rem 2.5rem;
+}
+
+#successModal .bi-check-circle-fill {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+}
+
+#successModal #modalTicketNumber {
+    color: #343a40;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+#successModal #modalTicketNumber strong {
+    color: #007b8a;
+}
+
+#successModal p.text-muted {
+    margin-bottom: 2rem;
+}
+
+#successModal #modalOkButton {
+    width: 100%;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}

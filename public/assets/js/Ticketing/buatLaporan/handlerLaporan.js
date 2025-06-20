@@ -18,9 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateFile(file) {
         const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-        const maxSize = 5 * 1024 * 1024;
-        if (!allowedTypes.includes(file.type)) return { valid: false, message: `Tipe file tidak diizinkan: ${file.name}.` };
-        if (file.size > maxSize) return { valid: false, message: `Ukuran file ${file.name} terlalu besar (Maks. 5MB).` };
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (!allowedTypes.includes(file.type)) {
+            return { valid: false, message: `Tipe file tidak diizinkan: ${file.name}.` };
+        }
+        if (file.size > maxSize) {
+            return { valid: false, message: `Ukuran file ${file.name} terlalu besar (Maks. 5MB).` };
+        }
         return { valid: true };
     }
 
@@ -34,9 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
             validBuktiPendukungFiles.forEach((file, index) => {
                 const fileBox = document.createElement('div');
                 fileBox.className = 'file-item-box';
-                let preview = file.type.startsWith('image/')
-                    ? `<img src="${URL.createObjectURL(file)}" alt="${file.name}" />`
-                    : `<div class="file-icon d-flex justify-content-center align-items-center h-100"><i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i></div>`;
+                let preview = file.type.startsWith('image/') ?
+                    `<img src="${URL.createObjectURL(file)}" alt="${file.name}" />` :
+                    `<div class="file-icon d-flex justify-content-center align-items-center h-100"><i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i></div>`;
 
                 fileBox.innerHTML = `
                     <div class="file-preview-section">${preview}</div>
@@ -101,8 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     klasifikasiSelect.addEventListener('change', handleKlasifikasiChange);
-
-    renderFileUI();
     buktiPendukungFileInput.addEventListener('change', (e) => processFiles(e.target.files));
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         buktiPendukungDropAreaLabel.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
@@ -141,10 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(uploadUrl, {
                     method: 'POST',
                     body: fileFormData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
                 });
                 const result = await response.json();
                 if (!result.success) throw new Error(result.message || 'Gagal unggah file.');
@@ -171,36 +170,59 @@ document.addEventListener('DOMContentLoaded', function() {
             const finalResponse = await fetch(form.action, {
                 method: 'POST',
                 body: finalFormData,
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrfToken
-                }
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
             });
             const finalResult = await finalResponse.json();
 
             if (!finalResult.success) {
                 let errorHtml = finalResult.message || 'Terjadi kesalahan.';
-                if(finalResult.errors) {
+                if (finalResult.errors) {
                     errorHtml += '<ul>' + Object.values(finalResult.errors).map(e => `<li>${e[0]}</li>`).join('') + '</ul>';
                 }
                 throw new Error(errorHtml);
             }
 
-            formMessageDiv.innerHTML = `<div class="alert alert-success">${finalResult.message}</div>`;
+            // --- LOGIKA MODAL ---
             form.reset();
             validBuktiPendukungFiles.length = 0;
             renderFileUI();
             handleKlasifikasiChange();
-            setTimeout(() => window.location.href = redirectUrl, 3000);
+
+            const successModalEl = document.getElementById('successModal');
+            const ticketNumberEl = document.getElementById('modalTicketNumber');
+            const okButton = document.getElementById('modalOkButton');
+
+            if (successModalEl && ticketNumberEl && okButton) {
+                formMessageDiv.innerHTML = '';
+
+                if (finalResult.ticket_id) {
+                    ticketNumberEl.innerHTML = `Nomor tiket anda: <br><strong class="fs-4">${finalResult.ticket_id}</strong>`;
+                } else {
+                    ticketNumberEl.textContent = finalResult.message || 'Laporan Anda telah berhasil dikirim.';
+                }
+
+                okButton.onclick = () => {
+                    window.location.href = redirectUrl;
+                };
+
+                const successModal = new bootstrap.Modal(successModalEl);
+                successModal.show();
+            } else {
+                console.error('Elemen modal tidak ditemukan!');
+                formMessageDiv.innerHTML = `<div class="alert alert-success">${finalResult.message || 'Laporan berhasil dikirim!'}</div>`;
+                setTimeout(() => window.location.href = redirectUrl, 3000);
+            }
+            // --- AKHIR LOGIKA MODAL ---
 
         } catch (error) {
             formMessageDiv.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
         } finally {
-             submitButton.disabled = false;
-             submitButton.innerHTML = 'Kirim Laporan';
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Kirim Laporan';
         }
     });
 
+    // Inisialisasi awal
+    renderFileUI();
     handleKlasifikasiChange();
 });

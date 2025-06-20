@@ -10,16 +10,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/styleTicketing.css') }}">
 </head>
 
 <body>
     @include('Services.Ticketing.partials.navbarTicketing')
+
     @yield('containBuatLaporan')
-    <script src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}"></script>
+
     @include('Services.Ticketing.buatLaporan.partials.fungsiKlasifikasi')
-    {{-- @include('Services.Ticketing.buatLaporan.layouts.fungsiFileLaporan') --}}
-    {{-- @include('Services.Ticketing.buatLaporan.partials.fungsiKlasifikasi')
-    @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan') --}}
+
+    @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan')
+
+    <script src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}"></script>
 </body>
 
 </html>
