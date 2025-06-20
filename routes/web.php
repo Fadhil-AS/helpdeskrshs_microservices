@@ -18,6 +18,7 @@ use App\Services\UnitKerja\Http\Controllers\DashboardUnitKerjaController;
 use App\Services\Admin\Http\Controllers\DashboardAdminController;
 use App\Services\Chatbot\Http\Controllers\ChatbotController;
 use App\Services\Chatbot\Models\Chatbot;
+use App\Services\Login\Http\Controllers\LoginController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -106,6 +107,9 @@ Route::prefix('admin')->name('admin.')->group(function(){
     Route::get('/dashboard', action: [DashboardAdminController::class, 'getDashboard'])->name('dashboard');
     Route::get('/admin/dashboard/chart-data', [DashboardAdminController::class, 'getFilteredChartData'])->name('dashboard.chart-data');
 });
+
+// route login
+Route::get('/login', [LoginController::class, 'getLogin']);
 
 // Route::prefix('chatbot')->name('chatbot.')->group(function(){
 //     Route::get('/chat', action: [ChatbotController::class, 'getChatbot'])->name('chat');

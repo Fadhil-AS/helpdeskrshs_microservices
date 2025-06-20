@@ -1,0 +1,94 @@
+.navbar {
+    background-color: #ffffff !important;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+    transition: all 0.3s ease;
+}
+
+.hiasan {
+    position: fixed;
+    width: 100px;
+    z-index: -1;
+}
+
+.top-left {
+    top: 74px;
+    left: 0;
+    transform: rotate(0deg);
+}
+
+.top-right {
+    top: 74px;
+    right: 0;
+    transform: rotate(90deg);
+}
+
+.bottom-left {
+    bottom: 0;
+    left: 0;
+    transform: rotate(-90deg);
+}
+
+.bottom-right {
+    bottom: 0;
+    right: 0;
+    transform: rotate(180deg);
+}
+
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 90vh;
+    padding: 1rem;
+}
+
+.login-card {
+    background-color: #fff;
+    padding: 2.5rem 3rem;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
+    width: 100%;
+}
+
+.logo-rs {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 3px solid #e9ecef;
+}
+
+.form-control-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+
+.btn-login {
+    background-color: #00B9AD;
+    border-color: #00B9AD;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+}
+
+.btn-login:hover {
+    background-color: #267B84;
+    border-color: #267B84;
+}
+
+.password-addon {
+    cursor: pointer;
+}
+
+.subtitle {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+@media (min-width: 992px) {
+    .login-form-column {
+        max-width: 500px;
+    }
+}
