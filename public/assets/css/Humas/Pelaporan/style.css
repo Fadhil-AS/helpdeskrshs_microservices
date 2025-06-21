@@ -322,11 +322,22 @@ table tr th {
 }
 
 /* Style Daftar Pelaporan */
-#buktiKlarifikasiContainer {
+/* #buktiKlarifikasiContainer {
     border: 1px solid gainsboro;
     padding: 1rem;
     border-radius: 0.375rem;
     min-height: 150px;
+} */
+
+.file-display-container {
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    min-height: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .form-check-input[type="radio"]:checked {
@@ -350,24 +361,28 @@ table tr th {
 
 .file-klarifikasi-item {
     width: 120px;
+    height: 130px;
     padding: 0.75rem;
     border: 1px solid #e0e0e0;
-    border-radius: 0.25rem;
+    border-radius: 0.375rem;
     background-color: #ffffff;
-    text-align: center;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
 .file-klarifikasi-item img {
-    max-height: 70px;
+    height: 60px;
+    width: 100%;
     object-fit: contain;
     margin-bottom: 0.5rem;
 }
 
-.file-klarifikasi-item .bi-file-earmark-pdf {
+.file-klarifikasi-item .bi-file-earmark-text {
+    font-size: 3rem;
     margin-bottom: 0.5rem;
 }
 
@@ -376,14 +391,46 @@ table tr th {
     word-break: break-all;
 }
 
-#buktiKlarifikasiContainer:empty::before {
+.file-klarifikasi-item a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    height: 100%;
+}
+
+.file-klarifikasi-item small {
+    font-size: 0.75rem;
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: auto;
+    text-align: center;
+}
+
+.file-display-container:empty::before {
+    content: "Tidak ada file yang dilampirkan.";
+    display: block;
+    text-align: center;
+    color: #6c757d;
+    padding: 2rem 0;
+    font-style: italic;
+    width: 100%;
+}
+
+/* #buktiKlarifikasiContainer:empty::before {
     content: "Tidak ada file bukti klarifikasi.";
     display: block;
     text-align: center;
     color: #6c757d;
     padding: 2rem 0;
     font-style: italic;
-}
+} */
 
 /* Style Data Referensi */
 .aksi-cell a {
