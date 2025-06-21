@@ -70,19 +70,23 @@ class PelaporanHumasController extends Controller {
     public function storePelaporanHumas(Request $request)
     {
         // dd($request->all());
-        $gratifikasiId = null;
         $gratifikasiKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Gratifikasi')->first();
-        if ($gratifikasiKlasifikasi) {
-            $gratifikasiId = $gratifikasiKlasifikasi->ID_KLASIFIKASI;
-        }
+        $sponsorshipKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Sponsorship')->first();
+        $etikKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Etik')->first();
+
+        $gratifikasiId = $gratifikasiKlasifikasi ? $gratifikasiKlasifikasi->ID_KLASIFIKASI : null;
+        $sponsorshipId = $sponsorshipKlasifikasi ? $sponsorshipKlasifikasi->ID_KLASIFIKASI : null;
+        $etikId = $etikKlasifikasi ? $etikKlasifikasi->ID_KLASIFIKASI : null;
+
+        $excludedIds = array_filter([$gratifikasiId, $sponsorshipId]);
+        $excludedIdsString = implode(',', $excludedIds);
+        $fileWajibIds = array_filter([$gratifikasiId, $sponsorshipId]);
 
         $rules = [
-            'JUDUL_COMPLAINT' => 'required|string|max:255',
-            'NO_TLPN' => 'required_unless:ID_KLASIFIKASI,' . $gratifikasiId . '|nullable|string|max:20',
-            'NAME' => 'required_unless:ID_KLASIFIKASI,' . $gratifikasiId . '|nullable|string|max:150',
-            'ID_BAGIAN' => 'required|string|exists:unit_kerja,ID_BAGIAN',
+            'jenis_pelapor' => 'required|string|in:Pasien,Non-Pasien',
+            'NO_TLPN' => 'required_unless:ID_KLASIFIKASI,' . $excludedIdsString . '|nullable|string|max:20',
+            'NAME' => 'required_unless:ID_KLASIFIKASI,' . $excludedIdsString . '|nullable|string|max:150',
             'NO_MEDREC' => 'nullable|string|max:50',
-            'ID_JENIS_LAPORAN' => 'required|string|exists:jenis_laporan,ID_JENIS_LAPORAN',
             'ID_JENIS_MEDIA' => 'required|string|exists:jenis_media,ID_JENIS_MEDIA',
             'ID_KLASIFIKASI' => 'required|string|exists:klasifikasi_pengaduan,ID_KLASIFIKASI',
             'ISI_COMPLAINT' => 'required|string',
@@ -92,7 +96,9 @@ class PelaporanHumasController extends Controller {
 
         $messages = [
             'required' => 'Kolom :attribute wajib diisi.',
-            'required_unless' => 'Kolom :attribute wajib diisi kecuali untuk klasifikasi Gratifikasi.',
+            'FILE_PENGADUAN.required' => 'File pengaduan wajib diunggah untuk klasifikasi Sponsorship atau Gratifikasi.',
+            'in' => 'Kolom :attribute yang dipilih tidak valid.',
+            'required_unless' => 'Kolom :attribute wajib diisi kecuali untuk klasifikasi Gratifikasi atau Sponsorship.',
             'string' => 'Kolom :attribute harus berupa teks.',
             'max' => 'Kolom :attribute tidak boleh lebih dari :max karakter/KB.',
             'exists' => ':attribute yang dipilih tidak valid.',
@@ -101,6 +107,11 @@ class PelaporanHumasController extends Controller {
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
+
+        $validator->sometimes('FILE_PENGADUAN', 'required', function ($input) use ($fileWajibIds) {
+            // Aturan 'required' hanya berlaku jika ID_KLASIFIKASI yang dipilih ada di dalam array $fileWajibIds
+            return in_array($input->ID_KLASIFIKASI, $fileWajibIds);
+        });
 
         if ($validator->fails()) {
             return redirect()->route('humas.pelaporan-humas')
@@ -120,11 +131,17 @@ class PelaporanHumasController extends Controller {
                 $filePath = $file->storeAs('pengaduan_files', $fileName, 'public');
             }
 
+            $jenisPelapor = $request->input('jenis_pelapor');
+            $idJenisLaporanDefault = '';
+            if ($jenisPelapor === 'Pasien') {
+                $idJenisLaporanDefault = 'Pasien';
+            } elseif ($jenisPelapor === 'Non-Pasien') {
+                $idJenisLaporanDefault = 'Non-Pasien';
+            }
+
             $dataToCreate = ([
                 'ID_COMPLAINT' => $newIdComplaint,
-                'JUDUL_COMPLAINT' => $request->input('JUDUL_COMPLAINT'),
-                'ID_BAGIAN' => $request->input('ID_BAGIAN'),
-                'ID_JENIS_LAPORAN' => $request->input('ID_JENIS_LAPORAN'),
+                'JENIS_PELAPOR' => $jenisPelapor,
                 'ID_JENIS_MEDIA' => $request->input('ID_JENIS_MEDIA'),
                 'ID_KLASIFIKASI' => $request->input('ID_KLASIFIKASI'),
                 'ISI_COMPLAINT' => $request->input('ISI_COMPLAINT'),
@@ -134,21 +151,25 @@ class PelaporanHumasController extends Controller {
                 'STATUS' => 'Open',
             ]);
 
-            $isGratifikasi = $request->input('ID_KLASIFIKASI') == $gratifikasiId;
+            $selectedKlasifikasiId = $request->input('ID_KLASIFIKASI');
+            $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
 
-            if (!$isGratifikasi) {
-                $dataToCreate['NO_TLPN'] = $request->input('NO_TLPN');
-                $dataToCreate['NAME'] = $request->input('NAME');
-                $dataToCreate['NO_MEDREC'] = $request->input('NO_MEDREC');
-            } else {
+            // $klasifikasiText = KlasifikasiPengaduan::find($selectedKlasifikasiId)->KLASIFIKASI_PENGADUAN ?? 'Pengaduan';
+
+            if ($isExcluded) {
+                $submittedName = $request->input('NAME');
+                $dataToCreate['NAME'] = empty($submittedName) ? 'Anonimus' : $submittedName;
                 $dataToCreate['NO_TLPN'] = null;
-                $dataToCreate['NAME'] = null;
                 $dataToCreate['NO_MEDREC'] = null;
+            } else {
+                $dataToCreate['NAME'] = $request->input('NAME');
+                $dataToCreate['NO_TLPN'] = $request->input('NO_TLPN');
+                $dataToCreate['NO_MEDREC'] = $request->input('NO_MEDREC');
             }
 
             $laporanBaru = Laporan::create($dataToCreate);
-
-            if (!$isGratifikasi) {
+            $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
+            if (!$isExcluded) {
                 $this->kirimNotifikasiStatusKePelapor($laporanBaru);
             }
 
@@ -198,7 +219,7 @@ class PelaporanHumasController extends Controller {
             'ID_JENIS_LAPORAN'      => 'required|string|exists:jenis_laporan,ID_JENIS_LAPORAN',
             'PERMASALAHAN'          => 'nullable|string',
             'STATUS'                => 'sometimes|in:Open,On Progress,Menunggu Konfirmasi,Close,Banding',
-            'gradingOptions'        => 'nullable|in:Hijau,Kuning,Merah',
+            'gradingOptions'        => 'required|in:Hijau,Kuning,Merah',
             'ID_PENYELESAIAN'       => 'nullable|string|exists:penyelesaian_pengaduan,ID_PENYELESAIAN',
             'TINDAK_LANJUT_HUMAS'   => 'nullable|string|max:4000',
         ];
@@ -212,7 +233,13 @@ class PelaporanHumasController extends Controller {
             $rules['ID_JENIS_MEDIA']  = 'required|string|exists:jenis_media,ID_JENIS_MEDIA';
         }
 
-        $validator = Validator::make($request->all(), $rules);
+        $messages = [
+            'gradingOptions.required' => 'Grading wajib dipilih.',
+            'gradingOptions.in' => 'Grading yang dipilih tidak valid.',
+            'ID_BAGIAN' => 'Unit kerja tujuan wajib diisi'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -223,84 +250,42 @@ class PelaporanHumasController extends Controller {
 
         DB::beginTransaction();
         try {
-            // $updateData = $request->only([
-            //     'JUDUL_COMPLAINT', 'PETUGAS_PELAPOR', 'ID_BAGIAN', 'ID_JENIS_LAPORAN',
-            //     'PERMASALAHAN', 'STATUS', 'ID_PENYELESAIAN',
-            //     'TINDAK_LANJUT_HUMAS'
-            // ]);
             $updateData = $request->except(['_token', '_method']);
-            $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
-            $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
-            $statusSekarang = $complaint->STATUS;
+            // $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
+            // $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
+            // $statusSekarang = $complaint->STATUS;
 
-            if (in_array($statusSekarang, ['Open', 'On Progress'])) {
-                // Jika laporan masih aktif, sistem mengambil alih penentuan status
-                if ($penyelesaianDiisi || $tindakLanjutDiisi) {
-                    // Aturan 1: Jika solusi diisi, status PASTI 'Menunggu Konfirmasi'
-                    $updateData['STATUS'] = 'Menunggu Konfirmasi';
-                } else {
-                    // Aturan 2: Jika belum ada solusi, statusnya menjadi 'On Progress'
-                    $updateData['STATUS'] = 'On Progress';
-                }
-            } else {
-                // Aturan 3: Jika status sudah lanjut, gunakan nilai dari dropdown
-                $updateData['STATUS'] = $request->input('STATUS');
+            $newStatus = $complaint->STATUS;
+            if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
+                $newStatus = 'Menunggu Konfirmasi';
+            } else if ($complaint->STATUS === 'Open' && $request->filled('gradingOptions')) {
+                $newStatus = 'On Progress';
+            }
+            $updateData['STATUS'] = $newStatus;
+
+            if ($newStatus === 'On Progress' && is_null($complaint->TGL_PENUGASAN)) {
+                $updateData['TGL_PENUGASAN'] = Carbon::now();
             }
 
-            if (!$isFromWebsite) {
-                $editableFields = $request->only([
-                    'NAME', 'NO_TLPN', 'NO_MEDREC', 'ID_KLASIFIKASI', 'ISI_COMPLAINT', 'ID_JENIS_MEDIA',
-                ]);
-                $updateData = array_merge($updateData, $editableFields);
-            }
-
-            $originalData = $complaint->getOriginal();
-            $hasChanges = false;
-            foreach ($updateData as $key => $value) {
-                if ($key === 'STATUS') continue;
-                if (array_key_exists($key, $originalData) && $originalData[$key] != $value) {
-                    $hasChanges = true;
-                    break;
+             if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
+                // Untuk mencegah TGL_SELESAI ter-update lagi jika diedit di kemudian hari
+                if (is_null($complaint->TGL_SELESAI)) {
+                    $updateData['TGL_SELESAI'] = Carbon::now();
                 }
             }
 
-            if (!$hasChanges && $request->input('TINDAK_LANJUT_HUMAS') != $complaint->EVALUASI_COMPLAINT) {
-                $hasChanges = true;
-            }
-
-            if ($hasChanges && $complaint->STATUS === 'Open' && $request->input('STATUS') === 'Open') {
-                $updateData['STATUS'] = 'On Progress';
-            }
-
-            // $updateData['EVALUASI_COMPLAINT'] = $request->input('TINDAK_LANJUT_HUMAS');
-
-            if ($request->has('gradingOptions')) {
-                $updateData['GRANDING'] = $request->input('gradingOptions');
-            } else {
-                $updateData['GRANDING'] = null;
-            }
-
-            $finalStatus = $updateData['STATUS'];
-
-            if ($finalStatus == 'On Progress' && is_null($complaint->TGL_EVALUASI)) {
-                $updateData['TGL_EVALUASI'] = Carbon::now();
-            }
-
-            if(in_array($finalStatus, ['Menunggu Konfirmasi', 'Close']) && is_null($complaint->TGL_SELESAI)) {
-                $updateData['TGL_SELESAI'] = Carbon::now();
-            }
+            $updateData['GRANDING'] = $request->input('gradingOptions');
 
             if ($request->filled('ID_PENYELESAIAN')) {
                 $penyelesaian = DB::table('penyelesaian_pengaduan')
-                                  ->where('ID_PENYELESAIAN', $request->input('ID_PENYELESAIAN'))
-                                  ->first();
+                    ->where('ID_PENYELESAIAN', $request->input('ID_PENYELESAIAN'))
+                    ->first();
                 if ($penyelesaian) {
                     $updateData['DISPOSISI'] = $penyelesaian->PENYELESAIAN_PENGADUAN;
                 }
             } else {
                 $updateData['DISPOSISI'] = null;
             }
-
             $complaint->update($updateData);
 
             if ($complaint->wasChanged('STATUS')) {

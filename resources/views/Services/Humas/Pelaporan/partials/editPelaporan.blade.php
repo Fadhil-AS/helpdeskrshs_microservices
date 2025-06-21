@@ -14,7 +14,7 @@
                         <div class="d-flex align-items-center gap-2">
                             <div>
                                 <small class="text-bold">Status: </small>
-                                <span class="badge bg-success">Open</span>
+                                <span class="badge bg-success" id="editStatusBadge">-</span>
                             </div>
                             {{-- <label for="editStatus" class="form-label fw-bold mb-0 text-nowrap">Status:</label>
                             <select class="form-select form-select-sm" id="editStatus" name="STATUS"
@@ -54,12 +54,16 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editTanggalPengaduan">Tanggal
                                         Pengaduan</label>
+                                    <input type="text" class="form-control bg-light" id="editTanggalPengaduan"
+                                        readonly>
                                     <input type="text" class="form-control " id="editTanggalPengaduan" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
+                                    <input type="text" class="form-control readonly-on-helpdesk" id="editNoTelp"
+                                        name="NO_TLPN" value="081234567890">
                                     <input type="text" class="form-control readonly-on-helpdesk" id="editNoTelp"
                                         name="NO_TLPN" value="081234567890" readonly>
                                 </div>
@@ -68,7 +72,7 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
-                                                id="editGradingHijau" value="Hijau">
+                                                id="editGradingHijau" value="Hijau" required>
                                             <label class="form-check-label" for="editGradingHijau">Hijau</label>
                                         </div>
                                         <div class="form-check form-check-inline">
@@ -89,6 +93,8 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Pelapor</label>
+                                    <input type="text" class="form-control" value="Ahmad Sulaiman"
+                                        id="editNamaPelapor" name="NAME">
                                     <input type="text" class="form-control" value="Ahmad Sulaiman" id="editNamaPelapor"
                                         name="NAME" readonly>
                                 </div>
@@ -107,6 +113,8 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">No. Medrec</label>
+                                    <input type="text" class="form-control readonly-on-helpdesk" value="RM123456"
+                                        id="editNoMedrec" name="NO_MEDREC">
                                     <input type="text" class="form-control readonly-on-helpdesk" value="RM123456"
                                         id="editNoMedrec" name="NO_MEDREC" readonly>
                                 </div>
@@ -149,6 +157,8 @@
                                         Pengaduan</label>
                                     <select class="form-select readonly-on-helpdesk" data-live-search="true"
                                         id="editIdKlasifikasi" name="ID_KLASIFIKASI" required>
+                                    <select class="form-select readonly-on-helpdesk" data-live-search="true"
+                                        id="editIdKlasifikasi" name="ID_KLASIFIKASI" required>
                                         <option value="" selected disabled>Pilih klasifikasi pengaduan</option>
                                         @if (isset($klasifikasiPengaduan) && $klasifikasiPengaduan->count() > 0)
                                             @foreach ($klasifikasiPengaduan as $kp)
@@ -162,14 +172,12 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT"
-                                    required></textarea>
+                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
                                     Permasalahan</label>
-                                <textarea class="form-control" rows="3" id="editPermasalahan"
-                                    name="PERMASALAHAN"></textarea>
+                                <textarea class="form-control" rows="3" id="editPermasalahan" name="PERMASALAHAN"></textarea>
                             </div>
                         </div>
 
@@ -183,6 +191,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Evaluasi</label>
+                                    <input type="text" class="form-control bg-light" id="editTanggalEvaluasi"
+                                        readonly>
                                     <input type="text" class="form-control" id="editTanggalEvaluasi" readonly>
                                 </div>
                             </div>
@@ -203,12 +213,16 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Selesai</label>
+                                    <input type="text" class="form-control bg-light" id="editTanggalSelesai"
+                                        readonly>
                                     <input type="text" class="form-control" id="editTanggalSelesai" readonly>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
                                     Unit</label>
+                                <textarea class="form-control bg-light" rows="3" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT"
+                                    readonly></textarea>
                                 <textarea class="form-control" rows="3" id="editKlarifikasiUnitContent"
                                     name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
                             </div>

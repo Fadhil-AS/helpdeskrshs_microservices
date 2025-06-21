@@ -42,7 +42,7 @@ trait NotifikasiWhatsappPelapor
 
         switch ($laporan->STATUS) {
             case 'Open':
-                $pesanBody = "Terima kasih, laporan Anda terkait *" . $judulLaporan . "* dengan nomor tiket *" . $idLaporan . "* telah kami terima dan akan segera kami proses.";
+                $pesanBody = "Terima kasih, laporan dengan nomor tiket *" . $idLaporan . "* telah kami terima dan akan segera kami proses.";
                 break;
             case 'On Progress':
                 $pesanBody = "Update Laporan [" . $idLaporan . "]: Laporan Anda terkait *" . $judulLaporan . "* saat ini sedang dalam proses penanganan oleh tim kami.";

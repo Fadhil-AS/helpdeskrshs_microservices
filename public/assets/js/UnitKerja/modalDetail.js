@@ -11,60 +11,53 @@ document.addEventListener('DOMContentLoaded', function () {
     const detailModal = new bootstrap.Modal(detailModalElement);
     const editModal = new bootstrap.Modal(editModalElement);
 
-    let complaintIdForTransition = null;
+    let complaintIdForEdit = null;
 
     detailModalElement.addEventListener('show.bs.modal', async function (event) {
         const button = event.relatedTarget;
+        if (!button) return;
         const complaintId = button.getAttribute('data-id');
-        // console.log('ID yang akan dicari:', activeComplaintId);
 
         resetModalFields();
 
         try {
             const urlTemplate = detailModalElement.dataset.urlTemplate;
             const finalUrl = urlTemplate.replace('PLACEHOLDER', complaintId);
-            // console.log('URL yang akan di-fetch:', finalUrl);
             const response = await fetch(finalUrl);
             if (!response.ok) throw new Error('Data pengaduan tidak ditemukan.');
             const data = await response.json();
-            populateDetailFields(data);
 
+            populateDetailFields(data);
         } catch (error) {
             console.error('Error fetching detail:', error);
             const body = detailModalElement.querySelector('.modal-body');
-            if(body) body.innerHTML = `<p class="text-center text-danger p-5">${error.message}</p>`;
+            if (body) body.innerHTML = `<p class="text-center text-danger p-5">${error.message}</p>`;
         }
     });
 
     detailModalElement.addEventListener('click', function(event) {
         const editButton = event.target.closest('.btn-edit');
         if (editButton) {
-            const complaintId = editButton.dataset.id;
+            const complaintId = editButton.getAttribute('data-id');
             if (complaintId) {
-                complaintIdForTransition = complaintId;
+                complaintIdForEdit = complaintId;
                 detailModal.hide();
             }
         }
     });
 
-    detailModalElement.addEventListener('hidden.bs.modal', function (event) {
-        if (complaintIdForTransition) {
+    detailModalElement.addEventListener('hidden.bs.modal', function () {
+        if (complaintIdForEdit) {
             editModal.show();
         }
     });
 
-    editModalElement.addEventListener('show.bs.modal', async function (event) {
-        let complaintId;
-        if (complaintIdForTransition) {
-            complaintId = complaintIdForTransition;
-            complaintIdForTransition = null;
-        } else {
-            const button = event.relatedTarget;
-            if (!button) return;
-            complaintId = button.getAttribute('data-id');
-        }
 
-        if (!complaintId) return;
+    editModalElement.addEventListener('show.bs.modal', async function () {
+        if (!complaintIdForEdit) return;
+
+        const complaintId = complaintIdForEdit;
+
         const urlTemplate = editModalElement.dataset.urlTemplate;
         editForm.action = urlTemplate.replace('PLACEHOLDER', complaintId);
 
@@ -77,6 +70,10 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error saat mempersiapkan modal edit:', error);
             editModal.hide();
         }
+    });
+
+    editModalElement.addEventListener('hidden.bs.modal', function() {
+        complaintIdForEdit = null;
     });
 
     function populateDetailFields(data) {
@@ -109,57 +106,53 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const fileListContainer = document.getElementById('detail-file-list');
         fileListContainer.innerHTML = '';
+        let displayedFileCount = 0;
 
-        if (data.file_list && data.file_list.length > 0) {
-            data.file_list.forEach(file => {
-                const fileName = file.split('/').pop();
-                const fileExtension = fileName.split('.').pop().toLowerCase();
+        if (data.FILE_PENGADUAN && data.FILE_PENGADUAN.trim() !== '') {
+            const filePaths = data.FILE_PENGADUAN.split(';');
+            filePaths.forEach(filePath => {
+                const trimmedPath = filePath.trim();
+                if (trimmedPath === '') return;
 
-                const publicUrl = `/storage/${file}`;
-
-                let previewHtml = '';
-
-                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-
-                if (imageExtensions.includes(fileExtension)) {
-                    previewHtml = `
-                        <img src="${publicUrl}"
-                             alt="${fileName}"
-                             class="img-fluid rounded mb-2"
-                             style="height: 60px; width: 100%; object-fit: cover;"
-                             onerror="this.onerror=null; this.src='/path/to/default-image.jpg';">
-                    `;
-                } else {
-                    let iconClass = 'bi-file-earmark-text text-secondary';
-                    if (fileExtension === 'pdf') {
-                        iconClass = 'bi-file-earmark-pdf text-danger';
-                    } else if (['doc', 'docx'].includes(fileExtension)) {
-                        iconClass = 'bi-file-earmark-word text-primary';
-                    } else if (['xls', 'xlsx'].includes(fileExtension)) {
-                        iconClass = 'bi-file-earmark-excel text-success';
-                    }
-                    previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                let finalPath = trimmedPath;
+                if (!trimmedPath.includes('/')) {
+                    finalPath = 'bukti_klarifikasi/' + trimmedPath;
                 }
 
-                fileListContainer.innerHTML += `
-                    <a href="${publicUrl}" target="_blank"
-                       class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between"
-                       style="width: 120px; text-align: center;">
+                if (finalPath.startsWith('bukti_klarifikasi/')) {
+                    displayedFileCount++;
 
-                        ${previewHtml}
+                    const publicUrl = `/storage/${finalPath}`;
+                    const fileName = trimmedPath.split('/').pop();
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
 
-                        <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
-                    </a>
-                `;
+                    let previewHtml = '';
+                    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+
+                    if (imageExtensions.includes(fileExtension)) {
+                        previewHtml = `<img src="${publicUrl}" alt="${fileName}" class="img-fluid rounded mb-2" style="height: 60px; width: 100%; object-fit: cover;">`;
+                    } else {
+                        let iconClass = 'bi-file-earmark-text text-secondary';
+                        if (fileExtension === 'pdf') iconClass = 'bi-file-earmark-pdf text-danger';
+                        else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'bi-file-earmark-word text-primary';
+                        previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                    }
+
+                    fileListContainer.innerHTML += `
+                        <a href="${publicUrl}" target="_blank" class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between" style="width: 120px; text-align: center;">
+                            ${previewHtml}
+                            <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
+                        </a>`;
+                }
             });
-        } else {
-            fileListContainer.innerHTML = '<p class="text-muted small">Tidak ada file lampiran.</p>';
+        } if (displayedFileCount === 0) {
+            fileListContainer.innerHTML = '<p class="text-muted small">Tidak ada file bukti klarifikasi.</p>';
         }
 
-        const editButton = detailModalElement.querySelector('.btn-edit');
-        if(editButton) {
-            editButton.setAttribute('data-id', data.ID_COMPLAINT);
-        }
+        const editButtons = detailModalElement.querySelectorAll('.btn-edit');
+        editButtons.forEach(button => {
+            button.setAttribute('data-id', data.ID_COMPLAINT);
+        });
     }
 
     function populateEditForm(data) {

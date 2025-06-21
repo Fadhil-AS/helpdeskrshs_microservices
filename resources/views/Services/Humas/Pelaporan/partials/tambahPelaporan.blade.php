@@ -14,7 +14,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="jenisPelapor">Jenis Pelapor</label>
-                                <select name="jenis_pelapor" id="jenisPelapor" class="form-select" required>
+                                <select name="jenis_pelapor" id="jenisPelapor" class="form-select" name="jenis_pelapor" required>
                                     <option value="" selected disabled>Pilih Jenis Pelapor</option>
                                     <option value="Pasien">Pasien</option>
                                     <option value="Non-Pasien">Non-Pasien</option>

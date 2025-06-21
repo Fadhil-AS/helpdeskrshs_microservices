@@ -49,10 +49,8 @@ class LacakTicketingController extends Controller
                 if ($tanggapan === 'selesai') {
                     $laporan->STATUS = 'Close';
                     $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
-                    $laporan->TGL_SELESAI = Carbon::now()->toDateString();
-                    $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup. Silakan berikan feedback tambahan jika berkenan.';
-                    $laporan->TGL_INSROW = Carbon::now()->toDateString();
                     $laporan->save();
+                    $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
 
                     // Cek apakah tiket ini adalah tiket lanjutan (banding)
                     if (!empty($laporan->ID_COMPLAINT_REFERENSI)) {
@@ -62,9 +60,9 @@ class LacakTicketingController extends Controller
                         // Jika tiket lama ditemukan, tutup juga
                         if ($laporanReferensi) {
                             $laporanReferensi->STATUS = 'Close';
-                            $laporanReferensi->TGL_SELESAI = Carbon::now();
-                            $laporanReferensi->TGL_INSROW = Carbon::now()->toDateString();
-                            $laporanReferensi->save();
+                            $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
+                            $laporan->save();
+                            $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
 
                             Log::info('Tiket referensi ' . $laporanReferensi->ID_COMPLAINT . ' juga telah ditutup karena tiket lanjutan ' . $laporan->ID_COMPLAINT . ' selesai.');
                         }
@@ -111,21 +109,21 @@ class LacakTicketingController extends Controller
                 $riwayatPenanganan = [];
 
                 // History: Tiket Diterima (oleh Humas)
+                // Tanggal diambil dari TGL_INSROW
                 if (!in_array($laporan->STATUS, ['Baru', 'Open']) || $laporan->ID_BAGIAN) {
-                    $waktuDiterima = $laporan->TGL_COMPLAINT ?? $laporan->TGL_DISPOSISI ?? $laporan->updated_at;
                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($waktuDiterima)->format('d M Y'),
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_INSROW ?? $laporan->TGL_COMPLAINT)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Tiket Diterima',
                         'deskripsi_aksi' => 'Tiket telah diterima dan sedang diproses.',
                     ];
-               }
+                }
 
                 // History: Diteruskan ke Unit Kerja
-                if ($laporan->ID_BAGIAN && isset($laporan->unitKerja)) {
-                    $waktuDisposisi = $laporan->TGL_DISPOSISI ?? $laporan->TGL_EVALUASI ?? $laporan->updated_at;
+                // Tanggal diambil dari TGL_PENUGASAN
+                if ($laporan->ID_BAGIAN && isset($laporan->unitKerja) && $laporan->TGL_PENUGASAN) {
                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($waktuDisposisi)->format('d M Y'),
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_PENUGASAN)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Diteruskan ke Unit Kerja',
                         'deskripsi_aksi' => 'Laporan diteruskan ke <b>' . $laporan->unitKerja->NAMA_BAGIAN . '</b> untuk penanganan lebih lanjut.',
@@ -133,6 +131,7 @@ class LacakTicketingController extends Controller
                 }
 
                 // History: Klarifikasi dari Unit Kerja
+                // Tanggal diambil dari TGL_EVALUASI
                 if (!empty($laporan->EVALUASI_COMPLAINT) && !empty($laporan->TGL_EVALUASI)) {
                     $riwayatPenanganan[] = [
                         'tanggal_aksi' => Carbon::parse($laporan->TGL_EVALUASI)->format('d M Y'),
@@ -142,7 +141,8 @@ class LacakTicketingController extends Controller
                     ];
                 }
 
-                 // History: Tindak Lanjut oleh Humas (berdasarkan penyelesaian)
+                // History: Tindak Lanjut oleh Humas (berdasarkan penyelesaian)
+                // Tanggal diambil dari TGL_SELESAI
                 if (!empty($laporan->DISPOSISI) || !empty($laporan->TINDAK_LANJUT_HUMAS)) {
                     $deskripsiTindakLanjut = '';
                     if (!empty($laporan->DISPOSISI)) {
@@ -152,7 +152,7 @@ class LacakTicketingController extends Controller
                     }
 
                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI ?? $laporan->updated_at)->format('d M Y'),
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI ?? $laporan->TGL_EVALUASI)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Sudah ditindak lanjuti oleh Humas',
                         'deskripsi_aksi' => $deskripsiTindakLanjut,
@@ -160,34 +160,34 @@ class LacakTicketingController extends Controller
                 }
 
                 // History: Menunggu Konfirmasi
+                // Tanggal diambil dari TGL_SELESAI
                 if (in_array($laporan->STATUS, ['Menunggu Konfirmasi', 'Menunggu Konfirmasi Pelapor'])) {
-                    $waktuMenunggu = $laporan->TGL_EVALUASI ?? $laporan->updated_at;
                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($waktuMenunggu)->format('d M Y'),
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI ?? $laporan->TGL_EVALUASI)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Menunggu Konfirmasi Pelapor',
                         'deskripsi_aksi' => 'Klarifikasi telah diberikan, sistem menunggu tanggapan dari Anda.',
                     ];
-               }
+                }
 
-                $waktuTanggapan = $laporan->TGL_INSROW ?? $laporan->updated_at;
-                if ($laporan->STATUS === 'Banding') {
-                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($waktuTanggapan)->format('d M Y'),
-                        'aktor' => 'Pelapor',
-                        'judul_aksi' => 'Pengajuan Banding',
-                        'deskripsi_aksi' => 'Pelapor menyatakan masalah belum selesai dan meminta peninjauan kembali.',
-                    ];
-                } else if (in_array($laporan->STATUS, ['Close', 'Selesai'])) {
-                    $deskripsiTutup = $laporan->RATING_LAPORAN === 'Masalah terselesaikan'
-                                       ? 'Pelapor mengkonfirmasi masalah telah terselesaikan.'
-                                       : 'Tiket telah ditutup oleh sistem.';
-                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($waktuTanggapan)->format('d M Y'),
-                        'aktor' => 'Pelapor',
-                        'judul_aksi' => 'Tiket Ditutup',
-                        'deskripsi_aksi' => 'Pelapor mengkonfirmasi masalah telah terselesaikan.',
-                    ];
+                // History: Tiket Ditutup atau Banding
+                // Tanggal diambil dari TGL_SELESAI
+                if ($laporan->TGL_SELESAI) {
+                    if ($laporan->STATUS === 'Banding') {
+                        $riwayatPenanganan[] = [
+                            'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI)->format('d M Y'),
+                            'aktor' => 'Pelapor',
+                            'judul_aksi' => 'Pengajuan Banding',
+                            'deskripsi_aksi' => 'Pelapor menyatakan masalah belum selesai dan meminta peninjauan kembali.',
+                        ];
+                    } else if (in_array($laporan->STATUS, ['Close', 'Selesai'])) {
+                        $riwayatPenanganan[] = [
+                            'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI)->format('d M Y'),
+                            'aktor' => 'Pelapor',
+                            'judul_aksi' => 'Tiket Ditutup',
+                            'deskripsi_aksi' => 'Pelapor mengkonfirmasi masalah telah terselesaikan.',
+                        ];
+                    }
                 }
 
                 if (property_exists($laporan, 'KETERANGAN') && !empty($laporan->KETERANGAN)) {
@@ -300,7 +300,7 @@ class LacakTicketingController extends Controller
                         'is_menunggu_konfirmasi' => $isMenungguKonfirmasi,
                         'waktu_konfirmasi_tersisa' => $waktuKonfirmasiTersisa,
                         'persen_waktu_konfirmasi' => $persenWaktuKonfirmasi,
-                        'tanggal_complaint_timelineFormat' => Carbon::parse($laporan->TGL_COMPLAINT)->format('d M Y'),
+                        'tanggal_complaint_timelineFormat' => Carbon::parse($laporan->TGL_INSROW ?? $laporan->TGL_COMPLAINT)->format('d M Y'),
                     ],
                     'riwayat_penanganan' => $riwayatPenanganan,
                 ];

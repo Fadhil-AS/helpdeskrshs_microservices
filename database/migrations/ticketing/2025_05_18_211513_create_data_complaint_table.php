@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('ID_PENYELESAIAN', 20)->nullable();
             $table->string('ID_JENIS_LAPORAN', 20)->nullable();
             $table->date('TGL_COMPLAINT');
+            $table->string('JENIS_PELAPOR', 255)->nullable();
             $table->string('NAME', 70)->nullable();
             $table->string('NO_TLPN', 100)->nullable();
             $table->text('ISI_COMPLAINT', 4000)->nullable();
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->string('EVALUASI_COMPLAINT', 4000)->nullable();
             $table->string('JUDUL_COMPLAINT', 4000)->nullable();
             $table->string('PETUGAS_EVALUASI', 100)->nullable();
+            $table->date('TGL_PENUGASAN')->nullable();
             $table->date('TGL_EVALUASI')->nullable();
             $table->string('GRANDING', 30)->nullable();
             $table->string('PETUGAS_PELAPOR', 100)->nullable();
@@ -36,7 +38,7 @@ return new class extends Migration
             $table->date('TGL_SELESAI')->nullable();
             // $table->string('DATA_PENGADUAN', 300)->nullable();
             $table->string('SMS_DIREKSI', 50)->nullable();
-            $table->string('FILE_PENGADUAN', 100)->nullable();
+            $table->text('FILE_PENGADUAN', 4000)->nullable();
             $table->text('TINDAK_LANJUT_HUMAS', 4000)->nullable();
             $table->string('DISPOSISI', 100)->nullable();
             // $table->string('INFO_DIREKSI', 200)->nullable();

@@ -11,6 +11,17 @@
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/styleTicketing.css') }}">
+    <style>
+        .upload-box.is-invalid {
+            border-color: #dc3545 !important;
+            /* Warna merah error default Bootstrap */
+        }
+
+        /* Opsi tambahan: Sedikit animasi untuk membuatnya lebih terlihat */
+        .upload-box.is-invalid:focus-within {
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
 </head>
 
 <body>

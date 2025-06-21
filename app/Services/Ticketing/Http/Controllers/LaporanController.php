@@ -77,6 +77,7 @@ class LaporanController extends Controller
 
         $rules = [
             'ID_KLASIFIKASI' => 'required|string|exists:klasifikasi_pengaduan,ID_KLASIFIKASI',
+            'jenis_pelapor' => 'required|string|in:Pasien,Non-Pasien',
             'ISI_COMPLAINT' => 'required|string|max:4000',
             'upload_id' => 'required|string',
             'uploaded_files' => 'nullable|array',
@@ -85,16 +86,13 @@ class LaporanController extends Controller
             'NO_MEDREC' => 'nullable|string|max:10',
         ];
 
-        if ($klasifikasiText === 'gratifikasi') {
+        if ($klasifikasiText === 'gratifikasi' || $klasifikasiText === 'sponsorship') {
             $rules['NAME'] = 'nullable|string|max:100';
             $rules['NO_TLPN'] = 'nullable|string|max:15';
             $rules['uploaded_files'] = 'required|array|min:1';
-        } else {
+        }else {
             $rules['NAME'] = 'required|string|max:100';
             $rules['NO_TLPN'] = 'required|string|max:15|regex:/^08\d{8,13}$/';
-            if ($klasifikasiText === 'sponsorship') {
-                 $rules['uploaded_files'] = 'required|array|min:1';
-            }
         }
 
         $validatedData = $request->validate($rules, [
@@ -115,11 +113,20 @@ class LaporanController extends Controller
         $laporan->STATUS = 'Open';
         $laporan->ID_JENIS_MEDIA = $jenisMedia->ID_JENIS_MEDIA;
         $laporan->ID_KLASIFIKASI = $validatedData['ID_KLASIFIKASI'];
+        $laporan->JENIS_PELAPOR = $validatedData['jenis_pelapor'];
         $laporan->ISI_COMPLAINT = $validatedData['ISI_COMPLAINT'];
         $laporan->NAME = $validatedData['NAME'] ?? null;
         $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
         $laporan->NO_MEDREC = $validatedData['NO_MEDREC'] ?? null;
         $laporan->ID_COMPLAINT_REFERENSI = $validatedData['ID_COMPLAINT_REFERENSI'] ?? null;
+
+        if ($klasifikasiText === 'gratifikasi' || $klasifikasiText === 'sponsorship') {
+            $laporan->NAME = empty($validatedData['NAME']) ? 'Anonimus' : $validatedData['NAME'];
+            $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
+        } else {
+            $laporan->NAME = $validatedData['NAME'];
+            $laporan->NO_TLPN = $validatedData['NO_TLPN'];
+        }
 
         return $validatedData;
     }

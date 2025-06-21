@@ -3,9 +3,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitButton = form.querySelector('button[type="submit"]');
     const formMessageDiv = document.getElementById('formMessage');
     const klasifikasiSelect = document.getElementById('ID_KLASIFIKASI');
+    const jenisPelaporSelect = document.getElementById('jenisPelapor');
 
     const buktiPendukungFileInput = document.getElementById('buktiPendukungFile');
     const buktiPendukungDropAreaLabel = document.getElementById('buktiPendukungDropZone');
+    if (!klasifikasiSelect || !jenisPelaporSelect || !buktiPendukungDropAreaLabel) {
+        console.error('Satu atau lebih elemen form penting tidak ditemukan. Pastikan ID_KLASIFIKASI, jenisPelapor, dan buktiPendukungDropZone ada di HTML.');
+        return;
+    }
     const uploadBoxContent = buktiPendukungDropAreaLabel.querySelector('.upload-box-content');
     const buktiErrorContainer = document.getElementById('buktiPendukungFileErrors');
     const originalUploadBoxHTML = `<div class="initial-prompt text-center"><i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem;"></i><p class="mt-2 mb-0 upload-box-text">Klik untuk upload <span class="fw-light">atau drag and drop</span></p><small class="text-muted upload-box-hint">Format: JPG, PNG, PDF (Maks. 5MB).</small></div>`;
@@ -54,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function processFiles(files) {
         buktiErrorContainer.innerHTML = '';
+        buktiPendukungDropAreaLabel.classList.remove('is-invalid');
         Array.from(files).forEach(file => {
             const validation = validateFile(file);
             const isDuplicate = validBuktiPendukungFiles.some(f => f.name === file.name && f.size === file.size);
@@ -83,15 +89,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputNama = document.querySelector('[name="NAME"]');
         const inputNoTlpn = document.querySelector('[name="NO_TLPN"]');
         const fileLabel = document.getElementById('buktiPendukungLabel');
+        const labelNama = wrapperNama.querySelector('label');
+        const labelTelepon = wrapperNoTlpn.querySelector('label');
+
+        if (selectedOptionText === 'Sponsorship') {
+            jenisPelaporSelect.value = 'Non-Pasien';
+            handleJenisPelaporChange();
+        }
 
         wrapperNama.style.display = 'block';
         wrapperNoTlpn.style.display = 'block';
         wrapperNoMedrec.style.display = 'block';
         inputNama.required = true;
         inputNoTlpn.required = true;
+        labelNama.innerHTML = 'Nama Lengkap';
+        labelTelepon.innerHTML = 'Nomor Telepon';
         fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
 
         if (selectedOptionText === 'Sponsorship') {
+            inputNama.required = false;
+            inputNoTlpn.required = false;
+            labelNama.innerHTML = 'Nama Lengkap (Opsional)';
+            labelTelepon.innerHTML = 'Nomor Telepon (Opsional)';
             fileLabel.innerHTML = 'Surat Undangan (Wajib)';
             wrapperNoMedrec.style.display = 'none';
         } else if (selectedOptionText === 'Gratifikasi') {
@@ -101,10 +120,27 @@ document.addEventListener('DOMContentLoaded', function() {
             wrapperNoMedrec.style.display = 'none';
             inputNama.required = false;
             inputNoTlpn.required = false;
+        } else {
+            fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
+        }
+    }
+
+    function handleJenisPelaporChange() {
+        const selectedPelapor = jenisPelaporSelect.value;
+        const sponsorshipOption = Array.from(klasifikasiSelect.options).find(opt => opt.text.trim() === 'Sponsorship');
+
+        if (sponsorshipOption) {
+            sponsorshipOption.disabled = (selectedPelapor === 'Pasien');
+            if (sponsorshipOption.disabled && klasifikasiSelect.value === sponsorshipOption.value) {
+                klasifikasiSelect.value = '';
+                handleKlasifikasiChange();
+            }
         }
     }
 
     klasifikasiSelect.addEventListener('change', handleKlasifikasiChange);
+    jenisPelaporSelect.addEventListener('change', handleJenisPelaporChange);
+
     buktiPendukungFileInput.addEventListener('change', (e) => processFiles(e.target.files));
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         buktiPendukungDropAreaLabel.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
@@ -114,7 +150,14 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
         formMessageDiv.innerHTML = '';
+        buktiErrorContainer.innerHTML = '';
+        buktiPendukungDropAreaLabel.classList.remove('is-invalid');
 
+        const formDataForDebug = new FormData(form);
+        console.log("Data yang akan dikirim:");
+        for (let [key, value] of formDataForDebug.entries()) {
+            console.log(`${key}: ${value}`);
+        }
         if (!form.checkValidity()) {
             form.classList.add('was-validated');
             form.querySelector(':invalid:not(fieldset)')?.focus();
@@ -123,7 +166,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const selectedKlasifikasi = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim();
         if ((selectedKlasifikasi === 'Gratifikasi' || selectedKlasifikasi === 'Sponsorship') && validBuktiPendukungFiles.length === 0) {
-            formMessageDiv.innerHTML = `<div class="alert alert-danger">Untuk klasifikasi '${selectedKlasifikasi}', bukti pendukung wajib diunggah.</div>`;
+            let pesanError = 'Bukti pendukung wajib diunggah.';
+            if (selectedKlasifikasi === 'Sponsorship') {
+                pesanError = 'Surat undangan wajib diunggah.';
+            }
+
+            buktiErrorContainer.innerHTML = `<div class="text-danger mt-1">${pesanError}</div>`;
+            buktiPendukungDropAreaLabel.classList.add('is-invalid');
+            buktiPendukungDropAreaLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
 
@@ -162,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const finalFormData = new FormData(form);
+        finalFormData.set('jenis_pelapor', jenisPelaporSelect.value);
         finalFormData.append('upload_id', uploadId);
         tempPaths.forEach(path => finalFormData.append('uploaded_files[]', path));
         finalFormData.delete('bukti_pendukung[]');
@@ -187,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             validBuktiPendukungFiles.length = 0;
             renderFileUI();
             handleKlasifikasiChange();
+            handleJenisPelaporChange();
 
             const successModalEl = document.getElementById('successModal');
             const ticketNumberEl = document.getElementById('modalTicketNumber');
@@ -225,4 +277,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inisialisasi awal
     renderFileUI();
     handleKlasifikasiChange();
+    handleJenisPelaporChange();
 });

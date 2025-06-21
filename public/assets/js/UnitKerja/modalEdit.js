@@ -68,6 +68,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById('edit-klarifikasi-unit').value = data.EVALUASI_COMPLAINT || '';
         document.getElementById('edit-file-bukti').value = '';
+
+        const tanggalEvaluasiInput = document.getElementById('edit-tanggal-evaluasi');
+
+        if (data.TGL_PENUGASAN) {
+            tanggalEvaluasiInput.disabled = false;
+            tanggalEvaluasiInput.classList.remove('bg-light');
+            tanggalEvaluasiInput.placeholder = '';
+
+            const minDate = toInputDate(data.TGL_PENUGASAN);
+            tanggalEvaluasiInput.min = minDate;
+
+            const maxDate = toInputDate(new Date());
+            tanggalEvaluasiInput.max = maxDate;
+
+            tanggalEvaluasiInput.value = toInputDate(data.TGL_EVALUASI);
+
+        } else {
+            tanggalEvaluasiInput.disabled = true;
+            tanggalEvaluasiInput.classList.add('bg-light');
+            tanggalEvaluasiInput.value = '';
+            tanggalEvaluasiInput.removeAttribute('min');
+            tanggalEvaluasiInput.removeAttribute('max');
+            tanggalEvaluasiInput.placeholder = 'Menunggu penugasan Humas';
+        }
     }
 
     function formatDate(dateString) {

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Atur status enable/disable dropdown
-        jenisPelaporSelect.disabled = (selectedKlasifikasi === 'sponsorship');
+        // jenisPelaporSelect.disabled = (selectedKlasifikasi === 'sponsorship');
         if (sponsorshipOption) {
             sponsorshipOption.disabled = (selectedPelapor === 'Pasien');
         }
@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Atur visibilitas wrapper
         const isGratifikasi = selectedKlasifikasi === 'gratifikasi';
         const isSponsorship = selectedKlasifikasi === 'sponsorship';
+        // const isEtik = selectedKlasifikasiText === 'etik';
 
         if (namaWrapper) namaWrapper.style.display = isGratifikasi ? 'none' : 'block';
         if (noTlpnWrapper) noTlpnWrapper.style.display = isGratifikasi ? 'none' : 'block';

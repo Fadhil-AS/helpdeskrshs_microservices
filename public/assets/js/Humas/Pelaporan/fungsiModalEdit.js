@@ -102,35 +102,56 @@ $(document).ready(function() {
                 $('#editKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '');
                 $('#editTindakLanjutHumasContent').val(data.TINDAK_LANJUT_HUMAS || '');
 
+                const statusBadge = $('#editStatusBadge');
+                const currentStatus = data.STATUS || '-';
+
+                statusBadge.text(currentStatus);
+                statusBadge.removeClass().addClass('badge');
+
+                if (currentStatus === 'Open') {
+                    statusBadge.addClass('bg-success');
+                } else if (currentStatus === 'On Progress') {
+                    statusBadge.addClass('bg-info');
+                } else if (currentStatus === 'Menunggu Konfirmasi') {
+                    statusBadge.addClass('bg-warning');
+                } else if (currentStatus === 'Close' || currentStatus === 'Banding') {
+                    statusBadge.addClass('bg-danger text-light');
+                } else {
+                    statusBadge.addClass('bg-secondary');
+                }
+
                 var buktiContainer = $('#editBuktiKlarifikasiContainer');
                 buktiContainer.html('');
+                let displayedFileCount = 0;
 
-                if (data.file_list && data.file_list.length > 0) {
+                if (data.FILE_PENGADUAN && data.FILE_PENGADUAN.trim() !== '') {
+                    const filePaths = data.FILE_PENGADUAN.split(';');
 
-                    data.file_list.forEach(function(filePath) {
-                        if (!filePath || filePath.trim() === '') return;
+                    filePaths.forEach(function(filePath) {
+                        const trimmedPath = filePath.trim();
+                        if (trimmedPath === '') return;
 
-                        var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
-                        var fileName = filePath.split(/[\\/]/).pop();
-
-                        var buktiHtml = '<div class="file-klarifikasi-item" style="max-width: 150px;">';
-
-                        if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
-                            buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}">
-                                            <img src="${fileUrl}" alt="Bukti Foto" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;">
-                                            <small class="d-block text-truncate">${fileName}</small>
-                                          </a>`;
-                        } else {
-                            buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}">
-                                            <i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i>
-                                            <small class="d-block text-truncate">${fileName}</small>
-                                          </a>`;
+                        let finalPath = trimmedPath;
+                        if (!trimmedPath.includes('/')) {
+                            finalPath = 'bukti_klarifikasi/' + trimmedPath;
                         }
-                        buktiHtml += '</div>';
+                        if (finalPath.startsWith('bukti_klarifikasi/')) {
+                            displayedFileCount++;
+                            var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + finalPath;
+                            var fileName = trimmedPath.split(/[\\/]/).pop();
 
-                        buktiContainer.append(buktiHtml);
+                            var buktiHtml = '<div class="file-klarifikasi-item" style="max-width: 150px;">';
+                            if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
+                                buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}"><img src="${fileUrl}" alt="Bukti Foto" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;"><small class="d-block text-truncate">${fileName}</small></a>`;
+                            } else if (/\.pdf$/i.test(fileName)) {
+                                buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}"><i class="bi bi-file-earmark-pdf display-4 text-danger mb-1"></i><small class="d-block text-truncate">${fileName}</small></a>`;
+                            } else {
+                                buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}"><i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i><small class="d-block text-truncate">${fileName}</small></a>`;
+                            }
+                            buktiHtml += '</div>';
+                            buktiContainer.append(buktiHtml);
+                        }
                     });
-
                 } else {
                     buktiContainer.html('<p class="text-muted p-2">Tidak ada file bukti klarifikasi.</p>');
                 }
@@ -140,16 +161,14 @@ $(document).ready(function() {
 
                 const statusDropdown = $('#editStatus');
                 if (data.STATUS === 'Open' || data.STATUS === 'On Progress') {
-                    // Dropdown tidak bisa diklik, tapi nilainya tetap terkirim
                     statusDropdown.css({
-                        'pointer-events': 'none', // <-- Membuatnya tidak bisa diklik
-                        'background-color': '#e9ecef' // Memberi warna abu-abu seperti disabled
+                        'pointer-events': 'none',
+                        'background-color': '#e9ecef'
                     });
                 } else {
-                    // Dropdown kembali normal dan bisa diklik
                     statusDropdown.css({
-                        'pointer-events': 'auto', // <-- Mengembalikan interaksi klik
-                        'background-color': '' // Mengembalikan warna normal
+                        'pointer-events': 'auto',
+                        'background-color': ''
                     });
                 }
 
