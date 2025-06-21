@@ -21,6 +21,7 @@ class DashboardUnitKerjaController extends Controller {
 
     public function getDashboard (Request $request){
         $dataComplaint = Laporan::with(['jenisMedia', 'unitKerja'])
+        ->whereNotNull('GRANDING')
         ->filter($request->only(['search', 'status']))
         ->orderBy('TGL_COMPLAINT', 'asc')
         ->paginate(10)
@@ -58,7 +59,7 @@ class DashboardUnitKerjaController extends Controller {
             'klarifikasi_unit'   => 'required|string|max:5000',
             'file_bukti'         => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
             'PETUGAS_EVALUASI'   => 'required|string|max:150',
-            'TGL_EVALUASI'       => ['required', 'date'],
+            'TGL_EVALUASI'       => ['required', 'date', 'before_or_equal:today'],
         ];
 
         if ($minEvaluationDate) {
@@ -68,6 +69,7 @@ class DashboardUnitKerjaController extends Controller {
             'klarifikasi_unit.required' => 'Kolom Klarifikasi Unit wajib diisi.',
             'TGL_EVALUASI.required'     => 'Kolom Tanggal Evaluasi wajib diisi.',
             'TGL_EVALUASI.after_or_equal' => 'Tanggal evaluasi tidak boleh sebelum tanggal penugasan (' . ($minEvaluationDate ? Carbon::parse($minEvaluationDate)->format('d M Y') : '') . ').',
+            'TGL_EVALUASI.before_or_equal'=> 'Tanggal evaluasi tidak boleh melebihi tanggal hari ini.',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);

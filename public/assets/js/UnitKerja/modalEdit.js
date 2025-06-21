@@ -75,8 +75,12 @@ document.addEventListener('DOMContentLoaded', function () {
             tanggalEvaluasiInput.disabled = false;
             tanggalEvaluasiInput.classList.remove('bg-light');
             tanggalEvaluasiInput.placeholder = '';
+
             const minDate = toInputDate(data.TGL_PENUGASAN);
             tanggalEvaluasiInput.min = minDate;
+
+            const maxDate = toInputDate(new Date());
+            tanggalEvaluasiInput.max = maxDate;
 
             tanggalEvaluasiInput.value = toInputDate(data.TGL_EVALUASI);
 
@@ -85,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tanggalEvaluasiInput.classList.add('bg-light');
             tanggalEvaluasiInput.value = '';
             tanggalEvaluasiInput.removeAttribute('min');
+            tanggalEvaluasiInput.removeAttribute('max');
             tanggalEvaluasiInput.placeholder = 'Menunggu penugasan Humas';
         }
     }

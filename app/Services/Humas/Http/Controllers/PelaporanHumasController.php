@@ -203,7 +203,7 @@ class PelaporanHumasController extends Controller {
             'ID_JENIS_LAPORAN'      => 'required|string|exists:jenis_laporan,ID_JENIS_LAPORAN',
             'PERMASALAHAN'          => 'nullable|string',
             'STATUS'                => 'sometimes|in:Open,On Progress,Menunggu Konfirmasi,Close,Banding',
-            'gradingOptions'        => 'nullable|in:Hijau,Kuning,Merah',
+            'gradingOptions'        => 'required|in:Hijau,Kuning,Merah',
             'ID_PENYELESAIAN'       => 'nullable|string|exists:penyelesaian_pengaduan,ID_PENYELESAIAN',
             'TINDAK_LANJUT_HUMAS'   => 'nullable|string|max:4000',
         ];
@@ -217,7 +217,13 @@ class PelaporanHumasController extends Controller {
             $rules['ID_JENIS_MEDIA']  = 'required|string|exists:jenis_media,ID_JENIS_MEDIA';
         }
 
-        $validator = Validator::make($request->all(), $rules);
+        $messages = [
+            'gradingOptions.required' => 'Grading wajib dipilih.',
+            'gradingOptions.in' => 'Grading yang dipilih tidak valid.',
+            'ID_BAGIAN' => 'Unit kerja tujuan wajib diisi'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -246,10 +252,9 @@ class PelaporanHumasController extends Controller {
             }
 
              if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
-                if (!is_null($complaint->TGL_EVALUASI) && is_null($complaint->TGL_SELESAI)) {
-                    $now = Carbon::now();
-                    $evaluationTime = Carbon::parse($complaint->TGL_EVALUASI);
-                    $updateData['TGL_SELESAI'] = $now->max($evaluationTime);
+                // Untuk mencegah TGL_SELESAI ter-update lagi jika diedit di kemudian hari
+                if (is_null($complaint->TGL_SELESAI)) {
+                    $updateData['TGL_SELESAI'] = Carbon::now();
                 }
             }
 

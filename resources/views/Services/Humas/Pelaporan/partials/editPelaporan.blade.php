@@ -69,7 +69,7 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
-                                                id="editGradingHijau" value="Hijau">
+                                                id="editGradingHijau" value="Hijau" required>
                                             <label class="form-check-label" for="editGradingHijau">Hijau</label>
                                         </div>
                                         <div class="form-check form-check-inline">
