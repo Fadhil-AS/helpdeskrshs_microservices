@@ -75,8 +75,8 @@ $(document).ready(function () {
 
                 var buktiContainer = $('#buktiKlarifikasiContainer');
                 buktiContainer.html('');
-                if (data.file_list && data.file_list.length > 0) {
-                    data.file_list.forEach(function(filePath) {
+                if (data.klarifikasi_files && data.klarifikasi_files.length > 0) {
+                    data.klarifikasi_files.forEach(function(filePath) {
                         if (!filePath || filePath.trim() === '') return;
                         var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
                         var fileName = filePath.split(/[\\/]/).pop();
@@ -91,6 +91,26 @@ $(document).ready(function () {
                     });
                 } else {
                     buktiContainer.html('<p class="text-muted p-2">Tidak ada file bukti klarifikasi.</p>');
+                }
+
+                var tindakLanjutContainer = $('#fileTindakLanjutContainer');
+                tindakLanjutContainer.html('');
+                if (data.tindak_lanjut_files && data.tindak_lanjut_files.length > 0) {
+                    data.tindak_lanjut_files.forEach(function(filePath) {
+                        if (!filePath || filePath.trim() === '') return;
+                        var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
+                        var fileName = filePath.split(/[\\/]/).pop();
+                        var fileHtml = '<div class="file-klarifikasi-item" style="max-width: 150px;">';
+                        if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
+                            fileHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}"><img src="${fileUrl}" alt="File Tindak Lanjut" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;"><small class="d-block text-truncate">${fileName}</small></a>`;
+                        } else {
+                            fileHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}"><i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i><small class="d-block text-truncate">${fileName}</small></a>`;
+                        }
+                        fileHtml += '</div>';
+                        tindakLanjutContainer.append(fileHtml);
+                    });
+                } else {
+                    tindakLanjutContainer.html('<p class="text-muted m-0">Tidak ada file tindak lanjut.</p>');
                 }
 
                 modalInstance.show();

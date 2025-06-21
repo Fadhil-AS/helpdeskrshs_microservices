@@ -47,6 +47,8 @@ class Laporan extends Model {
         // 'DATA_PENGADUAN',
         'SMS_DIREKSI',
         'FILE_PENGADUAN',
+        'FILE_BUKTI_KLARIFIKASI',
+        'FILE_TINDAK_LANJUT_HUMAS',
         'TINDAK_LANJUT_HUMAS',
         'DISPOSISI',
         // 'INFO_DIREKSI',

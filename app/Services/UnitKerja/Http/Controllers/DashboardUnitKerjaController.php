@@ -45,6 +45,22 @@ class DashboardUnitKerjaController extends Controller {
             return response()->json(['message' => 'Data pengaduan tidak ditemukan.'], 404);
         }
 
+        $processFiles = function ($fileData) {
+            if (empty($fileData)) {
+                return [];
+            }
+            $decoded = json_decode($fileData, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+            if (str_contains($fileData, ';')) {
+                return explode(';', $fileData);
+            }
+            return [$fileData];
+        };
+
+        $complaint->klarifikasi_files = $processFiles($complaint->FILE_BUKTI_KLARIFIKASI);
+
         return response()->json($complaint);
     }
 
@@ -57,7 +73,8 @@ class DashboardUnitKerjaController extends Controller {
         $rules = [
             'JUDUL_COMPLAINT'    => 'required|string|max:255',
             'klarifikasi_unit'   => 'required|string|max:5000',
-            'file_bukti'         => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'file_bukti'         => 'nullable|array',
+            'file_bukti.*'       => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
             'PETUGAS_EVALUASI'   => 'required|string|max:150',
             'TGL_EVALUASI'       => ['required', 'date', 'before_or_equal:today'],
         ];
@@ -70,6 +87,8 @@ class DashboardUnitKerjaController extends Controller {
             'TGL_EVALUASI.required'     => 'Kolom Tanggal Evaluasi wajib diisi.',
             'TGL_EVALUASI.after_or_equal' => 'Tanggal evaluasi tidak boleh sebelum tanggal penugasan (' . ($minEvaluationDate ? Carbon::parse($minEvaluationDate)->format('d M Y') : '') . ').',
             'TGL_EVALUASI.before_or_equal'=> 'Tanggal evaluasi tidak boleh melebihi tanggal hari ini.',
+            'file_bukti.*.mimes'        => 'Tipe file bukti tidak valid. Hanya boleh: jpg, jpeg, png, pdf, doc, docx.',
+            'file_bukti.*.max'          => 'Ukuran setiap file bukti tidak boleh lebih dari 2MB.',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -99,11 +118,16 @@ class DashboardUnitKerjaController extends Controller {
                 ];
 
                 if ($request->hasFile('file_bukti')) {
-                    if ($complaint->FILE_PENGADUAN) {
-                        Storage::disk('public')->delete($complaint->FILE_PENGADUAN);
+                    $existingFiles = json_decode($complaint->FILE_BUKTI_KLARIFIKASI, true) ?? [];
+
+                    $newUploadedPaths = [];
+                    foreach ($request->file('file_bukti') as $file) {
+                        $path = $file->store('bukti_klarifikasi', 'public');
+                        $newUploadedPaths[] = $path;
                     }
-                    $newFilePath = $request->file('file_bukti')->store('bukti_klarifikasi', 'public');
-                    $updateData['FILE_PENGADUAN'] = $newFilePath;
+
+                    $allFiles = array_merge($existingFiles, $newUploadedPaths);
+                    $updateData['FILE_BUKTI_KLARIFIKASI'] = json_encode($allFiles);
                 }
 
                 $complaint->update($updateData);

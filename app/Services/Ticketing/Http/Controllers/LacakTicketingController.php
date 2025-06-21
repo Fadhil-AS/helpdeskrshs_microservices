@@ -60,8 +60,8 @@ class LacakTicketingController extends Controller
                         // Jika tiket lama ditemukan, tutup juga
                         if ($laporanReferensi) {
                             $laporanReferensi->STATUS = 'Close';
-                            $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
-                            $laporan->save();
+                            $laporanReferensi->FEEDBACK_PELAPOR = 'Ditutup karena banding terselesaikan melalui tiket ' . $laporan->ID_COMPLAINT;
+                            $laporanReferensi->save();
                             $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
 
                             Log::info('Tiket referensi ' . $laporanReferensi->ID_COMPLAINT . ' juga telah ditutup karena tiket lanjutan ' . $laporan->ID_COMPLAINT . ' selesai.');
@@ -72,7 +72,7 @@ class LacakTicketingController extends Controller
                     $laporan->RATING_LAPORAN = null;
                     $pesanSukses = 'Terima kasih atas informasinya. Laporan Anda telah diajukan untuk peninjauan kembali (banding).';
                     $redirectUrl = route('ticketing.buat-laporan', ['ref' => $laporan->ID_COMPLAINT]);
-                    $laporan->TGL_INSROW = Carbon::now()->toDateString();
+                    $laporan->TGL_SELESAI = Carbon::now()->toDateString();
                     $laporan->save();
                 }
 

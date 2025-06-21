@@ -47,7 +47,7 @@
 
                     <div class="mb-4">
                         <label class="form-label fw-bold">File Bukti Klarifikasi (Jika ada)</label>
-                        <input class="form-control" type="file" name="file_bukti" id="edit-file-bukti">
+                        <input class="form-control" type="file" name="file_bukti[]" id="edit-file-bukti" multiple>
                         <small class="form-text text-muted">Ukuran file maksimal: 2MB</small>
                     </div>
 

@@ -30,22 +30,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Sponsorship
         if (selectedKlasifikasi === 'sponsorship') {
-            if (selectedPelapor !== 'Non-Pasien') {
-                jenisPelaporSelect.value = 'Non-Pasien';
-                selectedPelapor = 'Non-Pasien';
-            }
+            // Jika klasifikasi adalah "Sponsorship":
+            jenisPelaporSelect.value = 'Non-Pasien';
+            selectedPelapor = 'Non-Pasien';
+
+            jenisPelaporSelect.style.pointerEvents = 'none';
+            jenisPelaporSelect.style.backgroundColor = '#e9ecef';
+
+        } else {
+            // Jika klasifikasi BUKAN "Sponsorship":
+            jenisPelaporSelect.style.pointerEvents = 'auto';
+            jenisPelaporSelect.style.backgroundColor = '';
         }
 
         // Pasien dipilih
         if (selectedPelapor === 'Pasien' && selectedKlasifikasi === 'sponsorship') {
-             klasifikasiSelect.value = ''; // Reset pilihan klasifikasi
-             selectedKlasifikasi = ''; // Update variabel lokal
+             klasifikasiSelect.value = '';
+             selectedKlasifikasi = '';
         }
 
         // Atur status enable/disable dropdown
         // jenisPelaporSelect.disabled = (selectedKlasifikasi === 'sponsorship');
         if (sponsorshipOption) {
             sponsorshipOption.disabled = (selectedPelapor === 'Pasien');
+            if (selectedPelapor === 'Pasien' && selectedKlasifikasi === 'sponsorship') {
+                klasifikasiSelect.value = '';
+                return updateFormState();
+            }
         }
 
         // Atur visibilitas wrapper
@@ -91,5 +102,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (form) form.reset();
 
         updateFormState();
+        jenisPelaporSelect.disabled = false;
     });
 });

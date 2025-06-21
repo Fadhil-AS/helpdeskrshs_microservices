@@ -39,6 +39,8 @@ return new class extends Migration
             // $table->string('DATA_PENGADUAN', 300)->nullable();
             $table->string('SMS_DIREKSI', 50)->nullable();
             $table->text('FILE_PENGADUAN', 4000)->nullable();
+            $table->text('FILE_BUKTI_KLARIFIKASI', 4000)->nullable();
+            $table->text('FILE_TINDAK_LANJUT_HUMAS', 4000)->nullable();
             $table->text('TINDAK_LANJUT_HUMAS', 4000)->nullable();
             $table->string('DISPOSISI', 100)->nullable();
             // $table->string('INFO_DIREKSI', 200)->nullable();
