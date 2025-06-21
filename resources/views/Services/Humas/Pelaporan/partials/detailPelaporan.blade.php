@@ -122,7 +122,7 @@
                         <!-- File Bukti Klarifikasi -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                            <div class="d-flex flex-wrap gap-3 mt-2 bg-light" id="buktiKlarifikasiContainer">
+                            <div class="file-display-container" id="buktiKlarifikasiContainer">
                                 {{-- <div class="file-klarifikasi-item"> <a href="images\logoRSHS.png" target=""
                                         rel="noopener noreferrer" title="foto1.jpg">
                                         <img src="path/to/image.jpg" alt="Bukti Foto" class="img-fluid rounded mb-1">
@@ -144,6 +144,13 @@
                         <div class="mb-4">
                             <strong>Tindak Lanjut Humas</strong>
                             <textarea class="form-control bg-light" rows="3" id="detailTindakLanjutHumasContent" readonly>Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">File Tindak Lanjut Humas</label>
+                            <div class="file-display-container" id="fileTindakLanjutContainer">
+                                <p class="text-muted m-0">Tidak ada file tindak lanjut.</p>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
