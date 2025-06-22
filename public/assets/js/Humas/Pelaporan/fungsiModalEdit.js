@@ -144,7 +144,7 @@ $(document).ready(function() {
 
                 $('#editNamaPelapor, #editNoTelp, #editNoMedrec, #editIdJenisMedia, #editIdKlasifikasi').css({
                     'pointer-events': 'none',
-                    'background-color': '#e9ecef'
+                    'background-color': '#EBEBEB'
                 });
 
                 const initialMediaText = data.jenis_media ? data.jenis_media.JENIS_MEDIA.trim() : '';
