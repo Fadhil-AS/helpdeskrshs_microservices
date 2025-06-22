@@ -295,17 +295,26 @@
 
     function startCountdown(elementId, progressBarId, tglSelesaiInternalISO, konfirmasiAreaId) {
         const countDownElement = document.getElementById(elementId);
-        if (!countDownElement) return;
+        const progressBar = document.getElementById(progressBarId);
+        if (!countDownElement || !progressBar) return;
 
         const batasWaktu = new Date(new Date(tglSelesaiInternalISO).getTime() + 24 * 60 * 60 * 1000);
+        const totalDurasiMs = 24 * 60 * 60 * 1000;
 
+        if (countdownInterval) clearInterval(countdownInterval);
         countdownInterval = setInterval(() => {
             const sisaMs = batasWaktu - new Date();
+
             if (sisaMs < 0) {
                 clearInterval(countdownInterval);
                 countDownElement.innerHTML = "Waktu habis";
+                progressBar.style.width = '0%';
                 return;
             }
+
+            const persenTersisa = (sisaMs / totalDurasiMs) * 100;
+            progressBar.style.width = persenTersisa + '%';
+
             const jam = Math.floor(sisaMs / (1000 * 60 * 60));
             const menit = Math.floor((sisaMs % (1000 * 60 * 60)) / (1000 * 60));
             const detik = Math.floor((sisaMs % (1000 * 60)) / 1000);
@@ -369,28 +378,22 @@
 
                 const ratingContainer = feedbackModalEl.querySelector('#ratingContainer');
                 if (ratingContainer) {
-                    const ratingButtons = Array.from(ratingContainer.querySelectorAll('.rating-btn'));
-                    ratingButtons.forEach(btn => {
-                        const newBtn = btn.cloneNode(true);
-                        btn.parentNode.replaceChild(newBtn, btn);
-                        newBtn.addEventListener('click', function() {
-                            const currentRating = parseInt(this.textContent);
-                            ratingButtons.forEach(innerBtn => {
-                                innerBtn.classList.remove('btn-primary', 'text-white');
-                                innerBtn.classList.add('btn-outline-secondary');
+                    ratingContainer.addEventListener('click', function (e) {
+                        if (e.target.classList.contains('rating-btn')) {
+                            const clickedButton = e.target;
+
+                            ratingContainer.querySelectorAll('.rating-btn').forEach(btn => {
+                                btn.classList.remove('active');
                             });
-                            for (let i = 0; i < currentRating; i++) {
-                                if (ratingButtons[i]) {
-                                    ratingButtons[i].classList.remove('btn-outline-secondary');
-                                    ratingButtons[i].classList.add('btn-primary', 'text-white');
-                                }
-                            }
-                            const btnKirim = feedbackModalEl.querySelector(
-                                '#btnSubmitFeedback');
+
+                            clickedButton.classList.add('active');
+
+                            const ratingValue = clickedButton.textContent;
+                            const btnKirim = feedbackModalEl.querySelector('#btnSubmitFeedback');
                             if (btnKirim) {
-                                btnKirim.dataset.ratingBintang = currentRating;
+                                btnKirim.dataset.ratingBintang = ratingValue;
                             }
-                        });
+                        }
                     });
                 }
 
