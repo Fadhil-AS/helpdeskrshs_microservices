@@ -27,6 +27,12 @@
                         <label class="form-label fw-bold">Rangkuman Permasalahan</label>
                         <textarea class="form-control bg-light" rows="2" id="edit-permasalahan" readonly></textarea>
                     </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">File Pengaduan</label>
+                        <div class="file-display-container" id="filePengaduanContainer">
+                            <p class="text-muted m-0">Tidak ada file pengaduan.</p>
+                        </div>
+                    </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -48,7 +54,7 @@
                     <div class="mb-4">
                         <label class="form-label fw-bold">File Bukti Klarifikasi (Jika ada)</label>
                         <input class="form-control" type="file" name="file_bukti[]" id="edit-file-bukti" multiple>
-                        <small class="form-text text-muted">Ukuran file maksimal: 2MB</small>
+                        <small class="form-text text-muted">Ukuran file maksimal: 2MB dan file dapat lebih dari satu.</small>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">

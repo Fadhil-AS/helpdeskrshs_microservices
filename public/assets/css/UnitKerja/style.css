@@ -422,3 +422,24 @@ textarea.form-control[readonly] {
     opacity: 1;
     color: black;
 }
+
+.file-display-container {
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    min-height: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.file-display-container:empty::before {
+    content: "Tidak ada file yang dilampirkan.";
+    display: block;
+    text-align: center;
+    color: #6c757d;
+    padding: 2rem 0;
+    font-style: italic;
+    width: 100%;
+}

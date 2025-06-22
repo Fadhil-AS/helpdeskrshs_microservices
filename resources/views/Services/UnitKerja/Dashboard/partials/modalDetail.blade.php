@@ -75,12 +75,22 @@
                             </div>
                         </div>
                         <div class="mb-2">
-                            <strong>Deskripsi Pengaduan</strong>
-                            <div class="bg-light p-2 rounded" id="detail-deskripsi"></div>
+                            <label class="fw-bold pb-2">Deskripsi Pengaduan</label>
+                            <textarea class="form-control bg-light" rows="2" id="detail-deskripsi" readonly></textarea>
+                            {{-- <strong>Deskripsi Pengaduan</strong>
+                            <div class="bg-light p-2 rounded" id="detail-deskripsi"></div> --}}
+                        </div>
+                        <div class="mb-2">
+                            <label class="fw-bold pb-2">Rangkuman Permasalahan</label>
+                            <textarea class="form-control bg-light" rows="2" id="detail-permasalahan" readonly></textarea>
+                            {{-- <strong>Rangkuman Permasalahan</strong>
+                            <div class="bg-light p-2 rounded" id="detail-permasalahan">
+                            </div> --}}
                         </div>
                         <div class="mb-4">
-                            <strong>Rangkuman Permasalahan</strong>
-                            <div class="bg-light p-2 rounded" id="detail-permasalahan">
+                            <label class="fw-bold pb-2">File Pengaduan</label>
+                            <div class="file-display-container" id="filePengaduanContainer">
+                                <p class="text-muted m-0">Tidak ada file pengaduan.</p>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
@@ -110,14 +120,14 @@
 
                         <!-- Klarifikasi Unit -->
                         <div class="mb-3">
-                            <strong>Klarifikasi Unit</strong>
-                            <textarea class="form-control bg-light" rows="3" id="detail-klarifikasi-unit" readonly></textarea>
+                            <label class="fw-bold pb-2">Klarifikasi Unit</label>
+                            <textarea class="form-control bg-light" rows="2" id="detail-klarifikasi-unit" readonly></textarea>
                         </div>
 
                         <!-- File Bukti Klarifikasi -->
                         <div class="mb-3">
-                            <strong>File Bukti Klarifikasi</strong>
-                            <div class="d-flex flex-wrap gap-3 mt-2" id="detail-file-list">
+                            <label class="fw-bold pb-2">File Bukti Klarifikasi</label>
+                            <div class="file-display-container" id="detail-file-list">
                                 <!-- File preview dummy -->
                                 {{-- <div class="border rounded p-2" style="width: 120px; text-align: center;">
                                     <img src="path/to/image.jpg" alt="Bukti" class="img-fluid rounded mb-1">
@@ -133,8 +143,15 @@
 
                         <!-- Tindak Lanjut Humas -->
                         <div class="mb-4">
-                            <strong>Tindak Lanjut Humas</strong>
-                            <textarea class="form-control bg-light" rows="3" id="detail-tindak-lanjut-humas" readonly></textarea>
+                            <label class="fw-bold pb-2">Tindak Lanjut Humas</label>
+                            <textarea class="form-control bg-light" rows="2" id="detail-tindak-lanjut-humas" readonly></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold pb-2">File Tindak Lanjut Humas</label>
+                            <div class="file-display-container" id="fileTindakLanjutContainer">
+                                <p class="text-muted m-0">Tidak ada file tindak lanjut humas.</p>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">

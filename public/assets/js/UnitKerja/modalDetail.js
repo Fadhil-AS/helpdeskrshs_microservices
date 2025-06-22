@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </a>`;
             });
         } else {
-            fileListContainer.innerHTML = '<p class="text-muted small">Tidak ada file bukti klarifikasi.</p>';
+            fileListContainer.innerHTML = '<p class="text-muted m-0">Tidak ada file bukti klarifikasi.</p>';
         }
 
         const editButtons = detailModalElement.querySelectorAll('.btn-edit');

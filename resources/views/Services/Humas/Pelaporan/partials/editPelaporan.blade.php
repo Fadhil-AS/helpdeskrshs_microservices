@@ -163,12 +163,19 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
+                                <textarea class="form-control" rows="2" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
                             </div>
-                            <div class="mb-4">
+                            <div class="mb-2">
                                 <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
                                     Permasalahan</label>
-                                <textarea class="form-control" rows="3" id="editPermasalahan" name="PERMASALAHAN"></textarea>
+                                <textarea class="form-control" rows="2" id="editPermasalahan" name="PERMASALAHAN"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">File Pengaduan</label>
+                                <div class="file-display-container"
+                                    id="editPengaduanContainer">
+                                    <p class="text-muted m-0">Tidak ada file pengaduan.</p>
+                                </div>
                             </div>
                         </div>
 
@@ -208,7 +215,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
                                     Unit</label>
-                                <textarea class="form-control" rows="3" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
+                                <textarea class="form-control" rows="2" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
@@ -219,7 +226,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editTindakLanjutHumasContent">Tindak Lanjut
                                     Humas</label>
-                                <textarea class="form-control" rows="3" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
+                                <textarea class="form-control" rows="2" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold" for="file_tindak_lanjut_input">File Tindak Lanjut
@@ -231,6 +238,7 @@
                                 @error('file_tindak_lanjut.*')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <small class="form-text">Ukuran file maksimal: 2MB dan file dapat lebih dari satu.</small>
                             </div>
                         </div>
                     </div>
