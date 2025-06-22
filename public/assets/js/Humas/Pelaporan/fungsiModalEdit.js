@@ -139,12 +139,12 @@ $(document).ready(function() {
                         buktiContainer.append(buktiHtml);
                     });
                 } else {
-                    buktiContainer.html('<p class="text-muted p-2">Tidak ada file bukti klarifikasi.</p>');
+                    buktiContainer.html('<p class="text-muted m-0">Tidak ada file bukti klarifikasi.</p>');
                 }
 
                 $('#editNamaPelapor, #editNoTelp, #editNoMedrec, #editIdJenisMedia, #editIdKlasifikasi').css({
                     'pointer-events': 'none',
-                    'background-color': '#e9ecef' 
+                    'background-color': '#e9ecef'
                 });
 
                 const initialMediaText = data.jenis_media ? data.jenis_media.JENIS_MEDIA.trim() : '';

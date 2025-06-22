@@ -90,7 +90,7 @@ $(document).ready(function () {
                         buktiContainer.append(buktiHtml);
                     });
                 } else {
-                    buktiContainer.html('<p class="text-muted p-2">Tidak ada file bukti klarifikasi.</p>');
+                    buktiContainer.html('<p class="text-muted m-0">Tidak ada file bukti klarifikasi.</p>');
                 }
 
                 var tindakLanjutContainer = $('#fileTindakLanjutContainer');

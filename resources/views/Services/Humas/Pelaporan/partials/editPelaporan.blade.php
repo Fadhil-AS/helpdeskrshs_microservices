@@ -212,7 +212,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                                <div class="d-flex flex-wrap gap-3 mt-2 p-2 rounded"
+                                <div class="file-display-container"
                                     id="editBuktiKlarifikasiContainer">
                                 </div>
                             </div>
