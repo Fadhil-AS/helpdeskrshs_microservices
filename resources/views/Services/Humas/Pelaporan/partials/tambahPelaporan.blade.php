@@ -78,14 +78,14 @@
                         </div>
                     </div>
 
-                    {{-- Baris 5: Deskripsi Pengaduan (Panjang Penuh) --}}
+                    {{-- Baris 5: Deskripsi Pengaduan --}}
                     <div class="mb-3" id="wrapper_deskripsi">
                         <label class="form-label fw-bold" for="ISI_COMPLAINT">Deskripsi Pengaduan</label>
                         <textarea class="form-control" rows="3" placeholder="Masukkan deskripsi pengaduan" id="ISI_COMPLAINT"
                             name="ISI_COMPLAINT" required></textarea>
                     </div>
 
-                    {{-- Baris 7: Upload File (Panjang Penuh) --}}
+                    {{-- Baris 7: Upload File --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold" for="FILE_PENGADUAN_input">File Pengaduan (jika ada)</label>
                         <input type="file" class="form-control @error('FILE_PENGADUAN.*') is-invalid @enderror"
