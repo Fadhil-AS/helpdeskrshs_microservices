@@ -45,7 +45,10 @@
                                 <select class="form-select" id="ID_JENIS_MEDIA" name="ID_JENIS_MEDIA" required>
                                     <option selected disabled>Pilih media</option>
                                     @foreach ($JenisMedia as $jm)
-                                        <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}</option>
+                                        <option value="{{ $jm->ID_JENIS_MEDIA }}"
+                                            @if (strtolower(trim($jm->JENIS_MEDIA)) === 'website helpdesk') disabled @endif>
+                                            {{ $jm->JENIS_MEDIA }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
