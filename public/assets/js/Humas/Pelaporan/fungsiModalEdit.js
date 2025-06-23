@@ -142,10 +142,33 @@ $(document).ready(function() {
                     buktiContainer.html('<p class="text-muted m-0">Tidak ada file bukti klarifikasi.</p>');
                 }
 
-                $('#editNamaPelapor, #editNoTelp, #editNoMedrec, #editIdJenisMedia, #editIdKlasifikasi').css({
-                    'pointer-events': 'none',
-                    'background-color': '#EBEBEB'
-                });
+                const fieldsToLock = [
+                    '#editNoTelp', '#editNamaPelapor', '#editNoMedrec',
+                    '#editIdJenisMedia', '#editIdKlasifikasi', '#editTanggalPengaduan'
+                ];
+
+                function setFieldsState(selectors, isLocked) {
+                    $(selectors.join(', ')).each(function() {
+                        const el = $(this);
+                        if (el.is('select')) {
+                            el.prop('disabled', isLocked);
+                        } else {
+                            el.prop('readonly', isLocked);
+                        }
+                    });
+                }
+
+                setFieldsState(fieldsToLock, false);
+
+                const mediaPengaduan = data.jenis_media ? data.jenis_media.JENIS_MEDIA.trim() : '';
+                if (mediaPengaduan === 'Website Helpdesk') {
+                    setFieldsState(fieldsToLock, true);
+                }
+
+                // $('#editNamaPelapor, #editNoTelp, #editNoMedrec, #editIdJenisMedia, #editIdKlasifikasi, #editTanggalPengaduan').css({
+                //     'pointer-events': 'none',
+                //     'background-color': '#EBEBEB'
+                // });
 
                 const initialMediaText = data.jenis_media ? data.jenis_media.JENIS_MEDIA.trim() : '';
                 applyFieldLockLogic(initialMediaText);

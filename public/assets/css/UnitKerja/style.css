@@ -450,10 +450,17 @@ tr.editing-row .editable-input:focus {
 }
 
 .form-control[readonly],
-textarea.form-control[readonly] {
-    background-color: #EBEBEB;
+textarea.form-control[readonly],
+.form-select:disabled {
+    background-color: #EBEBEB !important;
     opacity: 1;
-    color: black;
+    color: #212529;
+    cursor: not-allowed;
+}
+
+.form-check-input:disabled + .form-check-label {
+    color: #6c757d;
+    cursor: not-allowed;
 }
 
 .file-display-container {
