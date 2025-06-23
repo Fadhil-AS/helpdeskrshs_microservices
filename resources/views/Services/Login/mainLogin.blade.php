@@ -18,35 +18,33 @@
     <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan bottom-right" />
 
     <div class="login-container">
-        <div class="login-form-column">
-            <div class="login-card text-center">
-                <img src="{{ asset('assets/images/iconRSHS.jpg') }}" alt="Logo RS Hasan Sadikin" class="logo-rs">
-                <h4 class="mb-1" style="color: #00796B;">RS Hasan Sadikin Bandung</h4>
-                <p class="subtitle mb-4">Sistem Informasi Pengaduan dan Manajemen</p>
+        <div class="login-card text-center">
+            <img src="{{ asset('assets/images/iconRSHS.jpg') }}" alt="Logo RS Hasan Sadikin" class="logo-rs">
+            <h4 class="mb-1" style="color: #00796B;">RS Hasan Sadikin Bandung</h4>
+            <p class="subtitle mb-4">Sistem Informasi Pengaduan dan Manajemen</p>
 
-                <form>
-                    <div class="mb-3 text-start">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control form-control-lg" id="username"
-                            placeholder="Masukkan Username" required>
+            <form>
+                <div class="mb-3 text-start">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control form-control-lg" id="username"
+                        placeholder="Masukkan Username" required>
+                </div>
+                <div class="mb-4 text-start">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control form-control-lg" id="password"
+                            placeholder="Masukkan Password" required>
+                        <span class="input-group-text password-addon" id="togglePassword">
+                            <i class="bi bi-eye"></i>
+                        </span>
                     </div>
-                    <div class="mb-4 text-start">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control form-control-lg" id="password"
-                                placeholder="Masukkan Password" required>
-                            <span class="input-group-text password-addon" id="togglePassword">
-                                <i class="bi bi-eye"></i>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-login btn-lg text-white">
-                            Login <i class="bi bi-box-arrow-in-right ms-1"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-login btn-lg text-white">
+                        Login <i class="bi bi-box-arrow-in-right ms-1"></i>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
