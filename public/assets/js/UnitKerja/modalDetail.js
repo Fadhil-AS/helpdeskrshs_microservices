@@ -104,6 +104,40 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('detail-klarifikasi-unit').value = text(data.TINDAK_LANJUT_HUMAS);
         document.getElementById('detail-tindak-lanjut-humas').value = text(data.EVALUASI_COMPLAINT);
 
+        const pengaduanContainer = document.getElementById('filePengaduanContainer');
+        pengaduanContainer.innerHTML = ''; // Kosongkan dulu
+        if (data.pengaduan_files && data.pengaduan_files.length > 0) {
+            pengaduanContainer.classList.add('d-flex', 'flex-wrap', 'gap-2'); // Tambahkan class untuk layout
+            data.pengaduan_files.forEach(filePath => {
+                const trimmedPath = filePath.trim();
+                if (trimmedPath === '') return;
+
+                const publicUrl = `/storage/${trimmedPath}`;
+                const fileName = trimmedPath.split('/').pop();
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+
+                let previewHtml = '';
+                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                if (imageExtensions.includes(fileExtension)) {
+                    previewHtml = `<img src="${publicUrl}" alt="${fileName}" class="img-fluid rounded mb-2" style="height: 60px; width: 100%; object-fit: cover;">`;
+                } else {
+                    let iconClass = 'bi-file-earmark-text text-secondary';
+                    if (fileExtension === 'pdf') iconClass = 'bi-file-earmark-pdf text-danger';
+                    else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'bi-file-earmark-word text-primary';
+                    previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                }
+
+                pengaduanContainer.innerHTML += `
+                    <a href="${publicUrl}" target="_blank" class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between" style="width: 120px; text-align: center;">
+                        ${previewHtml}
+                        <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
+                    </a>`;
+            });
+        } else {
+            pengaduanContainer.classList.remove('d-flex', 'flex-wrap', 'gap-2');
+            pengaduanContainer.innerHTML = '<p class="text-muted m-0">Tidak ada file pengaduan.</p>';
+        }
+
         const fileListContainer = document.getElementById('detail-file-list');
         fileListContainer.innerHTML = '';
         // let displayedFileCount = 0;
@@ -137,6 +171,40 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         } else {
             fileListContainer.innerHTML = '<p class="text-muted m-0">Tidak ada file bukti klarifikasi.</p>';
+        }
+
+        const tindakLanjutContainer = document.getElementById('fileTindakLanjutContainer');
+        tindakLanjutContainer.innerHTML = '';
+        if (data.tindak_lanjut_files && data.tindak_lanjut_files.length > 0) {
+            tindakLanjutContainer.classList.add('d-flex', 'flex-wrap', 'gap-2');
+            data.tindak_lanjut_files.forEach(filePath => {
+                const trimmedPath = filePath.trim();
+                if (trimmedPath === '') return;
+
+                const publicUrl = `/storage/${trimmedPath}`;
+                const fileName = trimmedPath.split('/').pop();
+                const fileExtension = fileName.split('.').pop().toLowerCase();
+
+                let previewHtml = '';
+                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                if (imageExtensions.includes(fileExtension)) {
+                    previewHtml = `<img src="${publicUrl}" alt="${fileName}" class="img-fluid rounded mb-2" style="height: 60px; width: 100%; object-fit: cover;">`;
+                } else {
+                    let iconClass = 'bi-file-earmark-text text-secondary';
+                    if (fileExtension === 'pdf') iconClass = 'bi-file-earmark-pdf text-danger';
+                    else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'bi-file-earmark-word text-primary';
+                    previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                }
+
+                tindakLanjutContainer.innerHTML += `
+                    <a href="${publicUrl}" target="_blank" class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between" style="width: 120px; text-align: center;">
+                        ${previewHtml}
+                        <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
+                    </a>`;
+            });
+        } else {
+            tindakLanjutContainer.classList.remove('d-flex', 'flex-wrap', 'gap-2');
+            tindakLanjutContainer.innerHTML = '<p class="text-muted m-0">Tidak ada file tindak lanjut humas.</p>';
         }
 
         const editButtons = detailModalElement.querySelectorAll('.btn-edit');
@@ -181,6 +249,39 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         tglEvaluasiInput.value = data.TGL_EVALUASI ? toInputDate(data.TGL_EVALUASI) : maxDate;
+
+        const pengaduanContainerEdit = document.querySelector('#editModal #filePengaduanContainer');
+        if (pengaduanContainerEdit) {
+            pengaduanContainerEdit.innerHTML = '';
+            if (data.pengaduan_files && data.pengaduan_files.length > 0) {
+                pengaduanContainerEdit.classList.add('d-flex', 'flex-wrap', 'gap-2');
+                data.pengaduan_files.forEach(filePath => {
+                    const trimmedPath = filePath.trim();
+                    if (trimmedPath === '') return;
+                    const publicUrl = `/storage/${trimmedPath}`;
+                    const fileName = trimmedPath.split('/').pop();
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
+                    let previewHtml = '';
+                    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                    if (imageExtensions.includes(fileExtension)) {
+                        previewHtml = `<img src="${publicUrl}" alt="${fileName}" class="img-fluid rounded mb-2" style="height: 60px; width: 100%; object-fit: cover;">`;
+                    } else {
+                        let iconClass = 'bi-file-earmark-text text-secondary';
+                        if (fileExtension === 'pdf') iconClass = 'bi-file-earmark-pdf text-danger';
+                        else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'bi-file-earmark-word text-primary';
+                        previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                    }
+                    pengaduanContainerEdit.innerHTML += `
+                        <a href="${publicUrl}" target="_blank" class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between" style="width: 120px; text-align: center;">
+                            ${previewHtml}
+                            <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
+                        </a>`;
+                });
+            } else {
+                pengaduanContainerEdit.classList.remove('d-flex', 'flex-wrap', 'gap-2');
+                pengaduanContainerEdit.innerHTML = '<p class="text-muted m-0">Tidak ada file pengaduan.</p>';
+            }
+        }
     }
 
     function resetModalFields() {
@@ -194,6 +295,12 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('detail-file-list').innerHTML = '';
         document.getElementById('detail-klarifikasi-unit').value = '';
         document.getElementById('detail-tindak-lanjut-humas').value = '';
+
+        const pengaduanContainer = document.getElementById('filePengaduanContainer');
+        if (pengaduanContainer) pengaduanContainer.innerHTML = '';
+
+        const tindakLanjutContainer = document.getElementById('fileTindakLanjutContainer');
+        if (tindakLanjutContainer) tindakLanjutContainer.innerHTML = '';
     }
 
     const getStatusBadge = (status) => {

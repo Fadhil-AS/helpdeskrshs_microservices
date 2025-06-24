@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets\css\Ticketing\navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets\css\Ticketing\style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets\css\Ticketing\styleTicketing.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets\css\Ticketing\imageLacak.css') }}">
 </head>
 
 <body>

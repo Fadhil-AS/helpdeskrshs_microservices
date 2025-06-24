@@ -1,0 +1,28 @@
+.timeline-image-preview {
+    width: 100px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    transition: transform 0.2s;
+}
+
+.timeline-image-preview:hover {
+    transform: scale(1.05);
+}
+
+.file-attachment-item-image a {
+    text-decoration: none;
+    color: #495057;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.file-attachment-item-image .file-name {
+    display: block;
+    width: 100px; /* Samakan dengan lebar gambar */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 4px;
+}

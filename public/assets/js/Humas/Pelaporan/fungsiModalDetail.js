@@ -67,11 +67,31 @@ $(document).ready(function () {
                 $('#detailPetugasEvaluasi').text(data.PETUGAS_EVALUASI || '-');
                 var tglEvaluasi = data.TGL_EVALUASI ? new Date(data.TGL_EVALUASI).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
                 $('#detailTanggalEvaluasi').text(tglEvaluasi);
-                $('#detailPenyelesaianPengaduan').text(data.penyelesaian_pengaduan ? data.penyelesaian_pengaduan.NAMA_PENYELESAIAN : '-');
+                $('#detailPenyelesaianPengaduan').text(data.penyelesaian_pengaduan ? data.penyelesaian_pengaduan.PENYELESAIAN_PENGADUAN : '-');
                 var tglSelesai = data.TGL_SELESAI ? new Date(data.TGL_SELESAI).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
                 $('#detailTanggalSelesai').text(tglSelesai);
-                $('#detailKlarifikasiUnitContent').val(data.KLARIFIKASI_UNIT_TEXT || '');
-                $('#detailTindakLanjutHumasContent').val(data.TINDAK_LANJUT_HUMAS || '');
+                $('#detailKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '-');
+                $('#detailTindakLanjutHumasContent').val(data.TINDAK_LANJUT_HUMAS || '-');
+
+                var pengaduanContainer = $('#filePengaduanContainer');
+                pengaduanContainer.html('');
+                if (data.pengaduan_files && data.pengaduan_files.length > 0) {
+                    data.pengaduan_files.forEach(function(filePath) {
+                        if (!filePath || filePath.trim() === '') return;
+                        var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
+                        var fileName = filePath.split(/[\\/]/).pop();
+                        var fileHtml = '<div class="file-klarifikasi-item" style="max-width: 150px;">';
+                        if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
+                            fileHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}"><img src="${fileUrl}" alt="File Pengaduan" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;"><small class="d-block text-truncate">${fileName}</small></a>`;
+                        } else {
+                            fileHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}"><i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i><small class="d-block text-truncate">${fileName}</small></a>`;
+                        }
+                        fileHtml += '</div>';
+                        pengaduanContainer.append(fileHtml);
+                    });
+                } else {
+                    pengaduanContainer.html('<p class="text-muted m-0">Tidak ada file pengaduan.</p>');
+                }
 
                 var buktiContainer = $('#buktiKlarifikasiContainer');
                 buktiContainer.html('');

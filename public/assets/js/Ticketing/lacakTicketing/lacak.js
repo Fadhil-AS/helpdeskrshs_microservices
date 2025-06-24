@@ -47,6 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    if (searchInput.value.trim() !== '') {
+        cariTiket();
+    }
+
     function renderTicketResult(tiket) {
         let actionButtonsHtml = '';
         if (tiket.is_menunggu_konfirmasi) {

@@ -120,6 +120,26 @@ $(document).ready(function() {
                     statusBadge.addClass('bg-secondary');
                 }
 
+                var pengaduanContainer = $('#editPengaduanContainer');
+                pengaduanContainer.html('');
+                if (data.pengaduan_files && data.pengaduan_files.length > 0) {
+                    data.pengaduan_files.forEach(function(filePath) {
+                        if (!filePath || filePath.trim() === '') return;
+                        var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
+                        var fileName = filePath.split(/[\\/]/).pop();
+                        var fileHtml = '<div class="file-klarifikasi-item d-inline-block me-2" style="max-width: 150px;">';
+                        if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
+                            fileHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}"><img src="${fileUrl}" alt="File Pengaduan" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;"><small class="d-block text-truncate">${fileName}</small></a>`;
+                        } else {
+                            fileHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}"><i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i><small class="d-block text-truncate">${fileName}</small></a>`;
+                        }
+                        fileHtml += '</div>';
+                        pengaduanContainer.append(fileHtml);
+                    });
+                } else {
+                    pengaduanContainer.html('<p class="text-muted m-0">Tidak ada file pengaduan.</p>');
+                }
+
                 var buktiContainer = $('#editBuktiKlarifikasiContainer');
                 buktiContainer.html('');
                 // let displayedFileCount = 0;

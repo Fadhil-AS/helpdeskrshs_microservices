@@ -92,6 +92,42 @@ document.addEventListener('DOMContentLoaded', function () {
             tanggalEvaluasiInput.removeAttribute('max');
             tanggalEvaluasiInput.placeholder = 'Menunggu penugasan Humas';
         }
+
+        const pengaduanContainer = document.querySelector('#editModal #filePengaduanContainer');
+        if (pengaduanContainer) {
+            pengaduanContainer.innerHTML = '';
+            if (data.pengaduan_files && data.pengaduan_files.length > 0) {
+                pengaduanContainer.classList.add('d-flex', 'flex-wrap', 'gap-2');
+                data.pengaduan_files.forEach(filePath => {
+                    const trimmedPath = filePath.trim();
+                    if (trimmedPath === '') return;
+
+                    const publicUrl = `/storage/${trimmedPath}`;
+                    const fileName = trimmedPath.split('/').pop();
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
+
+                    let previewHtml = '';
+                    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                    if (imageExtensions.includes(fileExtension)) {
+                        previewHtml = `<img src="${publicUrl}" alt="${fileName}" class="img-fluid rounded mb-2" style="height: 60px; width: 100%; object-fit: cover;">`;
+                    } else {
+                        let iconClass = 'bi-file-earmark-text text-secondary';
+                        if (fileExtension === 'pdf') iconClass = 'bi-file-earmark-pdf text-danger';
+                        else if (['doc', 'docx'].includes(fileExtension)) iconClass = 'bi-file-earmark-word text-primary';
+                        previewHtml = `<div class="text-center mb-2"><i class="bi ${iconClass} fs-1"></i></div>`;
+                    }
+
+                    pengaduanContainer.innerHTML += `
+                        <a href="${publicUrl}" target="_blank" class="text-decoration-none border rounded p-2 d-flex flex-column justify-content-between" style="width: 120px; text-align: center;">
+                            ${previewHtml}
+                            <small class="d-block text-truncate" title="${fileName}">${fileName}</small>
+                        </a>`;
+                });
+            } else {
+                pengaduanContainer.classList.remove('d-flex', 'flex-wrap', 'gap-2');
+                pengaduanContainer.innerHTML = '<p class="text-muted m-0">Tidak ada file pengaduan.</p>';
+            }
+        }
     }
 
     function formatDate(dateString) {

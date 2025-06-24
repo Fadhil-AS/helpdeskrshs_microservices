@@ -112,7 +112,6 @@ class PelaporanHumasController extends Controller {
         $validator = Validator::make($request->all(), $rules, $messages);
 
         $validator->sometimes('FILE_PENGADUAN', 'required', function ($input) use ($fileWajibIds) {
-            // Aturan 'required' hanya berlaku jika ID_KLASIFIKASI yang dipilih ada di dalam array $fileWajibIds
             return in_array($input->ID_KLASIFIKASI, $fileWajibIds);
         });
 
@@ -221,7 +220,7 @@ class PelaporanHumasController extends Controller {
                 }
                 return [$fileData];
             };
-
+            $complaint->pengaduan_files = $processFiles($complaint->FILE_PENGADUAN);
             $complaint->klarifikasi_files = $processFiles($complaint->FILE_BUKTI_KLARIFIKASI);
             $complaint->tindak_lanjut_files = $processFiles($complaint->FILE_TINDAK_LANJUT_HUMAS);
 
@@ -301,7 +300,6 @@ class PelaporanHumasController extends Controller {
             }
 
              if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
-                // Untuk mencegah TGL_SELESAI ter-update lagi jika diedit di kemudian hari
                 if (is_null($complaint->TGL_SELESAI)) {
                     $updateData['TGL_SELESAI'] = Carbon::now();
                 }

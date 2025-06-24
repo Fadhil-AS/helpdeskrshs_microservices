@@ -59,7 +59,9 @@ class DashboardUnitKerjaController extends Controller {
             return [$fileData];
         };
 
+        $complaint->pengaduan_files = $processFiles($complaint->FILE_PENGADUAN);
         $complaint->klarifikasi_files = $processFiles($complaint->FILE_BUKTI_KLARIFIKASI);
+        $complaint->tindak_lanjut_files = $processFiles($complaint->FILE_TINDAK_LANJUT_HUMAS);
 
         return response()->json($complaint);
     }
@@ -134,13 +136,15 @@ class DashboardUnitKerjaController extends Controller {
             });
 
             $updatedComplaint = Laporan::find($id_complaint);
-
             if ($updatedComplaint && $updatedComplaint->NO_TLPN) {
+                $urlLacak = route('ticketing.lacak', ['id_complaint' => $updatedComplaint->ID_COMPLAINT]);
+
                 $message = "Yth.\nBapak/Ibu {$updatedComplaint->NAME},\n\n" .
                            "Laporan Anda dengan ID *{$updatedComplaint->ID_COMPLAINT}* telah diperbarui.\n\n" .
                            "Status saat ini: *{$updatedComplaint->STATUS}*.\n" .
                            "Klarifikasi dari unit kami: '{$updatedComplaint->EVALUASI_COMPLAINT}'\n\n" .
-                           "Terima kasih atas perhatian Anda.".
+                           "Untuk melacak status laporan Anda, silakan kunjungi link berikut:\n" . $urlLacak .
+                           "\n\nTerima kasih atas perhatian Anda.".
                            "\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
 
                 $this->sendWhatsappNotification($updatedComplaint->NO_TLPN, $message);

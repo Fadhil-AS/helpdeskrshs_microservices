@@ -34,9 +34,9 @@ trait NotifikasiWhatsappPelapor {
         $namaPelapor = $laporan->NAME;
         $idLaporan = $laporan->ID_COMPLAINT;
         $judulLaporan = $laporan->JUDUL_COMPLAINT ?? substr($laporan->ISI_COMPLAINT, 0, 30) . '';
-
+        $urlLacak = route('ticketing.lacak', ['id_complaint' => $idLaporan]);
         $pesanHeader = "Yth.\nBapak/Ibu *" . $namaPelapor . "*,\n\n";
-        $pesanFooter = "\n\nTerima kasih atas kepercayaan Anda kepada layanan kami"."\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
+        $pesanFooter = "\n\nUntuk melacak status laporan Anda, silakan kunjungi link berikut:\n" . $urlLacak ."\n\nTerima kasih atas kepercayaan Anda kepada layanan kami"."\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
         $pesanBody = "";
 
         switch ($laporan->STATUS) {

@@ -9,6 +9,53 @@
     let feedbackModalInstance = null;
     let belumSelesaiModalInstance = null;
 
+    function generateFileAttachmentHtml(files, title) {
+        if (!files || files.length === 0) {
+            return '';
+        }
+
+        const fileItems = files.map(filePath => {
+            if (!filePath || filePath.trim() === '') return '';
+
+            const trimmedPath = filePath.trim();
+            const fileName = trimmedPath.split('/').pop();
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+            const publicUrl = `/storage/${trimmedPath}`;
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+
+            if (imageExtensions.includes(fileExtension)) {
+                return `
+                    <div class="file-attachment-item-image">
+                        <a href="${publicUrl}" target="_blank" title="${fileName}">
+                            <img src="${publicUrl}" alt="${fileName}" class="timeline-image-preview">
+                            <span class="file-name">${fileName}</span>
+                        </a>
+                    </div>`;
+            } else {
+                let iconClass = 'bi bi-file-earmark-text text-secondary';
+                if (fileExtension === 'pdf') {
+                    iconClass = 'bi bi-file-earmark-pdf text-danger';
+                } else if (['doc', 'docx'].includes(fileExtension)) {
+                    iconClass = 'bi bi-file-earmark-word text-info';
+                }
+                return `
+                    <div class="file-attachment-item">
+                        <a href="${publicUrl}" target="_blank" title="${fileName}">
+                            <i class="${iconClass}"></i> ${fileName}
+                        </a>
+                    </div>`;
+            }
+        }).join('');
+
+        return `
+            <div class="file-attachment-container mt-2">
+                <small class="text-muted d-block mb-1">${title}:</small>
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    ${fileItems}
+                </div>
+            </div>`;
+    }
+
     async function cariTiket() {
         const searchInput = document.getElementById('inputTiket');
         const hasilArea = document.getElementById('hasilArea');
@@ -93,56 +140,30 @@
 
             if (result.success && result.tiket) {
                 const tiket = result.tiket;
-                const filePengaduanAwalHtml = `
-                    <div class="file-attachment-container mt-2">
-                        <small class="text-muted d-block mb-1">File Pengaduan Awal:</small>
-                        <div class="d-flex flex-wrap gap-2">
-                            <div class="file-attachment-item">
-                                <a href="#" title="dummy1pengaduan.jpg"><i class="bi bi-file-earmark-image text-primary"></i> dummy1pengaduan.jpg</a>
-                            </div>
-                            <div class="file-attachment-item">
-                                <a href="#" title="dummy2pengaduan.pdf"><i class="bi bi-file-earmark-pdf text-danger"></i> dummy2pengaduan.pdf</a>
-                            </div>
-                        </div>
-                    </div>`;
+                const files = result.files;
+
+                const filePengaduanAwalHtml = generateFileAttachmentHtml(files.pengaduan, 'File Pengaduan Awal');
+
                 const initialTimelineEntryHtml =
-                    `<div class="timeline-item"><div class="fw-bold">Pelapor <span class="text-muted small fw-normal">${tiket.tanggal_complaint_timelineFormat || 'N/A'}</span></div><div class="timeline-title">Tiket Dibuat</div><div>Tiket <b> ${tiket.id_complaint || 'N/A'} </b> telah dibuat.</div>${filePengaduanAwalHtml}</div>`;
-                // const additionalRiwayatHtml = (result.riwayat_penanganan && Array.isArray(result
-                //         .riwayat_penanganan) && result.riwayat_penanganan.length > 0) ?
-                //     result.riwayat_penanganan.map(item =>
-                //         `<div class="timeline-item"><div class="fw-bold">${item.aktor || 'N/A'} <span class="text-muted small fw-normal">${item.tanggal_aksi || 'N/A'}</span></div><div class="timeline-title">${item.judul_aksi || 'N/A'}</div><div>${item.deskripsi_aksi || ''}</div></div>`
-                //     ).join('') : '';
-                const additionalRiwayatHtml = (result.riwayat_penanganan && Array.isArray(result.riwayat_penanganan)) ?
+                    `<div class="timeline-item">
+                        <div class="fw-bold">Pelapor <span class="text-muted small fw-normal">${tiket.tanggal_complaint_timelineFormat || 'N/A'}</span></div>
+                        <div class="timeline-title">Tiket Dibuat</div>
+                        <div>Tiket <b> ${tiket.id_complaint || 'N/A'} </b> telah dibuat.</div>
+                        ${filePengaduanAwalHtml}
+                    </div>`;
+
+                const additionalRiwayatHtml = (result.riwayat_penanganan && Array.isArray(result
+                        .riwayat_penanganan)) ?
                     result.riwayat_penanganan.map(item => {
                         let fileRiwayatHtml = '';
                         const judulAksiLower = item.judul_aksi ? item.judul_aksi.toLowerCase() : '';
 
                         if (judulAksiLower.includes('klarifikasi')) {
-                            fileRiwayatHtml = `
-                                <div class="file-attachment-container mt-2">
-                                    <small class="text-muted d-block mb-1">File Bukti Klarifikasi:</small>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <div class="file-attachment-item">
-                                            <a href="#" title="dummy1klarifikasi.docx"><i class="bi bi-file-earmark-word text-info"></i> dummy1klarifikasi.docx</a>
-                                        </div>
-                                        <div class="file-attachment-item">
-                                            <a href="#" title="dummy2klarifikasi.jpg"><i class="bi bi-file-earmark-image text-primary"></i> dummy2klarifikasi.jpg</a>
-                                        </div>
-                                        <div class="file-attachment-item">
-                                            <a href="#" title="dummy3klarifikasi.png"><i class="bi bi-file-earmark-image text-primary"></i> dummy3klarifikasi.png</a>
-                                        </div>
-                                    </div>
-                                </div>`;
-                        } else if (judulAksiLower.includes('tindak lanjut')) {
-                             fileRiwayatHtml = `
-                                <div class="file-attachment-container mt-2">
-                                    <small class="text-muted d-block mb-1">File Tindak Lanjut:</small>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <div class="file-attachment-item">
-                                            <a href="#" title="dummy1tindaklanjut.pdf"><i class="bi bi-file-earmark-pdf text-danger"></i> dummy1tindaklanjut.pdf</a>
-                                        </div>
-                                    </div>
-                                </div>`;
+                            fileRiwayatHtml = generateFileAttachmentHtml(files.klarifikasi,
+                                'File Bukti Klarifikasi');
+                        } else if (judulAksiLower.includes('tindak lanjuti')) {
+                            fileRiwayatHtml = generateFileAttachmentHtml(files.tindak_lanjut,
+                                'File Tindak Lanjut');
                         }
 
                         return `
@@ -431,7 +452,7 @@
 
                 const ratingContainer = feedbackModalEl.querySelector('#ratingContainer');
                 if (ratingContainer) {
-                    ratingContainer.addEventListener('click', function (e) {
+                    ratingContainer.addEventListener('click', function(e) {
                         if (e.target.classList.contains('rating-btn')) {
                             const clickedButton = e.target;
 

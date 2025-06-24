@@ -15,9 +15,10 @@ class LacakTicketingController extends Controller
 {
     use NotifikasiWhatsappPelapor;
 
-    public function getLacakTicketing()
+    public function getLacakTicketing(Request $request)
     {
-        return view('Services.Ticketing.lacakTicket.mainLacakTicketing');
+        $idComplaint = $request->query('id_complaint');
+        return view('Services.Ticketing.lacakTicket.mainLacakTicketing', compact('idComplaint'));
     }
 
     public function tanggapiPenyelesaian(Request $request, $id_complaint)
@@ -106,6 +107,13 @@ class LacakTicketingController extends Controller
                 ->first();
 
             if ($laporan) {
+                $processFiles = function ($fileData) {
+                    if (empty($fileData)) return [];
+                    $decoded = json_decode($fileData, true);
+                    if (is_array($decoded)) return $decoded;
+                    if (str_contains((string)$fileData, ';')) return explode(';', (string)$fileData);
+                    return [$fileData];
+                };
                 $riwayatPenanganan = [];
 
                 // History: Tiket Diterima (oleh Humas)
@@ -303,6 +311,11 @@ class LacakTicketingController extends Controller
                         'tanggal_complaint_timelineFormat' => Carbon::parse($laporan->TGL_INSROW ?? $laporan->TGL_COMPLAINT)->format('d M Y'),
                     ],
                     'riwayat_penanganan' => $riwayatPenanganan,
+                    'files' => [
+                        'pengaduan' => $processFiles($laporan->FILE_PENGADUAN),
+                        'klarifikasi' => $processFiles($laporan->FILE_BUKTI_KLARIFIKASI),
+                        'tindak_lanjut' => $processFiles($laporan->FILE_TINDAK_LANJUT_HUMAS),
+                    ]
                 ];
                 return response()->json($data);
             } else {
