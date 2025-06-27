@@ -1,4 +1,4 @@
-@extends('Services.Login.layouts.headingLogin')
+@extends('Services.LupaPassword.layouts.headingLupaPassword')
 
 <body>
     <!-- Navbar -->
@@ -19,9 +19,8 @@
 
     <div class="login-container">
         <div class="login-card text-center">
-            <img src="{{ asset('assets/images/iconRSHS.jpg') }}" alt="Logo RS Hasan Sadikin" class="logo-rs">
-            <h4 class="mb-1" style="color: #00796B;">RS Hasan Sadikin Bandung</h4>
-            <p class="subtitle mb-4">Sistem Informasi Pengaduan dan Manajemen</p>
+            <h4 class="mb-1" style="color: #00796B;">Lupa Password</h4>
+            <p class="subtitle mb-4">Ubah password dengan mengisi form dibawah.</p>
 
             @if ($errors->any())
                 <div class="alert alert-danger" role="alert">
@@ -31,28 +30,33 @@
 
             <form method="POST" action="{{ route('auth.login.submit') }}">
                 @csrf
+                {{-- Field Password Baru --}}
                 <div class="mb-3 text-start">
-                    <label for="USERNAME" class="form-label">Username</label>
-                    <input type="text" class="form-control form-control-lg" id="username" name="USERNAME"
-                        placeholder="Masukkan Username" value="{{ old('username') }}" required>
-                </div>
-                <div class="mb-4 text-start">
-                    <label for="password" class="form-label">Password</label>
+                    <label for="newPass" class="form-label">Password baru</label>
                     <div class="input-group">
-                        <input type="password" class="form-control form-control-lg" id="password" name="password"
-                            placeholder="Masukkan Password" required>
-                        <span class="input-group-text password-addon" id="togglePassword">
+                        <input type="password" class="form-control form-control-lg" id="newPass" name="NEWPASS"
+                            placeholder="Masukkan Password Baru" required>
+                        <span class="input-group-text password-addon" id="toggleNewPassword">
                             <i class="bi bi-eye"></i>
                         </span>
                     </div>
+                </div>
 
-                    <div class="text-end mt-2">
-                        <a href="{{ route('lupaPassword') }}" class="forgot-password-link" style="font-size: 0.9rem;">Lupa Password?</a>
+                {{-- Field Konfirmasi Password --}}
+                <div class="mb-4 text-start">
+                    <label for="confPass" class="form-label">Konfirmasi password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control form-control-lg" id="confPass" name="CONFPASS"
+                            placeholder="Konfirmasi Password" required>
+                        <span class="input-group-text password-addon" id="toggleConfPassword">
+                            <i class="bi bi-eye"></i>
+                        </span>
                     </div>
                 </div>
+
                 <div class="d-grid">
                     <button type="submit" class="btn btn-login btn-lg text-white">
-                        Login <i class="bi bi-box-arrow-in-right ms-1"></i>
+                        Simpan <i class="bi bi-box-arrow-in-right ms-1"></i>
                     </button>
                 </div>
             </form>
@@ -62,7 +66,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="{{ asset('assets/js/Login/fungsiPassword.js') }}"></script>
+    <script src="{{ asset('assets/js/LupaPassword/fungsiPassword.js') }}"></script>
 
 </body>
 

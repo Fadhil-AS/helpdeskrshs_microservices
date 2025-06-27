@@ -19,6 +19,7 @@ use App\Services\Admin\Http\Controllers\DashboardAdminController;
 use App\Services\Chatbot\Http\Controllers\ChatbotController;
 use App\Services\Chatbot\Models\Chatbot;
 use App\Services\Login\Http\Controllers\LoginController;
+use App\Services\LupaPassword\Http\Controllers\LupasPasswordController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -50,6 +51,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
+Route::get('/lupaPassword', [LupasPasswordController::class, 'getLupaPass'])->name('lupaPassword');
 
 // route humas services
 Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
