@@ -20,29 +20,43 @@ class DashboardUnitKerjaController extends Controller {
     use UnitKerjaNotifikasi;
 
     public function getDashboard (Request $request){
-        $dataComplaint = Laporan::with(['jenisMedia', 'unitKerja'])
-        ->whereNotNull('GRANDING')
-        ->filter($request->only(['search', 'status']))
-        ->orderBy('TGL_COMPLAINT', 'asc')
-        ->paginate(10)
-        ->withQueryString();
+        $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+
+        if (!$idBagianPengguna) {
+            $dataComplaint = Laporan::whereRaw('1 = 0')->paginate(10);
+            return view('services.unitKerja.dashboard.mainUnitKerja', ['dataComplaint' => $dataComplaint]);
+        }
+
+        $query = Laporan::with(['jenisMedia', 'unitKerja'])
+            ->whereNotNull('GRANDING')
+            ->where('ID_BAGIAN', $idBagianPengguna);
+
+
+        $dataComplaint = $query->filter($request->only(['search', 'status']))
+            ->orderBy('TGL_COMPLAINT', 'asc')
+            ->paginate(10)
+            ->withQueryString();
 
         return view ('services.unitKerja.dashboard.mainUnitKerja', ['dataComplaint' => $dataComplaint]);
     }
 
     public function show($id_complaint)
     {
+        $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+
         $complaint = Laporan::with([
             'unitKerja',
             'jenisMedia',
             'jenisLaporan',
             'klasifikasiPengaduan',
             'penyelesaianPengaduan'
-        ])->where('ID_COMPLAINT', $id_complaint)
+        ])
+        ->where('ID_COMPLAINT', $id_complaint)
+        ->where('ID_BAGIAN', $idBagianPengguna)
         ->first();
 
         if (!$complaint) {
-            return response()->json(['message' => 'Data pengaduan tidak ditemukan.'], 404);
+            return response()->json(['message' => 'Data pengaduan tidak ditemukan atau Anda tidak memiliki akses.'], 404);
         }
 
         $processFiles = function ($fileData) {
@@ -68,7 +82,11 @@ class DashboardUnitKerjaController extends Controller {
 
     public function update(Request $request, $id_complaint)
     {
-        $complaint = Laporan::findOrFail($id_complaint);
+        $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+        $complaint = Laporan::where('ID_COMPLAINT', $id_complaint)
+                                    ->where('ID_BAGIAN', $idBagianPengguna)
+                                    ->firstOrFail();
+
 
         $minEvaluationDate = $complaint->TGL_PENUGASAN ? Carbon::parse($complaint->TGL_PENUGASAN)->format('Y-m-d') : null;
 

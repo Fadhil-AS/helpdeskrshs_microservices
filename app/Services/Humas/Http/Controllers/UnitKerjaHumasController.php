@@ -107,7 +107,7 @@ class UnitKerjaHumasController extends Controller {
             'NAMA_BAGIAN_SINGULAR' => $request->input('NAMA_BAGIAN_SINGULAR') ?? $request->input('NAMA_BAGIAN'),
             'NAMA_ALTERNATIF' => $request->input('NAMA_ALTERNATIF'),
             'STATUS' => $request->input('STATUS'),
-            'TGL_INSROW' => now()
+            'TGL_UPDATE' => now(),
         ];
 
         $unitKerja->update($dataToUpdate);

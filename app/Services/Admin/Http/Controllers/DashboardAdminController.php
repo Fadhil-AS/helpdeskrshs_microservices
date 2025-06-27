@@ -34,6 +34,7 @@ class DashboardAdminController extends Controller
 
         } else {
             $laporanModel = new Laporan();
+            $laporanTable = $laporanModel->getTable();
             if (!method_exists($laporanModel, $name)) {
                 return ['labels' => $definedLabels, 'data' => array_fill(0, count($definedLabels), 0)];
             }
@@ -44,7 +45,7 @@ class DashboardAdminController extends Controller
             $ownerKey = $relation->getQualifiedOwnerKeyName();
 
             $queryBuilder = (clone $baseQuery)->join($relatedTable, $foreignKey, '=', $ownerKey)
-                ->selectRaw("{$relatedTable}.{$relationColumn} as label, count(data_complaint.ID_COMPLAINT) as total")
+                ->selectRaw("{$relatedTable}.{$relationColumn} as label, count({$laporanTable}.ID_COMPLAINT) as total")
                 ->whereIn("{$relatedTable}.{$relationColumn}", $definedLabels)
                 ->groupBy('label');
 
@@ -61,21 +62,27 @@ class DashboardAdminController extends Controller
 
     public function getDashboard()
     {
-        $unitKerjaList = UnitKerja::where('STATUS', '1')->orderBy('NAMA_BAGIAN')->get();
+        $role = session('role');
+        $userBagian = session('user')->ID_BAGIAN ?? null;
 
-        $topLevelUnitList = UnitKerja::where('STATUS', '1')
-            ->where(function ($query) {
+        $unitsQuery = UnitKerja::query();
+
+        if ($role === 'direksi' && !empty($userBagian)) {
+            $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)
+                   ->where('SUPER', '0');
+        } else {
+            $unitsQuery->where('STATUS', '1')->where(function ($query) {
                 $query->where('ID_PARENT_BAGIAN', ' ')
-                      ->orWhere('ID_PARENT_BAGIAN', 0)
-                      ->orWhereNull('ID_PARENT_BAGIAN')
-                      ->orWhere('ID_PARENT_BAGIAN', '1');
-            })
-            ->orderBy('NAMA_BAGIAN')
-            ->get();
+                    ->orWhere('ID_PARENT_BAGIAN', 0)
+                    ->orWhereNull('ID_PARENT_BAGIAN')
+                    ->orWhere('ID_PARENT_BAGIAN', '1');
+            });
+        }
+
+        $unitKerjaList = $unitsQuery->orderBy('NAMA_BAGIAN')->get();
 
         return view('Services.Admin.Dashboard.mainAdmin', [
             'unitKerjaList' => $unitKerjaList,
-            'topLevelUnitList' => $topLevelUnitList,
         ]);
 
 
@@ -92,27 +99,18 @@ class DashboardAdminController extends Controller
         }
     }
 
-    private function applyUnitKerjaFilter(Builder $query, ?string $unitKerjaId, ?string $subUnitId)
+    private function applyUnitKerjaFilter(Builder $query, ?string $unitKerjaId)
     {
-        $laporanTable = (new Laporan)->getTable();
-
-        if (!empty($subUnitId) && $subUnitId !== 'Semua Sub Unit') {
-            $query->where("{$laporanTable}.ID_BAGIAN", $subUnitId);
-        }
-        elseif (!empty($unitKerjaId) && $unitKerjaId !== 'Semua Unit Kerja') {
-            $subUnitIds = UnitKerja::where('ID_PARENT_BAGIAN', $unitKerjaId)->pluck('ID_BAGIAN');
-
-            if ($subUnitIds->isEmpty()) {
-                $query->where("{$laporanTable}.ID_BAGIAN", $unitKerjaId);
-            } else {
-                $query->whereIn("{$laporanTable}.ID_BAGIAN", $subUnitIds);
-            }
+        if (!empty($unitKerjaId)) {
+            $laporanTable = (new Laporan)->getTable();
+            $query->where("{$laporanTable}.ID_BAGIAN", $unitKerjaId);
         }
     }
 
     private function getAllDescendantIds($parentId)
     {
-        $directChildren = UnitKerja::where('ID_PARENT_BAGIAN', $parentId)->get();
+        $directChildren = UnitKerja::where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $parentId)->get();
+
         $allDescendantIds = [];
         foreach ($directChildren as $child) {
             $allDescendantIds[] = $child->ID_BAGIAN;
@@ -123,23 +121,37 @@ class DashboardAdminController extends Controller
 
     private function getAggregatedUnitKerjaData(Builder $baseQuery): array
     {
-        $topLevelUnits = UnitKerja::where('STATUS', '1')
-            ->where(function($query) {
-                $query->where('ID_PARENT_BAGIAN', ' ')
-                      ->orWhereNull('ID_PARENT_BAGIAN')
-                      ->orWhere('ID_PARENT_BAGIAN', 0);
-            })
-            ->orderBy('NAMA_BAGIAN')
-            ->get();
+        $role = session('role');
+        $userBagian = optional(session('user'))->ID_BAGIAN;
+        $unitsQuery = UnitKerja::query();
+
+        if ($role === 'direksi' && !empty($userBagian)) {
+            $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)
+                       ->where('SUPER', '0');
+
+        } else {
+            $unitsQuery->where('STATUS', '1')
+                       ->where(function($query) {
+                           $query->where('ID_PARENT_BAGIAN', ' ')
+                                 ->orWhereNull('ID_PARENT_BAGIAN')
+                                 ->orWhere('ID_PARENT_BAGIAN', 0)
+                                 ->orWhere('ID_PARENT_BAGIAN', '1');
+                       });
+        }
+
+        $unitsToDisplay = $unitsQuery->orderBy('NAMA_BAGIAN')->get();
 
         $chartLabels = [];
         $chartData = [];
 
-        foreach ($topLevelUnits as $topUnit) {
-            $chartLabels[] = $topUnit->NAMA_BAGIAN;
-            $idsToCount = $this->getAllDescendantIds($topUnit->ID_BAGIAN);
-            $idsToCount[] = $topUnit->ID_BAGIAN;
-            $count = (clone $baseQuery)->whereIn('ID_BAGIAN', $idsToCount)->count();
+        foreach ($unitsToDisplay as $unit) {
+            $chartLabels[] = $unit->NAMA_BAGIAN;
+
+            $idsToCount = $this->getAllDescendantIds($unit->ID_BAGIAN);
+            $idsToCount[] = $unit->ID_BAGIAN;
+
+            $laporanTable = (new Laporan)->getTable();
+            $count = (clone $baseQuery)->whereIn("{$laporanTable}.ID_BAGIAN", $idsToCount)->count();
             $chartData[] = $count;
         }
 
@@ -152,7 +164,41 @@ class DashboardAdminController extends Controller
     public function getFilteredChartData(Request $request)
     {
         $unitKerjaId = $request->input('unit_kerja_id');
-        $subUnitId = $request->input('sub_unit_id');
+        $timeFilter = $request->input('time_filter');
+        $role = session('role');
+        $userBagian = session('user')->ID_BAGIAN;
+
+        $baseQuery = Laporan::query();
+        $laporanTable = (new Laporan)->getTable();
+
+        if ($role === 'direksi' && !empty($userBagian)) {
+            $specialChildren = UnitKerja::where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)
+                                        ->where('SUPER', '0')
+                                        ->get();
+
+            $allowedUnitIds = [];
+            foreach ($specialChildren as $child) {
+                $allowedUnitIds[] = $child->ID_BAGIAN;
+                $descendants = $this->getAllDescendantIds($child->ID_BAGIAN);
+                $allowedUnitIds = array_merge($allowedUnitIds, $descendants);
+            }
+
+            if (empty($allowedUnitIds)) {
+                $baseQuery->whereRaw('1 = 0');
+            } else {
+                $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", $allowedUnitIds);
+            }
+
+        } else if ($role === 'super-admin' && !empty($userBagian)) {
+            $allMyUnitIds = $this->getAllDescendantIds($userBagian);
+            $allMyUnitIds[] = $userBagian;
+            $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", $allMyUnitIds);
+        }
+        $this->applyTimeFilter($baseQuery, $timeFilter);
+
+        if (!empty($unitKerjaId)) {
+            $this->applyUnitKerjaFilter($baseQuery, $unitKerjaId);
+        }
 
         $definedLabels = [
             'grading'               => ['Hijau', 'Kuning', 'Merah'],
@@ -163,25 +209,12 @@ class DashboardAdminController extends Controller
             'penyelesaianPengaduan' => PenyelesaianPengaduan::where('STATUS', '1')->pluck('PENYELESAIAN_PENGADUAN')->toArray(),
         ];
 
-        $queryForUnitKerjaLabels = UnitKerja::where('STATUS', '1');
-        if ($unitKerjaId && $unitKerjaId !== 'Semua Unit Kerja') {
-            $queryForUnitKerjaLabels->where('ID_PARENT_BAGIAN', $unitKerjaId);
+        if (!empty($unitKerjaId)) {
+            $unit = UnitKerja::find($unitKerjaId);
+            $definedLabels['unitKerja'] = $unit ? [$unit->NAMA_BAGIAN] : [];
         } else {
-            $queryForUnitKerjaLabels->where(function($query) {
-                $query->where('ID_PARENT_BAGIAN', ' ')
-                      ->orWhereNull('ID_PARENT_BAGIAN')
-                      ->orWhere('ID_PARENT_BAGIAN', 0);
-            });
-        }
-        $definedLabels['unitKerja'] = $queryForUnitKerjaLabels->pluck('NAMA_BAGIAN')->toArray();
-
-        if ($unitKerjaId && empty($definedLabels['unitKerja'])) {
             $definedLabels['unitKerja'] = [];
         }
-
-        $baseQuery = Laporan::query();
-        $this->applyTimeFilter($baseQuery, $request->input('time_filter'));
-        $this->applyUnitKerjaFilter($baseQuery, $unitKerjaId, $subUnitId);
 
         $baseConfigs = [
             'grading' => [ 'title' => 'Grading (Hijau, Kuning, Merah)', 'subtitle' => 'Distribusi pengaduan berdasarkan tingkat waktu penanganan komplain', 'type' => 'bar', 'backgroundColor' => ['#347433', '#FFD600', '#D50000'] ],
@@ -205,19 +238,22 @@ class DashboardAdminController extends Controller
 
         $chartData = [];
         foreach ($chartMap as $key => $config) {
-            if ($key === 'unitKerja' && empty($request->input('unit_kerja_id'))) {
-                $data = $this->getAggregatedUnitKerjaData(clone $baseQuery);
+            if ($key === 'unitKerja' && empty($unitKerjaId)) {
+                $aggregateQuery = Laporan::query();
+                if ($role === 'direksi' && !empty($userBagian)) {
+                    $allMyUnitIds = $this->getAllDescendantIds($userBagian);
+                    $allMyUnitIds[] = $userBagian;
+                    $aggregateQuery->whereIn('ID_BAGIAN', $allMyUnitIds);
+                }
+                $this->applyTimeFilter($aggregateQuery, $timeFilter);
+                $data = $this->getAggregatedUnitKerjaData($aggregateQuery);
             } else {
-                $data = $this->generateChartDataWithDefinedLabels(
-                    clone $baseQuery,
-                    $config['type'],
-                    $config['name'],
-                    $definedLabels[$key],
-                    $config['column'] ?? null
-                );
+                $data = $this->generateChartDataWithDefinedLabels(clone $baseQuery, $config['type'], $config['name'], $definedLabels[$key] ?? [], $config['column'] ?? null);
             }
+
             $chartData[$key] = array_merge($baseConfigs[$key], $data);
         }
+
 
         return response()->json($chartData);
     }

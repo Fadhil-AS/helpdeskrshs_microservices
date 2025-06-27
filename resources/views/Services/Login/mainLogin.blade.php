@@ -23,16 +23,23 @@
             <h4 class="mb-1" style="color: #00796B;">RS Hasan Sadikin Bandung</h4>
             <p class="subtitle mb-4">Sistem Informasi Pengaduan dan Manajemen</p>
 
-            <form>
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('auth.login.submit') }}">
+                @csrf
                 <div class="mb-3 text-start">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control form-control-lg" id="username"
-                        placeholder="Masukkan Username" required>
+                    <label for="USERNAME" class="form-label">Username</label>
+                    <input type="text" class="form-control form-control-lg" id="username" name="USERNAME"
+                        placeholder="Masukkan Username" value="{{ old('username') }}" required>
                 </div>
                 <div class="mb-4 text-start">
                     <label for="password" class="form-label">Password</label>
                     <div class="input-group">
-                        <input type="password" class="form-control form-control-lg" id="password"
+                        <input type="password" class="form-control form-control-lg" id="password" name="password"
                             placeholder="Masukkan Password" required>
                         <span class="input-group-text password-addon" id="togglePassword">
                             <i class="bi bi-eye"></i>

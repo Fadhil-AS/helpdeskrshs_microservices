@@ -28,20 +28,10 @@
                 <div id="unitKerjaFilterContainer" style="display: none;">
                     <select class="selectpicker select-panjang" data-style="btn-reset" data-live-search="true"
                         id="unitKerjaFilter">
-                        <option value="">Semua Unit Kerja</option>
+                        <option value="">Semua Sub unit kerja</option>
                         @foreach ($unitKerjaList as $unit)
                             <option value="{{ $unit->ID_BAGIAN }}">{{ $unit->NAMA_BAGIAN }}</option>
                         @endforeach
-                    </select>
-                </div>
-                <!-- Dropdown Sub Unit -->
-                <div id="subUnitFilterContainer" style="display: none;">
-                    <select class="selectpicker select-panjang" data-style="btn-reset" data-live-search="true"
-                        id="subUnitFilter">
-                        <option value="">Semua Sub Unit</option>
-                        {{-- @foreach ($unitKerjaList as $unit)
-                            <option value="{{ $unit->ID_BAGIAN }}">{{ $unit->NAMA_BAGIAN_SINGULAR }}</option>
-                        @endforeach --}}
                     </select>
                 </div>
             </div>
@@ -64,7 +54,6 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         const categoryFilter = document.getElementById('categoryFilter');
-        // ... dan semua variabel dan fungsi lainnya ...
 
     });
 </script>

@@ -2,7 +2,7 @@
 
 <body>
     <!-- Navbar -->
-    @include('Services.UnitKerja.partials.navbarUnitKerja')
+    @include('Services.Humas.partials.navbar')
 
     {{-- error handle --}}
     @include('Services.UnitKerja.Dashboard.partials.errorHandle')

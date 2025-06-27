@@ -43,8 +43,16 @@ Route::prefix('ticketing')->name('ticketing.')->group(function() {
 // route ssd services
 Route::get('/ssd', [SSDController::class, 'getSSD']);
 
+// route login
+Route::prefix('auth')->name('auth.')->group(function () {
+    Route::get('/login', [LoginController::class, 'getLogin'])->name('login');
+    Route::post('/login', [LoginController::class, 'postLogin'])->name('login.submit');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+});
+
+
 // route humas services
-Route::prefix('humas')->name('humas.')->group(function(){
+Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     // pelaporan
     Route::get('/pelaporanHumas', [PelaporanHumasController::class, 'getPelaporanHumas'])->name('pelaporan-humas');
     Route::post('/pelaporanHumas', [PelaporanHumasController::class, 'storePelaporanHumas'])->name('pelaporan-humas.store');
@@ -95,7 +103,7 @@ Route::prefix('humas')->name('humas.')->group(function(){
 });
 
 
-Route::prefix('unitKerja')->name('unitKerja.')->group(function(){
+Route::prefix('unitKerja')->name('unitKerja.')->middleware('unit_kerja')->group(function(){
     // dashboard unit kerja
     Route::get('/dashboard', action: [DashboardUnitKerjaController::class, 'getDashboard'])->name('dashboard');
     Route::get('/dashboard/detail/{id_complaint}', [DashboardUnitKerjaController::class, 'show'])->name('dashboard.show');
@@ -103,13 +111,12 @@ Route::prefix('unitKerja')->name('unitKerja.')->group(function(){
 
 });
 
-Route::prefix('admin')->name('admin.')->group(function(){
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function(){
     Route::get('/dashboard', action: [DashboardAdminController::class, 'getDashboard'])->name('dashboard');
     Route::get('/admin/dashboard/chart-data', [DashboardAdminController::class, 'getFilteredChartData'])->name('dashboard.chart-data');
 });
 
-// route login
-Route::get('/login', [LoginController::class, 'getLogin']);
+
 
 // Route::prefix('chatbot')->name('chatbot.')->group(function(){
 //     Route::get('/chat', action: [ChatbotController::class, 'getChatbot'])->name('chat');

@@ -2,12 +2,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const categoryFilter = document.getElementById('categoryFilter');
     const timeFilter = document.getElementById('timeFilter');
-    const unitKerjaFilter = document.getElementById('unitKerjaFilter');
-    const subUnitFilter = document.getElementById('subUnitFilter');
-    const unitKerjaContainer = document.getElementById("unitKerjaFilterContainer");
-    const subUnitContainer = document.getElementById("subUnitFilterContainer");
+    const unitFilter = document.getElementById('unitKerjaFilter');
+    const unitFilterContainer = document.getElementById("unitKerjaFilterContainer");
 
     const chartCanvas = document.getElementById('gradingChart');
+    if (!chartCanvas) {
+        return;
+    }
+
     const chartApiUrl = chartCanvas.dataset.apiUrl;
     const ctx = chartCanvas.getContext('2d');
     const chartTitle = document.getElementById('chart-title');
@@ -79,10 +81,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function updateCharts() {
-        const category = categoryFilter.value;
-        const time = timeFilter.value;
-        const unitKerjaId = unitKerjaFilter.value;
-        const subUnitId = subUnitFilter.value;
+        const category = categoryFilter ? categoryFilter.value : 'grading';
+        const time = timeFilter ? timeFilter.value : 'semua';
+        const unitKerjaId = unitFilter ? unitFilter.value : '';
 
         chartCanvas.style.display = 'none';
         if (loadingState) loadingState.style.display = 'block';
@@ -92,21 +93,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             const params = new URLSearchParams({
+                category: category,
                 time_filter: time,
                 unit_kerja_id: unitKerjaId,
-                sub_unit_id: subUnitId
             });
             const response = await fetch(`${chartApiUrl}?${params.toString()}`);
             if (!response.ok) {
-                throw new Error(`Gagal mengambil data (Status: ${response.status}).`);
+                let errorText = `Gagal mengambil data (Status: ${response.status}).`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.message) {
+                        errorText += ` Pesan: ${errorData.message}`;
+                    }
+                } catch (e) {}
+                throw new Error(errorText);
             }
             dynamicChartData = await response.json();
-
-            console.log("LOG 1: Semua data yang diterima dari server:", dynamicChartData);
-
-            console.log("LOG 2: Data yang akan digunakan untuk kategori '" + category + "':", dynamicChartData[category]);
-
-            createChart(dynamicChartData[category]);
+            if(category === 'unitKerja' && dynamicChartData[category] && dynamicChartData[category].labels.length === 0){
+                createChart(null);
+            } else {
+                 createChart(dynamicChartData[category]);
+            }
         } catch (error) {
             console.error('Error fetching chart data:', error);
             if (loadingState) loadingState.style.display = 'block';
@@ -115,60 +122,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function populateSubUnitFilter(selectedParentId) {
-        const $select = $(subUnitFilter);
-
-        $select.selectpicker('destroy');
-
-        $select.empty().append('<option value="">Semua Sub Unit</option>');
-
-        if (selectedParentId && typeof AllUnitKerja !== 'undefined') {
-            const subUnits = AllUnitKerja.filter(unit => unit.parent_id == selectedParentId);
-
-            if (subUnits.length > 0) {
-                subUnits.forEach(unit => {
-                    $select.append(new Option(unit.nama, unit.id));
-                });
-                subUnitContainer.style.display = 'inline-block';
-            } else {
-                subUnitContainer.style.display = 'none';
-            }
-        } else {
-            subUnitContainer.style.display = 'none';
-        }
-
-        $select.selectpicker();
-    }
-
     function handleCategoryChange() {
+        if (!categoryFilter || !unitFilterContainer) return;
         if (categoryFilter.value === 'unitKerja') {
-            unitKerjaContainer.style.display = 'inline-block';
-
-            if (unitKerjaFilter.value) {
-                 populateSubUnitFilter(unitKerjaFilter.value);
-            } else {
-                 subUnitContainer.style.display = 'none';
-            }
+            unitFilterContainer.style.display = 'inline-block';
         } else {
-            unitKerjaContainer.style.display = 'none';
-            subUnitContainer.style.display = 'none';
+            unitFilterContainer.style.display = 'none';
         }
-
-        createChart(dynamicChartData[categoryFilter.value]);
     }
 
-    categoryFilter.addEventListener('change', handleCategoryChange);
-
-    timeFilter.addEventListener('change', updateCharts);
-    subUnitFilter.addEventListener('change', updateCharts);
-
-    unitKerjaFilter.addEventListener('change', function() {
-        populateSubUnitFilter(this.value);
-        updateCharts();
-    });
-
-    // --- 4. Inisialisasi ---
-    subUnitContainer.style.display = 'none'; // Sembunyikan sub-unit di awal
+    if (typeof $ === 'function' && $.fn.selectpicker) {
+        $('#categoryFilter').on('changed.bs.select', () => {
+            handleCategoryChange();
+            updateCharts();
+        });
+        $('#timeFilter').on('changed.bs.select', updateCharts);
+        $('#unitKerjaFilter').on('changed.bs.select', updateCharts);
+    }
     handleCategoryChange();
     updateCharts();
 });

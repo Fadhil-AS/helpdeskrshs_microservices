@@ -13,6 +13,7 @@ use Database\Seeders\Unit_kerja\UnitKerjaSeeder;
 use Database\Seeders\Ticketing\UserComplaintSeeder;
 use Database\Seeders\Ticketing\ComplaintDireksiSeeder;
 use Database\Seeders\Ticketing\DataComplaintSeeder;
+use Database\Seeders\Humas\HumasSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -37,6 +38,7 @@ class DatabaseSeeder extends Seeder
             UserComplaintSeeder::class,
             ComplaintDireksiSeeder::class,
             DataComplaintSeeder::class,
+            HumasSeeder::class,
         ]);
     }
 }
