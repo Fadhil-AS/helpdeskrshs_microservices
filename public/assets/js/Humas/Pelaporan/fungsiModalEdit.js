@@ -164,7 +164,7 @@ $(document).ready(function() {
 
                 const fieldsToLock = [
                     '#editNoTelp', '#editNamaPelapor', '#editNoMedrec',
-                    '#editIdJenisMedia', '#editIdKlasifikasi', '#editTanggalPengaduan'
+                    '#editIdJenisMedia', '#editIdKlasifikasi', '#editTanggalPengaduan', '#deskripsiPengaduan'
                 ];
 
                 function setFieldsState(selectors, isLocked) {

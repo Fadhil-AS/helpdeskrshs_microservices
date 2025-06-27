@@ -162,8 +162,8 @@
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="2" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
+                                <label class="form-label fw-bold" for="deskripsiPengaduan">Deskripsi Pengaduan</label>
+                                <textarea class="form-control" rows="2" id="deskripsiPengaduan" name="ISI_COMPLAINT" required></textarea>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
