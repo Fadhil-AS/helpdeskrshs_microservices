@@ -73,13 +73,17 @@
                             <td>{{ \Carbon\Carbon::parse($admin->TGL_INSROW)->locale('id')->isoFormat('DD MMMM YYYY') }}
                             </td>
                             <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin"
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin" title="Detail Admin"
                                     data-admin='{{ json_encode($admin) }}'>
                                     <i class="bi bi-eye me-2"></i>
                                 </a>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin"
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin" title="Edit Admin"
                                     data-admin='{{ json_encode($admin) }}'>
                                     <i class="bi bi-pencil-square me-2"></i>
+                                </a>
+                                <a href="#" class="reset-password-btn me-2" title="Reset Password"
+                                    data-id="">
+                                    <i class="bi bi-arrow-counterclockwise text-primary"></i>
                                 </a>
                                 <form action="{{ route('humas.user-complaint.destroy', $admin) }}" method="POST"
                                     class="d-inline"
@@ -87,7 +91,7 @@
                                     @csrf
                                     @method('DELETE')
 
-                                    <button type="submit" class="btn btn-link text-danger p-0"
+                                    <button type="submit" class="btn btn-link text-danger p-0" title="Hapus Admin"
                                         style="vertical-align: baseline;" onclick="event.stopPropagation()">
                                         <i class="bi bi-trash"></i>
                                     </button>
