@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
             type: config.type,
             data: {
                 labels: filtered.labels,
-                datasets: [{ label: 'Jumlah Pengaduan', data: filtered.data, backgroundColor: finalBackgroundColor }]
+                datasets: [{ label: 'Jumlah Pengaduan', data: filtered.data, backgroundColor: finalBackgroundColor, maxBarThickness: 100 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
