@@ -4,11 +4,19 @@ $(document).ready(function () {
     console.log('fungsiModalEdit.js: Document is ready, jQuery is available.');
 
     function setDependentFieldsReadOnly(isLocked) {
-        $('.readonly-on-helpdesk').each(function () {
+        const fields = $('#editNoTelp, #editNamaPelapor, #editNoMedrec, #editIdJenisMedia, #editIdKlasifikasi, #editTanggalPengaduan, #editDeskripsiPengaduan');
+
+        fields.each(function() {
             const el = $(this);
-            el.is('input, textarea') ? el.prop('readonly', isLocked) : el.prop('disabled', isLocked);
+            el.is('select') ? el.prop('disabled', isLocked) : el.prop('readonly', isLocked);
             el.toggleClass('form-control-readonly', isLocked);
         });
+
+        $('#editPengaduanInputWrapper').toggle(!isLocked);
+        // $('#editPengaduanContainer').css({
+        //     'pointer-events': isLocked ? 'none' : 'auto',
+        //     'opacity': isLocked ? 0.7 : 1
+        // });
     }
 
     function applyFieldLockLogic(initialMediaText = '') {
