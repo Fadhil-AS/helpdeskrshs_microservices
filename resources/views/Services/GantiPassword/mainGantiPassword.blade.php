@@ -1,4 +1,4 @@
-@extends('Services.LupaPassword.layouts.headingLupaPassword')
+@extends('Services.GantiPassword.layouts.headingGantiPassword')
 
 <body>
     <!-- Navbar -->
@@ -19,8 +19,8 @@
 
     <div class="login-container">
         <div class="login-card text-center">
-            <h4 class="mb-1" style="color: #00796B;">Lupa Password</h4>
-            <p class="subtitle mb-4">Ubah password dengan mengisi form dibawah.</p>
+            <h4 class="mb-1" style="color: #00796B;">Ganti Password</h4>
+            <p class="subtitle mb-4">Ganti password dengan mengisi form dibawah.</p>
 
             @if ($errors->any())
                 <div class="alert alert-danger" role="alert">
@@ -66,7 +66,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="{{ asset('assets/js/LupaPassword/fungsiPassword.js') }}"></script>
+    <script src="{{ asset('assets/js/GantiPassword/fungsiPassword.js') }}"></script>
 
 </body>
 
