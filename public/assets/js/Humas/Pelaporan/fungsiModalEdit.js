@@ -199,7 +199,6 @@ $(document).ready(function () {
                 const allowDelete = mediaPengaduan !== 'Website Helpdesk';
 
                 renderExistingFiles('#editPengaduanContainer', data.pengaduan_files, allowDelete);
-                renderExistingFiles('#editBuktiKlarifikasiContainer', data.klarifikasi_files, allowDelete);
 
                 applyFieldLockLogic(mediaPengaduan);
 
