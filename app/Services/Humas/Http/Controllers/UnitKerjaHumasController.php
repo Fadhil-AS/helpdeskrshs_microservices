@@ -17,6 +17,10 @@ class UnitKerjaHumasController extends Controller {
 
         $topLevelParentsCollection = $allUnitKerja->whereIn('ID_BAGIAN', $topLevelIDs);
 
+        $unitsForDropdown = $allUnitKerja->filter(function ($unit) {
+            return strlen($unit->ID_BAGIAN) > 1;
+        });
+
         $perPage = 10;
         $currentPage = $request->input('page', 1);
         $currentPageItems = $topLevelParentsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
@@ -49,6 +53,7 @@ class UnitKerjaHumasController extends Controller {
             'parents' => $paginatedParents,
             'children' => $groupedChildren,
             'allUnits' => $allUnitKerja,
+            'unitsForDropdown' => $unitsForDropdown,
             'admins' => $admins
         ]);
     }

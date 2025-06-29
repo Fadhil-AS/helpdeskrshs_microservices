@@ -13,6 +13,7 @@ use App\Services\Ticketing\Models\PenyelesaianPengaduan;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
 
@@ -29,7 +30,12 @@ class PelaporanHumasController extends Controller {
         $klasifikasiPengaduan = KlasifikasiPengaduan::where('STATUS', '1')->get();
         $penyelesaianPengaduan = PenyelesaianPengaduan::where('STATUS', '1')->get();
 
-        $query = Laporan::with(['unitKerja', 'jenisMedia']);
+        $query = Laporan::with(['unitKerja', 'jenisMedia'])
+        ->select(
+            'data_complaint.*',
+            DB::raw('TIMESTAMPDIFF(DAY, TGL_PENUGASAN, TGL_EVALUASI) as response_time')
+        );
+
         if ($request->filled('status')) {
             $query->where('STATUS', $request->status);
         }
@@ -232,6 +238,7 @@ class PelaporanHumasController extends Controller {
 
     public function updatePelaporanHumas(Request $request, $id_complaint)
     {
+        // dd($request->all());
         $complaint = Laporan::with('jenisMedia')->findOrFail($id_complaint);
         $isFromWebsite = $complaint->jenisMedia && $complaint->jenisMedia->JENIS_MEDIA === 'Website Helpdesk';
 
@@ -282,10 +289,41 @@ class PelaporanHumasController extends Controller {
 
         DB::beginTransaction();
         try {
-            $updateData = $request->except(['_token', '_method']);
+            $updateData = $request->except(['_token', '_method', 'new_files', 'deleted_files_input', 'file_tindak_lanjut']);
             // $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
             // $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
             // $statusSekarang = $complaint->STATUS;
+
+            if (!$isFromWebsite) {
+                $currentPengaduanFiles = json_decode($complaint->FILE_PENGADUAN, true) ?? [];
+                $remainingFiles = $currentPengaduanFiles;
+                if ($request->has('deleted_files_input') && !empty($request->input('deleted_files_input'))) {
+                    $filesToDelete = explode(',', $request->input('deleted_files_input'));
+                    $filesToDelete = array_map('trim', $filesToDelete);
+
+                    foreach ($filesToDelete as $filePathToDelete) {
+                        if (!empty($filePathToDelete)) {
+                            Storage::disk('public')->delete($filePathToDelete);
+                        }
+                    }
+
+                    $remainingFiles = array_diff($currentPengaduanFiles, $filesToDelete);
+                }
+
+                $newPengaduanPaths = [];
+                if ($request->hasFile('new_files')) {
+                    foreach ($request->file('new_files') as $key => $file) {
+                        if ($file->isValid()) {
+                            $fileName = $complaint->ID_COMPLAINT . '_bukti_updated_' . time() . '_' . ($key + 1) . '.' . $file->getClientOriginalExtension();
+                            $path = $file->storeAs('pengaduan_files', $fileName, 'public');
+                            $newPengaduanPaths[] = $path;
+                        }
+                    }
+                }
+
+                $finalPengaduanFiles = array_merge($remainingFiles, $newPengaduanPaths);
+                $updateData['FILE_PENGADUAN'] = !empty($finalPengaduanFiles) ? json_encode(array_values($finalPengaduanFiles)) : null;
+            }
 
             $newStatus = $complaint->STATUS;
             if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {

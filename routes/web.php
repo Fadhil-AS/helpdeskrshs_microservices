@@ -49,9 +49,11 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/login', [LoginController::class, 'getLogin'])->name('login');
     Route::post('/login', [LoginController::class, 'postLogin'])->name('login.submit');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-});
 
-Route::get('/lupaPassword', [LupasPasswordController::class, 'getLupaPass'])->name('lupaPassword');
+    // lupa password
+    Route::get('/lupa-password', [LupasPasswordController::class, 'getLupaPass'])->name('lupaPassword');
+    Route::post('/lupa-password', [LupasPasswordController::class, 'updatePassword'])->name('lupaPassword.submit');
+});
 
 // route humas services
 Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
@@ -72,6 +74,7 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::get('/userComplaint', [UserComplaintController::class, 'getUserComplaint'])->name('user-complaint.index');
     Route::post('/userComplaint', [UserComplaintController::class, 'storeUserComplaint'])->name('user-complaint.store');
     Route::put('/userComplaint/{userComplaint}', [UserComplaintController::class, 'updateUserComplaint'])->name('user-complaint.update');
+    Route::put('/userComplaint/{userComplaint}/reset', [UserComplaintController::class, 'resetUserPassword'])->name('user-complaint.reset');
     Route::delete('/userComplaint/{userComplaint}', [UserComplaintController::class, 'destroyUserComplaint'])->name('user-complaint.destroy');
 
     // direksi humas

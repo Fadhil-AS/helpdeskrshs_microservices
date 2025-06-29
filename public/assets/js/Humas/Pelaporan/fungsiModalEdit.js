@@ -80,11 +80,13 @@ $(document).ready(function () {
 
             const uploadUI = $(`
             <div class="upload-box w-100" id="editPengaduanDropZone">
-                <label for="FILE_PENGADUAN_input" class="w-100 text-center p-3 border rounded" style="cursor: pointer; background: #f1f3f5;">
+                <label for="edit_new_files_input" class="w-100 text-center p-3 border rounded" style="cursor: pointer; background: #f1f3f5;">
                     <i class="bi bi-cloud-arrow-up" style="font-size: 2rem;"></i>
                     <p class="m-0 mt-2">Klik atau drag & drop untuk menambah file baru</p>
                 </label>
-                <input type="file" id="FILE_PENGADUAN_input" name="new_files[]" class="d-none" multiple>
+                <input type="file" id="edit_new_files_input" name="new_files[]" class="d-none" multiple>
+                <input type="hidden" id="deleted_files_input" name="deleted_files_input"
+                                    value="">
             </div>
         `);
 
@@ -94,7 +96,7 @@ $(document).ready(function () {
 
 
     function setupNewFileUploadUI() {
-        const fileInput = document.getElementById('FILE_PENGADUAN_input');
+        const fileInput = document.getElementById('edit_new_files_input');
         const previewContainer = document.getElementById('newFilePreviewContainer');
         if (!fileInput || !previewContainer) return;
 
@@ -199,7 +201,7 @@ $(document).ready(function () {
                 const allowDelete = mediaPengaduan !== 'Website Helpdesk';
 
                 renderExistingFiles('#editPengaduanContainer', data.pengaduan_files, allowDelete);
-                renderExistingFiles('#editBuktiKlarifikasiContainer', data.klarifikasi_files, allowDelete);
+                // renderExistingFiles('#editBuktiKlarifikasiContainer', data.klarifikasi_files, allowDelete);
 
                 applyFieldLockLogic(mediaPengaduan);
 

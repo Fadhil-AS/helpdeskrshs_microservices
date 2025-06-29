@@ -61,7 +61,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
                                     <input type="text" class="form-control" id="editNoTelp" name="NO_TLPN"
-                                        value="081234567890" >
+                                        value="081234567890">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold d-block mb-3">Grading</label>
@@ -90,7 +90,7 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Nama Pelapor</label>
                                     <input type="text" class="form-control" value="Ahmad Sulaiman"
-                                        id="editNamaPelapor" name="NAME" >
+                                        id="editNamaPelapor" name="NAME">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Unit Kerja Tujuan</label>
@@ -162,8 +162,8 @@
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label fw-bold" for="editDeskripsiPengaduan">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="2" id="editDeskripsiPengaduan" name="ISI_COMPLAINT" required></textarea>
+                                <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
+                                <textarea class="form-control" rows="2" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
@@ -172,8 +172,7 @@
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold">File Pengaduan</label>
-                                <div class="file-display-container"
-                                    id="editPengaduanContainer">
+                                <div class="file-display-container" id="editPengaduanContainer">
                                     <p class="text-muted m-0">Tidak ada file pengaduan.</p>
                                 </div>
                             </div>
@@ -219,8 +218,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                                <div class="file-display-container"
-                                    id="editBuktiKlarifikasiContainer">
+                                <div class="file-display-container" id="editBuktiKlarifikasiContainer">
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -238,14 +236,15 @@
                                 @error('file_tindak_lanjut.*')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-text">Ukuran file maksimal: 2MB dan file dapat lebih dari satu.</small>
+                                <small class="form-text">Ukuran file maksimal: 2MB dan file dapat lebih dari
+                                    satu.</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
                         <button class="btn btn-outline-danger" data-bs-dismiss="modal" type="button">Batal</button>
-                        <button class="btn btn-simpan">Simpan Perubahan</button>
+                        <button class="btn btn-simpan" type="submit">Simpan Perubahan</button>
                     </div>
                 </div>
             </form>

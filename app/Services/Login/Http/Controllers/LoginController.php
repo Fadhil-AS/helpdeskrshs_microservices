@@ -51,16 +51,12 @@ class LoginController extends Controller {
             if ($passwordIsCorrect) {
                 session(['user' => $humas, 'role' => 'humas']);
                 $request->session()->regenerate();
-                return redirect()->intended(route('humas.pelaporan-humas'));
+                return redirect()->intended(route('admin.dashboard'));
             }
         }
 
         $userComplaint = DB::table('user_complaint')->where('USERNAME', $credentials['USERNAME'])->first();
         if ($userComplaint) {
-            if ($userComplaint->VALIDASI !== 'Y') {
-                return back()->withErrors(['USERNAME' => 'Akun Anda tidak aktif atau belum divalidasi.'])->onlyInput('USERNAME');
-            }
-
             $storedPassword = $userComplaint->PASSWORD;
             $passwordIsCorrect = false;
 
@@ -68,17 +64,20 @@ class LoginController extends Controller {
                 if (sha1($plainPassword) === $storedPassword) {
                     $passwordIsCorrect = true;
                 }
-            }
-            else if (strlen($storedPassword) === 32 && ctype_xdigit($storedPassword)) {
+            } else if (strlen($storedPassword) === 32 && ctype_xdigit($storedPassword)) {
                 if (md5($plainPassword) === $storedPassword) {
                     $passwordIsCorrect = true;
                 }
-            }
-            else if (Hash::check($plainPassword, $storedPassword)) {
+            } else if (Hash::check($plainPassword, $storedPassword)) {
                 $passwordIsCorrect = true;
             }
 
             if ($passwordIsCorrect) {
+                if ($userComplaint->VALIDASI !== 'Y') {
+                    $request->session()->put('user_for_password_change', $userComplaint->USERNAME);
+                    return redirect()->route('auth.lupaPassword');
+                }
+
                 $role = (preg_match('/[0-9]/', $userComplaint->ID_BAGIAN)) ? 'unit_kerja' : 'direksi';
                 session(['user' => $userComplaint, 'role' => $role]);
                 $request->session()->regenerate();

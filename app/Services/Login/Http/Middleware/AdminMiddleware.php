@@ -9,7 +9,7 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        $allowedRoles = ['direksi', 'unit_kerja'];
+        $allowedRoles = ['humas', 'direksi', 'unit_kerja'];
         if (!in_array(session('role'), $allowedRoles)) {
             abort(403, 'AKSES DITOLAK');
         }

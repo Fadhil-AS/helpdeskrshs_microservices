@@ -13,6 +13,10 @@
             <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                 @if (session('role') === 'humas')
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
+                            href="{{ route('admin.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('humas.pelaporan-humas*') ? 'active' : '' }}"
                             href="{{ route('humas.pelaporan-humas') }}">Daftar Pelaporan</a>
                     </li>
@@ -110,10 +114,10 @@
                         href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a>
                 </li>
             @elseif (session('role') === 'unit_kerja')
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
                         href="{{ route('admin.dashboard') }}">Dashboard</a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('unitKerja.dashboard*') ? 'active' : '' }}"
                         href="{{ route('unitKerja.dashboard') }}">Tabel Unit Kerja</a>

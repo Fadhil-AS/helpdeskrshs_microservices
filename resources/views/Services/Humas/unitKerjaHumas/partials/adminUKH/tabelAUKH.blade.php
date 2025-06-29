@@ -73,16 +73,16 @@
                             <td>{{ \Carbon\Carbon::parse($admin->TGL_INSROW)->locale('id')->isoFormat('DD MMMM YYYY') }}
                             </td>
                             <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin" title="Detail Admin"
-                                    data-admin='{{ json_encode($admin) }}'>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin"
+                                    title="Detail Admin" data-admin='{{ json_encode($admin) }}'>
                                     <i class="bi bi-eye me-2"></i>
                                 </a>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin" title="Edit Admin"
-                                    data-admin='{{ json_encode($admin) }}'>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin"
+                                    title="Edit Admin" data-admin='{{ json_encode($admin) }}'>
                                     <i class="bi bi-pencil-square me-2"></i>
                                 </a>
                                 <a href="#" class="reset-password-btn me-2" title="Reset Password"
-                                    data-id="">
+                                    data-id="{{ $admin->NO_REGISTER }}" data-name="{{ $admin->NAME }}">
                                     <i class="bi bi-arrow-counterclockwise text-primary"></i>
                                 </a>
                                 <form action="{{ route('humas.user-complaint.destroy', $admin) }}" method="POST"
@@ -110,23 +110,6 @@
         </div>
         <!-- Pagination -->
         <div class="d-flex justify-content-end mt-3 page-tabel">
-            {{-- <nav aria-label="Page navigation example">
-                <ul class="pagination mb-0">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav> --}}
             {{ $admins->appends(request()->except('page'))->links() }}
         </div>
     </div>

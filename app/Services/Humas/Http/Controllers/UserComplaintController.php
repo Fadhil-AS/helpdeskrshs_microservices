@@ -83,6 +83,30 @@ class UserComplaintController extends Controller{
         return response()->json(['success' => true, 'message' => 'Data admin unit kerja berhasil diperbarui!']);
     }
 
+    public function resetUserPassword(UserComplaint $userComplaint)
+    {
+        try {
+            $defaultPassword = 'rshs_2025';
+
+            $userComplaint->update([
+                'PASSWORD'      => sha1($defaultPassword),
+                'PASSWORD_REAL' => $defaultPassword,
+                'VALIDASI'      => 'N',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password untuk user ' . $userComplaint->USERNAME . ' berhasil direset.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mereset password: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function destroyUserComplaint(UserComplaint $userComplaint){
         $userName = $userComplaint->NAME;
         $userComplaint->delete();

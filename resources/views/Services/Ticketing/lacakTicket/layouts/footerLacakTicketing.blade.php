@@ -372,8 +372,8 @@
         const progressBar = document.getElementById(progressBarId);
         if (!countDownElement || !progressBar) return;
 
-        const batasWaktu = new Date(new Date(tglSelesaiInternalISO).getTime() + 24 * 60 * 60 * 1000);
-        const totalDurasiMs = 24 * 60 * 60 * 1000;
+        const batasWaktu = new Date(new Date(tglSelesaiInternalISO).getTime() + 72 * 60 * 60 * 1000);
+        const totalDurasiMs = 72 * 60 * 60 * 1000;
 
         if (countdownInterval) clearInterval(countdownInterval);
         countdownInterval = setInterval(() => {

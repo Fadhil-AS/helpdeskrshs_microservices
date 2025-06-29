@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class DashboardAdminController extends Controller
 {
@@ -60,16 +61,22 @@ class DashboardAdminController extends Controller
         return ['labels' => $definedLabels, 'data' => $data];
     }
 
-    public function getDashboard()
+    private function getScopedSuperZeroUnits(string $role, ?string $userBagian): Collection
     {
-        $role = session('role');
-        $userBagian = session('user')->ID_BAGIAN ?? null;
-
         $unitsQuery = UnitKerja::query();
 
         if ($role === 'direksi' && !empty($userBagian)) {
-            $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)
-                   ->where('SUPER', '0');
+            $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)->where('SUPER', '0');
+        } elseif ($role === 'unit_kerja' && !empty($userBagian)) {
+            $currentUnit = UnitKerja::find($userBagian);
+            $direksiId = $currentUnit ? trim($currentUnit->ID_PARENT_BAGIAN) : null;
+            if ($direksiId) {
+                $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $direksiId)->where('SUPER', '0');
+            } else {
+                $unitsQuery->whereRaw('1 = 0');
+            }
+        } elseif ($role === 'humas') {
+            $unitsQuery->where('SUPER', '0');
         } else {
             $unitsQuery->where('STATUS', '1')->where(function ($query) {
                 $query->where('ID_PARENT_BAGIAN', ' ')
@@ -79,7 +86,15 @@ class DashboardAdminController extends Controller
             });
         }
 
-        $unitKerjaList = $unitsQuery->orderBy('NAMA_BAGIAN')->get();
+        return $unitsQuery->orderBy('NAMA_BAGIAN')->get();
+    }
+
+    public function getDashboard()
+    {
+        $role = session('role');
+        $userBagian = session('user')->ID_BAGIAN ?? null;
+
+        $unitKerjaList = $this->getScopedSuperZeroUnits($role, $userBagian);
 
         return view('Services.Admin.Dashboard.mainAdmin', [
             'unitKerjaList' => $unitKerjaList,
@@ -107,6 +122,27 @@ class DashboardAdminController extends Controller
         }
     }
 
+    private function applyDireksiHierarchyFilter(Builder $query, string $direksiId): void
+    {
+        $laporanTable = (new Laporan)->getTable();
+        $specialChildren = UnitKerja::where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $direksiId)
+                                    ->where('SUPER', '0')
+                                    ->get();
+
+        $allowedUnitIds = [];
+        foreach ($specialChildren as $child) {
+            $allowedUnitIds[] = $child->ID_BAGIAN;
+            $descendants = $this->getAllDescendantIds($child->ID_BAGIAN);
+            $allowedUnitIds = array_merge($allowedUnitIds, $descendants);
+        }
+
+        if (empty($allowedUnitIds)) {
+            $query->whereRaw('1 = 0');
+        } else {
+            $query->whereIn("{$laporanTable}.ID_BAGIAN", $allowedUnitIds);
+        }
+    }
+
     private function getAllDescendantIds($parentId)
     {
         $directChildren = UnitKerja::where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $parentId)->get();
@@ -123,33 +159,15 @@ class DashboardAdminController extends Controller
     {
         $role = session('role');
         $userBagian = optional(session('user'))->ID_BAGIAN;
-        $unitsQuery = UnitKerja::query();
-
-        if ($role === 'direksi' && !empty($userBagian)) {
-            $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)
-                       ->where('SUPER', '0');
-
-        } else {
-            $unitsQuery->where('STATUS', '1')
-                       ->where(function($query) {
-                           $query->where('ID_PARENT_BAGIAN', ' ')
-                                 ->orWhereNull('ID_PARENT_BAGIAN')
-                                 ->orWhere('ID_PARENT_BAGIAN', 0)
-                                 ->orWhere('ID_PARENT_BAGIAN', '1');
-                       });
-        }
-
-        $unitsToDisplay = $unitsQuery->orderBy('NAMA_BAGIAN')->get();
+        $unitsToDisplay = $this->getScopedSuperZeroUnits($role, $userBagian);
 
         $chartLabels = [];
         $chartData = [];
 
         foreach ($unitsToDisplay as $unit) {
             $chartLabels[] = $unit->NAMA_BAGIAN;
-
             $idsToCount = $this->getAllDescendantIds($unit->ID_BAGIAN);
             $idsToCount[] = $unit->ID_BAGIAN;
-
             $laporanTable = (new Laporan)->getTable();
             $count = (clone $baseQuery)->whereIn("{$laporanTable}.ID_BAGIAN", $idsToCount)->count();
             $chartData[] = $count;
@@ -166,34 +184,25 @@ class DashboardAdminController extends Controller
         $unitKerjaId = $request->input('unit_kerja_id');
         $timeFilter = $request->input('time_filter');
         $role = session('role');
-        $userBagian = session('user')->ID_BAGIAN;
+        $userBagian = optional(session('user'))->ID_BAGIAN;
 
         $baseQuery = Laporan::query();
         $laporanTable = (new Laporan)->getTable();
 
-        if ($role === 'direksi' && !empty($userBagian)) {
-            $specialChildren = UnitKerja::where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)
-                                        ->where('SUPER', '0')
-                                        ->get();
-
-            $allowedUnitIds = [];
-            foreach ($specialChildren as $child) {
-                $allowedUnitIds[] = $child->ID_BAGIAN;
-                $descendants = $this->getAllDescendantIds($child->ID_BAGIAN);
+        $allowedUnitIds = [];
+        if (in_array($role, ['direksi', 'unit_kerja', 'humas'])) {
+            $scopedUnits = $this->getScopedSuperZeroUnits($role, $userBagian);
+            foreach ($scopedUnits as $unit) {
+                $allowedUnitIds[] = $unit->ID_BAGIAN;
+                $descendants = $this->getAllDescendantIds($unit->ID_BAGIAN);
                 $allowedUnitIds = array_merge($allowedUnitIds, $descendants);
             }
-
-            if (empty($allowedUnitIds)) {
-                $baseQuery->whereRaw('1 = 0');
-            } else {
-                $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", $allowedUnitIds);
-            }
-
-        } else if ($role === 'super-admin' && !empty($userBagian)) {
-            $allMyUnitIds = $this->getAllDescendantIds($userBagian);
-            $allMyUnitIds[] = $userBagian;
-            $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", $allMyUnitIds);
+        }if (!empty($allowedUnitIds)) {
+            $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", $allowedUnitIds);
+        } elseif (in_array($role, ['direksi', 'unit_kerja', 'humas'])) {
+            $baseQuery->whereRaw('1 = 0');
         }
+
         $this->applyTimeFilter($baseQuery, $timeFilter);
 
         if (!empty($unitKerjaId)) {

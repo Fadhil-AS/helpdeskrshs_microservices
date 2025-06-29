@@ -271,20 +271,10 @@ class LacakTicketingController extends Controller
                 if ($isMenungguKonfirmasi && $laporan->TGL_EVALUASI) {
                     $tglSelesaiInternal = Carbon::parse($laporan->TGL_EVALUASI);
                     $tglSelesaiInternalISO = $tglSelesaiInternal->toIso8601String();
-                    $batasWaktuKonfirmasi = $tglSelesaiInternal->copy()->addHours(24);
+                    $batasWaktuKonfirmasi = $tglSelesaiInternal->copy()->addHours(72);
                     $sekarang = Carbon::now();
                     if ($sekarang->lt($batasWaktuKonfirmasi)) {
                         $sisaDetik = $sekarang->diffInSeconds($batasWaktuKonfirmasi, false);
-                        if ($sisaDetik > 0) {
-                            $jam = floor($sisaDetik / 3600);
-                            $menit = floor(($sisaDetik % 3600) / 60);
-                            $detik = $sisaDetik % 60;
-                            $waktuKonfirmasiTersisa = sprintf('%02d:%02d:%02d', $jam, $menit, $detik);
-                            $totalDurasiDetik = 24 * 3600;
-                            $persenWaktuKonfirmasi = (($sisaDetik / $totalDurasiDetik) * 100) . '%';
-                        } else {
-                            $waktuKonfirmasiTersisa = "Waktu habis";
-                        }
                     } else {
                         $waktuKonfirmasiTersisa = "Waktu habis";
                     }

@@ -78,6 +78,7 @@
                             <th>Judul</th>
                             <th>Media</th>
                             <th>Unit Kerja</th>
+                            <th>Waktu Respon</th>
                             <th>Status</th>
                             <th>Klarifikasi</th>
                             <th>Grading</th>
@@ -106,6 +107,18 @@
                                     @else
                                         <td>Belum dipilih unit kerja</td>
                                     @endif
+
+                                    <td class="text-center">
+                                        @if (!is_null($dc->response_time))
+                                            @if ($dc->response_time == 0)
+                                                1 Hari
+                                            @else
+                                                {{ $dc->response_time }} Hari
+                                            @endif
+                                        @else
+                                            <span class="badge bg-light text-dark">N/A</span>
+                                        @endif
+                                    </td>
 
                                     @if ($dc->STATUS == 'Open')
                                         <td><span class="badge bg-success">Open</span></td>
