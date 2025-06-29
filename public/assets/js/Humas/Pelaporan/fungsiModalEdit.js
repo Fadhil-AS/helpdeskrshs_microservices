@@ -13,10 +13,6 @@ $(document).ready(function () {
         });
 
         $('#editPengaduanInputWrapper').toggle(!isLocked);
-        // $('#editPengaduanContainer').css({
-        //     'pointer-events': isLocked ? 'none' : 'auto',
-        //     'opacity': isLocked ? 0.7 : 1
-        // });
     }
 
     function applyFieldLockLogic(initialMediaText = '') {
@@ -37,6 +33,29 @@ $(document).ready(function () {
             });
         }
     }
+
+    function toggleGratifikasiFields() {
+        const selectedText = $('#editIdKlasifikasi option:selected').text().trim().toLowerCase();
+        const isGratifikasi = selectedText === 'gratifikasi';
+
+        const fieldWrappers = [
+            '#editNamaPelaporWrapper',
+            '#editNoTelpWrapper',
+            '#editNoMedrecWrapper'
+        ];
+
+        fieldWrappers.forEach(selector => {
+            const wrapper = $(selector);
+            if (isGratifikasi) {
+                wrapper.hide();
+                wrapper.find('input, select, textarea').val('');
+            } else {
+                wrapper.show();
+            }
+        });
+    }
+
+    $('#editIdKlasifikasi').on('change', toggleGratifikasiFields);
 
     function renderExistingFiles(containerSelector, fileList, allowDelete = true) {
         const container = $(containerSelector);
@@ -82,7 +101,7 @@ $(document).ready(function () {
             <div class="upload-box w-100" id="editPengaduanDropZone">
                 <label for="FILE_PENGADUAN_input" class="w-100 text-center p-3 border rounded" style="cursor: pointer; background: #f1f3f5;">
                     <i class="bi bi-cloud-arrow-up" style="font-size: 2rem;"></i>
-                    <p class="m-0 mt-2">Klik atau drag & drop untuk menambah file baru</p>
+                    <p class="m-0 mt-2">Klik untuk menambah file baru</p>
                 </label>
                 <input type="file" id="FILE_PENGADUAN_input" name="new_files[]" class="d-none" multiple>
             </div>
@@ -184,6 +203,8 @@ $(document).ready(function () {
                 $('#editKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '');
                 $('#editTindakLanjutHumasContent').val(data.TINDAK_LANJUT_HUMAS || '');
 
+                toggleGratifikasiFields();
+
                 const badge = $('#editStatusBadge');
                 const st = data.STATUS || '-';
                 badge.text(st).removeClass().addClass('badge');
@@ -245,6 +266,7 @@ $(document).ready(function () {
         $('#editBuktiKlarifikasiContainer, #editPengaduanContainer').html('<p class="text-muted">Tidak ada file.</p>');
         $('#deleted_files_input').val('');
         $('#editStatus').css({ 'pointer-events': 'auto', 'background-color': '' });
+        $('#editNamaPelaporWrapper, #editNoTelpWrapper, #editNoMedrecWrapper').show();
 
         setDependentFieldsReadOnly(false);
         const md = $('#editIdJenisMedia');

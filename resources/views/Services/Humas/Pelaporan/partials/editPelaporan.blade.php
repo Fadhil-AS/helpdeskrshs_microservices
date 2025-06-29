@@ -48,20 +48,30 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editJudul">Judul Pengaduan</label>
-                                    <input type="text" class="form-control" value="Pelayanaan Lambat di Poli Mata"
-                                        id="editJudul" name="JUDUL_COMPLAINT">
+                                    <input type="text" class="form-control" id="editJudul" name="JUDUL_COMPLAINT">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editTanggalPengaduan">Tanggal
                                         Pengaduan</label>
-                                    <input type="text" class="form-control " id="editTanggalPengaduan" readonly>
+                                    <input type="text" class="form-control" id="editTanggalPengaduan" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2" id="editNamaPelaporWrapper">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Nama Pelapor</label>
+                                    <input type="text" class="form-control" id="editNamaPelapor" name="NAME">
+                                </div>
+                                <div class="col-md-6" id="editNoTelpWrapper">
+                                    <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
+                                    <input type="text" class="form-control" id="editNoTelp" name="NO_TLPN">
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
-                                    <input type="text" class="form-control" id="editNoTelp" name="NO_TLPN"
-                                        value="081234567890" >
+                                    <label class="form-label fw-bold" for="editPetugasPelapor">Petugas Pelapor</label>
+                                    <input type="text" class="form-control" id="editPetugasPelapor"
+                                        name="PETUGAS_PELAPOR">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold d-block mb-3">Grading</label>
@@ -81,17 +91,11 @@
                                                 id="editGradingMerah" value="Merah">
                                             <label class="form-check-label" for="editGradingMerah">Merah</label>
                                         </div>
-
                                     </div>
                                 </div>
-
                             </div>
+
                             <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Nama Pelapor</label>
-                                    <input type="text" class="form-control" value="Ahmad Sulaiman"
-                                        id="editNamaPelapor" name="NAME" >
-                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Unit Kerja Tujuan</label>
                                     <select class="form-select" id="editIdBagian" name="ID_BAGIAN" required>
@@ -103,13 +107,20 @@
                                         @endif
                                     </select>
                                 </div>
-                            </div>
-                            <div class="row mb-2">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">No. Medrec</label>
-                                    <input type="text" class="form-control" value="RM123456" id="editNoMedrec"
-                                        name="NO_MEDREC">
+                                    <label class="form-label fw-bold" for="editIdJenisMedia">Media Pengaduan</label>
+                                    <select class="form-select" id="editIdJenisMedia" name="ID_JENIS_MEDIA" required>
+                                        <option value="" selected disabled>Pilih media</option>
+                                        @if (isset($JenisMedia) && $JenisMedia->count() > 0)
+                                            @foreach ($JenisMedia as $jm)
+                                                <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
                                 </div>
+                            </div>
+
+                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdJenisLaporan">Jenis Laporan</label>
                                     <select class="form-select" id="editIdJenisLaporan" name="ID_JENIS_LAPORAN"
@@ -117,63 +128,47 @@
                                         <option value="" selected disabled>Pilih jenis laporan</option>
                                         @if (isset($JenisLaporan) && $JenisLaporan->count() > 0)
                                             @foreach ($JenisLaporan as $jl)
-                                                <option value="{{ $jl->ID_JENIS_LAPORAN }}">{{ $jl->JENIS_LAPORAN }}
-                                                </option>
+                                                <option value="{{ $jl->ID_JENIS_LAPORAN }}">{{ $jl->JENIS_LAPORAN }}</option>
                                             @endforeach
                                         @endif
                                     </select>
                                 </div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="editIdJenisMedia">Media Pengaduan</label>
-                                    <select class="form-select" id="editIdJenisMedia" name="ID_JENIS_MEDIA" required>
-                                        <option value="" selected disabled>Pilih media</option>
-                                        @if (isset($JenisMedia) && $JenisMedia->count() > 0)
-                                            @foreach ($JenisMedia as $jm)
-                                                <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="editPetugasPelapor">Petugas Pelapor</label>
-                                    <input type="text" class="form-control" id="editPetugasPelapor"
-                                        name="PETUGAS_PELAPOR">
-                                </div>
-                            </div>
-                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdKlasifikasi">Klasifikasi
                                         Pengaduan</label>
-                                    <select class="form-select readonly-on-helpdesk" data-live-search="true"
-                                        id="editIdKlasifikasi" name="ID_KLASIFIKASI" required>
-                                        <option value="" selected disabled>Pilih klasifikasi pengaduan
-                                        </option>
+                                    <select class="form-select" id="editIdKlasifikasi" name="ID_KLASIFIKASI" required>
+                                        <option value="" selected disabled>Pilih klasifikasi pengaduan</option>
                                         @if (isset($klasifikasiPengaduan) && $klasifikasiPengaduan->count() > 0)
                                             @foreach ($klasifikasiPengaduan as $kp)
-                                                <option value="{{ $kp->ID_KLASIFIKASI }}">
-                                                    {{ $kp->KLASIFIKASI_PENGADUAN }}
+                                                <option value="{{ $kp->ID_KLASIFIKASI }}">{{ $kp->KLASIFIKASI_PENGADUAN }}
                                                 </option>
                                             @endforeach
                                         @endif
                                     </select>
                                 </div>
                             </div>
+
+                            <div class="row mb-2" id="editNoMedrecWrapper">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">No. Medrec</label>
+                                    <input type="text" class="form-control" id="editNoMedrec" name="NO_MEDREC">
+                                </div>
+                            </div>
+
                             <div class="mb-2">
-                                <label class="form-label fw-bold" for="editDeskripsiPengaduan">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="2" id="editDeskripsiPengaduan" name="ISI_COMPLAINT" required></textarea>
+                                <label class="form-label fw-bold" for="editDeskripsiPengaduan">Deskripsi
+                                    Pengaduan</label>
+                                <textarea class="form-control" rows="2" id="editDeskripsiPengaduan" name="ISI_COMPLAINT"
+                                    required></textarea>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
-                                    Permasalahan</label>
-                                <textarea class="form-control" rows="2" id="editPermasalahan" name="PERMASALAHAN"></textarea>
+                                <label class="form-label fw-bold" for="editPermasalahan">Rangkuman Permasalahan</label>
+                                <textarea class="form-control" rows="2" id="editPermasalahan"
+                                    name="PERMASALAHAN"></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold">File Pengaduan</label>
-                                <div class="file-display-container"
-                                    id="editPengaduanContainer">
+                                <div class="file-display-container" id="editPengaduanContainer">
                                     <p class="text-muted m-0">Tidak ada file pengaduan.</p>
                                 </div>
                             </div>
@@ -215,18 +210,19 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
                                     Unit</label>
-                                <textarea class="form-control" rows="2" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
+                                <textarea class="form-control" rows="2" id="editKlarifikasiUnitContent"
+                                    name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                                <div class="file-display-container"
-                                    id="editBuktiKlarifikasiContainer">
+                                <div class="file-display-container" id="editBuktiKlarifikasiContainer">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editTindakLanjutHumasContent">Tindak Lanjut
                                     Humas</label>
-                                <textarea class="form-control" rows="2" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
+                                <textarea class="form-control" rows="2" id="editTindakLanjutHumasContent"
+                                    name="TINDAK_LANJUT_HUMAS"></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold" for="file_tindak_lanjut_input">File Tindak Lanjut
@@ -238,7 +234,8 @@
                                 @error('file_tindak_lanjut.*')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="form-text">Ukuran file maksimal: 2MB dan file dapat lebih dari satu.</small>
+                                <small class="form-text">Ukuran file maksimal: 2MB dan file dapat lebih dari
+                                    satu.</small>
                             </div>
                         </div>
                     </div>
