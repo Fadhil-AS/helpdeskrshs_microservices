@@ -204,6 +204,7 @@ $(document).ready(function () {
                 $('#editIdPenyelesaian').val(data.ID_PENYELESAIAN || '');
                 $('#editKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '');
                 $('#editTindakLanjutHumasContent').val(data.TINDAK_LANJUT_HUMAS || '');
+                $('#editBuktiKlarifikasiContainer').val(data.FILE_BUKTI_KLARIFIKASI || '');
 
                 toggleGratifikasiFields();
 
@@ -233,6 +234,26 @@ $(document).ready(function () {
                     $('#editStatus').css({ 'pointer-events': 'none', 'background-color': '#e9ecef' });
                 } else {
                     $('#editStatus').css({ 'pointer-events': 'auto', 'background-color': '' });
+                }
+
+                var buktiContainer = $('#editBuktiKlarifikasiContainer');
+                buktiContainer.html('');
+                if (data.klarifikasi_files && data.klarifikasi_files.length > 0) {
+                    data.klarifikasi_files.forEach(function(filePath) {
+                        if (!filePath || filePath.trim() === '') return;
+                        var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
+                        var fileName = filePath.split(/[\\/]/).pop();
+                        var buktiHtml = '<div class="file-klarifikasi-item" style="max-width: 150px;">';
+                        if (/\.(jpeg|jpg|gif|png)$/i.test(fileName)) {
+                            buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" title="${fileName}"><img src="${fileUrl}" alt="Bukti Foto" class="img-fluid rounded mb-1" style="height: 100px; width: 100%; object-fit: cover;"><small class="d-block text-truncate">${fileName}</small></a>`;
+                        } else {
+                            buktiHtml += `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-flex flex-column align-items-center" title="${fileName}"><i class="bi bi-file-earmark-text display-4 text-secondary mb-1"></i><small class="d-block text-truncate">${fileName}</small></a>`;
+                        }
+                        buktiHtml += '</div>';
+                        buktiContainer.append(buktiHtml);
+                    });
+                } else {
+                    buktiContainer.html('<p class="text-muted m-0">Tidak ada file bukti klarifikasi.</p>');
                 }
 
                 modalInstance.show();

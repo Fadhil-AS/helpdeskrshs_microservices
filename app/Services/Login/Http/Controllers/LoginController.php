@@ -75,7 +75,7 @@ class LoginController extends Controller {
             if ($passwordIsCorrect) {
                 if ($userComplaint->VALIDASI !== 'Y') {
                     $request->session()->put('user_for_password_change', $userComplaint->USERNAME);
-                    return redirect()->route('auth.lupaPassword');
+                    return redirect()->route('auth.gantiPassword');
                 }
 
                 $role = (preg_match('/[0-9]/', $userComplaint->ID_BAGIAN)) ? 'unit_kerja' : 'direksi';

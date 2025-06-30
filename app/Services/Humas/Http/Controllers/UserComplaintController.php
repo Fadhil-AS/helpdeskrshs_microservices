@@ -16,8 +16,8 @@ class UserComplaintController extends Controller{
     public function storeUserComplaint(Request $request)
     {
         $request->validate([
-            'USERNAME' => 'required|string|unique:user_complaint,USERNAME|different:PASSWORD',
-            'PASSWORD' => 'required|string|min:6|unique:user_complaint,PASSWORD_REAL',
+            'USERNAME' => 'required|string|unique:user_complaint,USERNAME',
+            'PASSWORD' => 'required|string|min:6',
             'NAME' => 'required|string|max:255',
             'ID_BAGIAN' => 'required|string|exists:unit_kerja,ID_BAGIAN',
             'NIP' => 'required|string|unique:user_complaint,NIP',

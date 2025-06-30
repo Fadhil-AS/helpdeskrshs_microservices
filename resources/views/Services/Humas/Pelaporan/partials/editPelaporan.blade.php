@@ -113,7 +113,8 @@
                                         <option value="" selected disabled>Pilih media</option>
                                         @if (isset($JenisMedia) && $JenisMedia->count() > 0)
                                             @foreach ($JenisMedia as $jm)
-                                                <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}</option>
+                                                <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}
+                                                </option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -128,7 +129,8 @@
                                         <option value="" selected disabled>Pilih jenis laporan</option>
                                         @if (isset($JenisLaporan) && $JenisLaporan->count() > 0)
                                             @foreach ($JenisLaporan as $jl)
-                                                <option value="{{ $jl->ID_JENIS_LAPORAN }}">{{ $jl->JENIS_LAPORAN }}</option>
+                                                <option value="{{ $jl->ID_JENIS_LAPORAN }}">{{ $jl->JENIS_LAPORAN }}
+                                                </option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -136,11 +138,13 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdKlasifikasi">Klasifikasi
                                         Pengaduan</label>
-                                    <select class="form-select" id="editIdKlasifikasi" name="ID_KLASIFIKASI" required>
+                                    <select class="form-select" id="editIdKlasifikasi" name="ID_KLASIFIKASI"
+                                        required>
                                         <option value="" selected disabled>Pilih klasifikasi pengaduan</option>
                                         @if (isset($klasifikasiPengaduan) && $klasifikasiPengaduan->count() > 0)
                                             @foreach ($klasifikasiPengaduan as $kp)
-                                                <option value="{{ $kp->ID_KLASIFIKASI }}">{{ $kp->KLASIFIKASI_PENGADUAN }}
+                                                <option value="{{ $kp->ID_KLASIFIKASI }}">
+                                                    {{ $kp->KLASIFIKASI_PENGADUAN }}
                                                 </option>
                                             @endforeach
                                         @endif
@@ -156,15 +160,14 @@
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label fw-bold" for="editDeskripsiPengaduan">Deskripsi
+                                <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi
                                     Pengaduan</label>
-                                <textarea class="form-control" rows="2" id="editDeskripsiPengaduan" name="ISI_COMPLAINT"
-                                    required></textarea>
+                                <textarea class="form-control" rows="2" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label fw-bold" for="editPermasalahan">Rangkuman Permasalahan</label>
-                                <textarea class="form-control" rows="2" id="editPermasalahan"
-                                    name="PERMASALAHAN"></textarea>
+                                <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
+                                    Permasalahan</label>
+                                <textarea class="form-control" rows="2" id="editPermasalahan" name="PERMASALAHAN"></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold">File Pengaduan</label>
@@ -210,8 +213,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
                                     Unit</label>
-                                <textarea class="form-control" rows="2" id="editKlarifikasiUnitContent"
-                                    name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
+                                <textarea class="form-control" rows="2" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
@@ -221,8 +223,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editTindakLanjutHumasContent">Tindak Lanjut
                                     Humas</label>
-                                <textarea class="form-control" rows="2" id="editTindakLanjutHumasContent"
-                                    name="TINDAK_LANJUT_HUMAS"></textarea>
+                                <textarea class="form-control" rows="2" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold" for="file_tindak_lanjut_input">File Tindak Lanjut

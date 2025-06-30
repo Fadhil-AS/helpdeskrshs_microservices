@@ -28,7 +28,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('auth.login.submit') }}">
+            <form method="POST" action="{{ route('auth.gantiPassword.submit') }}">
                 @csrf
                 {{-- Field Password Baru --}}
                 <div class="mb-3 text-start">
