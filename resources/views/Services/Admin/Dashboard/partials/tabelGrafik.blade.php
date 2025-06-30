@@ -25,15 +25,17 @@
                     <option value="semester">Semester</option>
                 </select>
                 <!-- Dropdown Unit Kerja -->
-                <div id="unitKerjaFilterContainer" style="display: none;">
-                    <select class="selectpicker select-panjang" data-style="btn-reset" data-live-search="true"
-                        id="unitKerjaFilter">
-                        <option value="">Semua Sub unit kerja</option>
-                        @foreach ($unitKerjaList as $unit)
-                            <option value="{{ $unit->ID_BAGIAN }}">{{ $unit->NAMA_BAGIAN }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                @if (isset($userRole) && $userRole !== 'unit_kerja')
+                    <div id="unitKerjaFilterContainer" style="display: none;">
+                        <select class="selectpicker select-panjang" data-style="btn-reset" data-live-search="true"
+                            id="unitKerjaFilter">
+                            <option value="">Semua Sub unit kerja</option>
+                            @foreach ($unitKerjaList as $unit)
+                                <option value="{{ $unit->ID_BAGIAN }}">{{ $unit->NAMA_BAGIAN }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
             </div>
         </div>
 

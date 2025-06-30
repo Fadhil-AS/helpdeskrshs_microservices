@@ -68,13 +68,7 @@ class DashboardAdminController extends Controller
         if ($role === 'direksi' && !empty($userBagian)) {
             $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)->where('SUPER', '0');
         } elseif ($role === 'unit_kerja' && !empty($userBagian)) {
-            $currentUnit = UnitKerja::find($userBagian);
-            $direksiId = $currentUnit ? trim($currentUnit->ID_PARENT_BAGIAN) : null;
-            if ($direksiId) {
-                $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $direksiId)->where('SUPER', '0');
-            } else {
-                $unitsQuery->whereRaw('1 = 0');
-            }
+            $unitsQuery->where('ID_BAGIAN', $userBagian);
         } elseif ($role === 'humas') {
             $unitsQuery->where('SUPER', '0');
         } else {
@@ -98,6 +92,7 @@ class DashboardAdminController extends Controller
 
         return view('Services.Admin.Dashboard.mainAdmin', [
             'unitKerjaList' => $unitKerjaList,
+            'userRole'      => $role,
         ]);
 
 
@@ -179,6 +174,31 @@ class DashboardAdminController extends Controller
         ];
     }
 
+    private function getAggregatedDataForOwnUnit(Builder $baseQuery, string $unitId): array
+    {
+        $ownUnit = UnitKerja::find($unitId);
+        if (!$ownUnit) {
+            return ['labels' => [], 'data' => []];
+        }
+
+        $unitsToDisplay = new Collection([$ownUnit]);
+
+        $chartLabels = [];
+        $chartData = [];
+        $laporanTable = (new Laporan)->getTable();
+
+        foreach ($unitsToDisplay as $unit) {
+            $chartLabels[] = $unit->NAMA_BAGIAN;
+            $count = (clone $baseQuery)->where("{$laporanTable}.ID_BAGIAN", $unit->ID_BAGIAN)->count();
+            $chartData[] = $count;
+        }
+
+        return [
+            'labels' => $chartLabels,
+            'data'   => $chartData,
+        ];
+    }
+
     public function getFilteredChartData(Request $request)
     {
         $unitKerjaId = $request->input('unit_kerja_id');
@@ -194,11 +214,13 @@ class DashboardAdminController extends Controller
             $scopedUnits = $this->getScopedSuperZeroUnits($role, $userBagian);
             foreach ($scopedUnits as $unit) {
                 $allowedUnitIds[] = $unit->ID_BAGIAN;
-                $descendants = $this->getAllDescendantIds($unit->ID_BAGIAN);
-                $allowedUnitIds = array_merge($allowedUnitIds, $descendants);
+                if ($role !== 'unit_kerja') {
+                    $descendants = $this->getAllDescendantIds($unit->ID_BAGIAN);
+                    $allowedUnitIds = array_merge($allowedUnitIds, $descendants);
+                }
             }
         }if (!empty($allowedUnitIds)) {
-            $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", $allowedUnitIds);
+            $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", array_unique($allowedUnitIds));
         } elseif (in_array($role, ['direksi', 'unit_kerja', 'humas'])) {
             $baseQuery->whereRaw('1 = 0');
         }
@@ -249,13 +271,22 @@ class DashboardAdminController extends Controller
         foreach ($chartMap as $key => $config) {
             if ($key === 'unitKerja' && empty($unitKerjaId)) {
                 $aggregateQuery = Laporan::query();
-                if ($role === 'direksi' && !empty($userBagian)) {
-                    $allMyUnitIds = $this->getAllDescendantIds($userBagian);
-                    $allMyUnitIds[] = $userBagian;
-                    $aggregateQuery->whereIn('ID_BAGIAN', $allMyUnitIds);
-                }
                 $this->applyTimeFilter($aggregateQuery, $timeFilter);
-                $data = $this->getAggregatedUnitKerjaData($aggregateQuery);
+
+                if ($role === 'unit_kerja' && !empty($userBagian)) {
+                    $aggregateQuery->where("{$laporanTable}.ID_BAGIAN", $userBagian);
+                    $data = $this->getAggregatedDataForOwnUnit($aggregateQuery, $userBagian);
+                } else{
+                    if ($role === 'direksi' && !empty($userBagian)) {
+                        // $allMyUnitIds = $this->getAllDescendantIds($userBagian);
+                        // $allMyUnitIds[] = $userBagian;
+                        // $aggregateQuery->whereIn('ID_BAGIAN', $allMyUnitIds);
+                        $this->applyDireksiHierarchyFilter($aggregateQuery, $userBagian);
+                    }
+                    $data = $this->getAggregatedUnitKerjaData($aggregateQuery);
+                }
+                // $this->applyTimeFilter($aggregateQuery, $timeFilter);
+                // $data = $this->getAggregatedUnitKerjaData($aggregateQuery);
             } else {
                 $data = $this->generateChartDataWithDefinedLabels(clone $baseQuery, $config['type'], $config['name'], $definedLabels[$key] ?? [], $config['column'] ?? null);
             }
