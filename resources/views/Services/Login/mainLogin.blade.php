@@ -46,10 +46,9 @@
                         </span>
                     </div>
 
-                    <div class="text-end mt-2">
-                        <a href="{{ route('auth.lupaPassword') }}" class="forgot-password-link"
-                            style="font-size: 0.9rem;">Lupa Password?</a>
-                    </div>
+                    {{-- <div class="text-end mt-2">
+                        <a href="{{ route('lupaPassword') }}" class="forgot-password-link" style="font-size: 0.9rem;">Lupa Password?</a>
+                    </div> --}}
                 </div>
                 <div class="d-grid">
                     <button type="submit" class="btn btn-login btn-lg text-white">

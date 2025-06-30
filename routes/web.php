@@ -19,7 +19,7 @@ use App\Services\Admin\Http\Controllers\DashboardAdminController;
 use App\Services\Chatbot\Http\Controllers\ChatbotController;
 use App\Services\Chatbot\Models\Chatbot;
 use App\Services\Login\Http\Controllers\LoginController;
-use App\Services\LupaPassword\Http\Controllers\LupasPasswordController;
+use App\Services\GantiPassword\Http\Controllers\GantiPasswordController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -51,8 +51,8 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // lupa password
-    Route::get('/lupa-password', [LupasPasswordController::class, 'getLupaPass'])->name('lupaPassword');
-    Route::post('/lupa-password', [LupasPasswordController::class, 'updatePassword'])->name('lupaPassword.submit');
+    Route::get('/gantiPassword', [GantiPasswordController::class, 'getGantiPass'])->name('gantiPassword');
+    Route::post('/gantiPassword', [GantiPasswordController::class, 'updatePassword'])->name('gantiPassword.submit');
 });
 
 // route humas services
