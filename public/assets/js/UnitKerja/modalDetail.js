@@ -101,13 +101,13 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('detail-tanggal-evaluasi').textContent = formatDate(data.TGL_EVALUASI);
         document.getElementById('detail-tanggal-selesai').textContent = formatDate(data.TGL_SELESAI);
         document.getElementById('detail-penyelesaian').textContent = text(data.penyelesaian_pengaduan?.PENYELESAIAN_PENGADUAN);
-        document.getElementById('detail-klarifikasi-unit').value = text(data.TINDAK_LANJUT_HUMAS);
-        document.getElementById('detail-tindak-lanjut-humas').value = text(data.EVALUASI_COMPLAINT);
+        document.getElementById('detail-klarifikasi-unit').value = text(data.EVALUASI_COMPLAINT);
+        document.getElementById('detail-tindak-lanjut-humas').value = text(data.TINDAK_LANJUT_HUMAS);
 
         const pengaduanContainer = document.getElementById('filePengaduanContainer');
-        pengaduanContainer.innerHTML = ''; // Kosongkan dulu
+        pengaduanContainer.innerHTML = '';
         if (data.pengaduan_files && data.pengaduan_files.length > 0) {
-            pengaduanContainer.classList.add('d-flex', 'flex-wrap', 'gap-2'); // Tambahkan class untuk layout
+            pengaduanContainer.classList.add('d-flex', 'flex-wrap', 'gap-2');
             data.pengaduan_files.forEach(filePath => {
                 const trimmedPath = filePath.trim();
                 if (trimmedPath === '') return;
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-judul').value = data.JUDUL_COMPLAINT || '';
         document.getElementById('edit-deskripsi').value = data.ISI_COMPLAINT || '';
         document.getElementById('edit-permasalahan').value = data.PERMASALAHAN || '';
-        document.getElementById('edit-petugas-evaluasi').value = data.PETUGAS_PELAPOR || 'Admin Unit Kerja';
+        document.getElementById('edit-petugas-evaluasi').value = data.PETUGAS_EVALUASI || 'Admin Unit Kerja';
 
         document.getElementById('edit-tanggal-evaluasi').value = toInputDate(data.TGL_EVALUASI);
 

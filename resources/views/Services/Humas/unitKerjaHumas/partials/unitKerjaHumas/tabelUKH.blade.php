@@ -15,7 +15,9 @@
             </div>
             <div class="input-group" style="width: 250px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-start-0" placeholder="Cari Unit Kerja...">
+                <input type="text" class="form-control border-start-0" placeholder="Cari Unit Kerja..."
+                    id="search-unit-kerja" value="{{ request('search') }}"
+                    data-url="{{ route('humas.unit-kerja-humas') }}">
             </div>
         </div>
         <!-- Table -->
@@ -33,36 +35,45 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($parents as $parent)
-                        @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaRow', [
-                            'unit' => $parent,
-                            'children' => $children,
-                            'level' => 0,
-                        ])
-                    @endforeach
+                    @if (request()->filled('search'))
+                        @forelse ($searchResults as $unit)
+                            @include(
+                                'Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaRow',
+                                [
+                                    'unit' => $unit,
+                                    'children' => collect(),
+                                    'level' => 0,
+                                ]
+                            )
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center p-4">Tidak ada unit kerja yang cocok dengan
+                                    pencarian Anda.</td>
+                            </tr>
+                        @endforelse
+                    @else
+                        @foreach ($paginatedParents as $parent)
+                            @include(
+                                'Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaRow',
+                                [
+                                    'unit' => $parent,
+                                    'children' => $groupedChildren,
+                                    'level' => 0,
+                                ]
+                            )
+                        @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>
+
         <!-- Pagination -->
         <div class="d-flex justify-content-end mt-3 page-tabel">
-            {{-- <nav aria-label="Page navigation example">
-                <ul class="pagination mb-0">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav> --}}
-            {{ $parents->appends(request()->except('admin_page'))->links() }}
+            @if (request()->filled('search'))
+                {{ $searchResults->appends(request()->query())->links() }}
+            @else
+                {{ $paginatedParents->appends(request()->except('admin_page'))->links() }}
+            @endif
         </div>
     </div>
 </div>

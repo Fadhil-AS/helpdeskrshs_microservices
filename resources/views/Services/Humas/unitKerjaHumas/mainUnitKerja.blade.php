@@ -11,7 +11,9 @@
         </div>
     @endif
     {{-- table unit kerja humas --}}
-    @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas.tabelUKH')
+    <div id="unit-kerja-container">
+        @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas.tabelUKH')
+    </div>
 
     <!-- Modal Tambah Data unit kerja humas -->
     @include('Services.Humas.unitKerjaHumas.partials.UnitKerjaHumas.modalTambahUKH')
@@ -39,6 +41,7 @@
     {{-- Unit kerja --}}
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiTabel.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiModalEdit.js') }}"></script>
+    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiSearch.js') }}"></script>
 
     {{-- Admin unit kerja --}}
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalTambah.js') }}"></script>
@@ -46,6 +49,7 @@
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalEdit.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiReset.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/filteringAUKH.js') }}"></script>
+    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiSearchAUKH.js') }}"></script>
 
     <script src="{{ asset('assets/js/Humas/navbar.js') }}"></script>
 </body>

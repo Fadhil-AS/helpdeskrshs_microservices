@@ -33,6 +33,10 @@
                         <a class="nav-link {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
                             href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a>
                     </li>
+                    {{-- <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
+                            href="{{ route('humas.chatbot') }}">Data Referensi</a>
+                    </li> --}}
                 @elseif (session('role') === 'unit_kerja')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"

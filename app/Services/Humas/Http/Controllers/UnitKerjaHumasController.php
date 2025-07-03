@@ -12,50 +12,92 @@ use Illuminate\Support\Collection;
 
 class UnitKerjaHumasController extends Controller {
     public function getUnitKerjaHumas(Request $request){
-        $allUnitKerja = UnitKerja::orderBy('ID_BAGIAN')->get();
-        $topLevelIDs = ['A', 'B', 'C', 'D', 'E'];
-
-        $topLevelParentsCollection = $allUnitKerja->whereIn('ID_BAGIAN', $topLevelIDs);
-
-        $unitsForDropdown = $allUnitKerja->filter(function ($unit) {
-            return strlen($unit->ID_BAGIAN) > 1;
-        });
-
-        $perPage = 10;
-        $currentPage = $request->input('page', 1);
-        $currentPageItems = $topLevelParentsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $paginatedParents = new LengthAwarePaginator(
-            $currentPageItems,
-            $topLevelParentsCollection->count(),
-            $perPage,
-            $currentPage,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
-
-
-        $groupedChildren = $allUnitKerja->groupBy('ID_PARENT_BAGIAN');
+        $paginatedParents = null;
+        $groupedChildren = collect();
+        $searchResults = null;
         $promotedIDs = ['B', 'C', 'D', 'E'];
-        if (isset($groupedChildren['A'])) {
-            $groupedChildren['A'] = $groupedChildren['A']->whereNotIn('ID_BAGIAN', $promotedIDs);
+        $allUnitKerja = UnitKerja::orderBy('ID_BAGIAN')->get();
+
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+
+            $filtered = $allUnitKerja->filter(function ($unit) use ($search) {
+                return str_contains(strtolower($unit->NAMA_BAGIAN), $search) ||
+                       str_contains(strtolower($unit->NAMA_BAGIAN_SINGULAR), $search) ||
+                       str_contains(strtolower($unit->NAMA_ALTERNATIF), $search);
+            });
+            $perPage = 15;
+            $currentPage = $request->input('page', 1);
+            $currentPageItems = $filtered->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+            $searchResults = new LengthAwarePaginator(
+                $currentPageItems,
+                $filtered->count(),
+                $perPage,
+                $currentPage,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+
+        } else {
+            $topLevelIDs = ['A', 'B', 'C', 'D', 'E'];
+            $topLevelParentsCollection = $allUnitKerja->whereIn('ID_BAGIAN', $topLevelIDs);
+
+            $perPage = 10;
+            $currentPage = $request->input('page', 1);
+            $currentPageItems = $topLevelParentsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+            $paginatedParents = new LengthAwarePaginator(
+                $currentPageItems,
+                $topLevelParentsCollection->count(),
+                $perPage,
+                $currentPage,
+                ['path' => $request->url(), 'query' => $request->query()]
+            );
+
+            $groupedChildren = $allUnitKerja->groupBy('ID_PARENT_BAGIAN');
+            $promotedIDs = ['B', 'C', 'D', 'E'];
+            if (isset($groupedChildren['A'])) {
+                $groupedChildren['A'] = $groupedChildren['A']->whereNotIn('ID_BAGIAN', $promotedIDs);
+            }
         }
 
+        $unitsForDropdown = $allUnitKerja->filter(fn($unit) => strlen($unit->ID_BAGIAN) > 1);
         $adminQuery = UserComplaint::with('unitKerja');
-        if ($request->filled('filter_unit')) {
-            $adminQuery->where('ID_BAGIAN', $request->filter_unit);
+        if ($request->filled('filter_unit')) $adminQuery->where('ID_BAGIAN', $request->filter_unit);
+        if ($request->filled('filter_status')) $adminQuery->where('VALIDASI', $request->filter_status);
+        if ($request->filled('search_admin')) {
+            $searchAdmin = $request->search_admin;
+            $adminQuery->where(function ($query) use ($searchAdmin) {
+                $query->where('NAME', 'like', '%' . $searchAdmin . '%')
+                      ->orWhere('USERNAME', 'like', '%' . $searchAdmin . '%')
+                      ->orWhereHas('unitKerja', function ($q) use ($searchAdmin) {
+                            $q->where('NAMA_BAGIAN', 'like', '%' . $searchAdmin . '%');
+                        });
+            });
         }
-        if ($request->filled('filter_status')) {
-            $adminQuery->where('VALIDASI', $request->filter_status);
-        }
+
         $admins = $adminQuery->latest('TGL_INSROW')->paginate(10, ['*'], 'admin_page');
 
-        return view('Services.Humas.unitKerjaHumas.mainUnitKerja', [
-            'parents' => $paginatedParents,
-            'children' => $groupedChildren,
-            'allUnits' => $allUnitKerja,
-            'unitsForDropdown' => $unitsForDropdown,
-            'admins' => $admins
-        ]);
+
+        if ($request->ajax()) {
+            if ($request->has('search_admin')) {
+                return view('Services.Humas.unitKerjaHumas.partials.adminUKH.contentTabel', compact('admins'))->render();
+            }
+            return view('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas.tabelUKH', compact(
+                'paginatedParents', 'groupedChildren', 'searchResults', 'promotedIDs'
+            ))->render();
+        }
+
+
+        return view('Services.Humas.unitKerjaHumas.mainUnitKerja', compact(
+            'paginatedParents',
+            'groupedChildren',
+            'searchResults',
+            'allUnitKerja',
+            'unitsForDropdown',
+            'admins',
+            'promotedIDs'
+        ));
     }
 
     public function storeUnitKerja(Request $request)
@@ -68,10 +110,12 @@ class UnitKerjaHumasController extends Controller {
             'STATUS' => 'required|boolean',
         ]);
         $parentId = $request->input('id_parent_bagian');
+        $promotedIDs = ['B', 'C', 'D', 'E'];
 
         $lastChild = UnitKerja::where('ID_PARENT_BAGIAN', $parentId)
-                               ->orderBy('ID_BAGIAN', 'desc')
-                               ->first();
+                                ->whereNotIn('ID_BAGIAN', $promotedIDs)
+                                ->orderBy('ID_BAGIAN', 'desc')
+                                ->first();
 
         $newIdBagian = '';
         if ($lastChild) {

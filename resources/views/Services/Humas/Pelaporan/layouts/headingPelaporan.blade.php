@@ -40,6 +40,7 @@
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalTambah.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalDetail.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalEdit.js') }}"></script>
+    <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiSearch.js') }}"></script>
 
     <script src="{{ asset('assets/js/Humas/navbar.js') }}"></script>
 

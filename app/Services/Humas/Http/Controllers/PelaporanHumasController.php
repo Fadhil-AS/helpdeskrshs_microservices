@@ -24,7 +24,10 @@ class PelaporanHumasController extends Controller {
     public function getPelaporanHumas(Request $request){
         // dd($request->all());
 
-        $unitKerja = UnitKerja::where('STATUS', '1')->get();
+        $unitKerja = UnitKerja::where('STATUS', '1')
+            ->whereRaw('LENGTH(ID_BAGIAN) > 1')
+            ->orderBy('NAMA_BAGIAN', 'asc')
+            ->get();
         $JenisLaporan = JenisLaporan::where('STATUS', '1')->get();
         $JenisMedia = JenisMedia::where('STATUS', '1')->get();
         $klasifikasiPengaduan = KlasifikasiPengaduan::where('STATUS', '1')->get();
@@ -40,9 +43,26 @@ class PelaporanHumasController extends Controller {
             $query->where('STATUS', $request->status);
         }
 
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('ID_COMPLAINT', 'like', '%' . $search . '%')
+                  ->orWhere('NAME', 'like', '%' . $search . '%')
+                  ->orWhere('NO_MEDREC', 'like', '%' . $search . '%')
+                  ->orWhere('JUDUL_COMPLAINT', 'like', '%' . $search . '%')
+                  ->orWhere('ISI_COMPLAINT', 'like', '%' . $search . '%')
+                  ->orWhere('PERMASALAHAN', 'like', '%' . $search . '%')
+                  ->orWhere('NO_TLPN', 'like', '%' . $search . '%');
+            });
+        }
+
         $dataComplaint = $query->orderBy('ID_COMPLAINT', 'asc')
                                 ->paginate(10)
                                 ->withQueryString();
+
+        if ($request->ajax()) {
+            return view('Services.Humas.Pelaporan.partials.tabelDataComplaint', compact('dataComplaint'))->render();
+        }
 
 
         return view('Services.Humas.Pelaporan.mainPelaporan', compact(
@@ -293,6 +313,10 @@ class PelaporanHumasController extends Controller {
             // $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
             // $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
             // $statusSekarang = $complaint->STATUS;
+            $selectedKlasifikasiId = $request->input('ID_KLASIFIKASI', $complaint->ID_KLASIFIKASI);
+            if (in_array($selectedKlasifikasiId, $excludedIds)) {
+                $updateData['NAME'] = empty($request->input('NAME')) ? 'Anonimus' : $request->input('NAME');
+            }
 
             if (!$isFromWebsite) {
                 $currentPengaduanFiles = json_decode($complaint->FILE_PENGADUAN, true) ?? [];
