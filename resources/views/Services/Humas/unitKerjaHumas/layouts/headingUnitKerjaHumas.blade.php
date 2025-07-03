@@ -11,4 +11,19 @@
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/style.css') }}">
+
+    <style>
+        .hidden-row {
+            display: none;
+        }
+
+        .toggle-icon {
+            transition: transform 0.2s ease-in-out;
+            display: inline-block;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(90deg);
+        }
+    </style>
 </head>

@@ -10,8 +10,23 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 
 class DireksiHumasController extends Controller {
-    public function getDireksiHumas(){
-        $allDireksi = Direksi::orderBy('ID_DIREKSI', 'asc')->paginate(10);
+    public function getDireksiHumas(Request $request){
+        $query = Direksi::orderBy('ID_DIREKSI', 'asc');
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('NAMA', 'like', '%' . $search . '%')
+                  ->orWhere('NO_TLPN', 'like', '%' . $search . '%')
+                  ->orWhere('KET', 'like', '%' . $search . '%');
+            });
+        }
+
+        $allDireksi = $query->paginate(10)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('Services.Humas.Direksi.partials.contentTabelDireksi', compact('allDireksi'))->render();
+        }
+
         return view('Services.Humas.Direksi.mainDireksi', compact('allDireksi'));
     }
 

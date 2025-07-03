@@ -15,21 +15,6 @@
 
         <div id="formMessage" class="mt-3 mb-3"></div>
 
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if ($errors->any() && !$request->ajax())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         <form id="formPengaduan" method="POST" action="{{ route('ticketing.store-laporan') }}"
             data-upload-url="{{ route('ticketing.upload-file') }}" data-csrf-token="{{ csrf_token() }}"
             data-redirect-url="{{ url('/') }}" enctype="multipart/form-data" novalidate>
@@ -48,9 +33,8 @@
                 <label class="form-label fw-bold" for="jenisPelapor">Jenis Pelapor</label>
                 <select name="jenis_pelapor" id="jenisPelapor" class="form-select" required>
                     <option value="" selected disabled>Pilih Jenis Pelapor</option>
-                    <option value="Pasien" {{ old('jenis_pelapor') == 'Pasien' ? 'selected' : '' }}>Pasien</option>
-                    <option value="Non-Pasien" {{ old('jenis_pelapor') == 'Non-Pasien' ? 'selected' : '' }}>Non-Pasien
-                    </option>
+                    <option value="Pasien">Pasien</option>
+                    <option value="Non-Pasien">Non-Pasien</option>
                 </select>
             </div>
 
@@ -59,7 +43,7 @@
                 <select name="ID_KLASIFIKASI" id="ID_KLASIFIKASI" class="form-select" required>
                     <option value="" selected disabled>Pilih Klasifikasi Pengaduan</option>
                     @foreach ($klasifikasiPengaduan as $klasifikasi)
-                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}" {{ old('ID_KLASIFIKASI', $laporanReferensi->ID_KLASIFIKASI ?? '') == $klasifikasi->ID_KLASIFIKASI ? 'selected' : '' }}>
+                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}">
                             {{ $klasifikasi->KLASIFIKASI_PENGADUAN }}
                         </option>
                     @endforeach
@@ -68,32 +52,26 @@
 
             <div class="mb-3" id="wrapper_nama">
                 <label class="form-label fw-bold">Nama Lengkap</label>
-                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME"
-                    value="{{ old('NAME', $laporanReferensi->NAME ?? '') }}" required>
+                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME" required>
             </div>
 
             <div class="mb-3" id="wrapper_no_tlpn">
                 <label for="nomorTelepon" class="form-label fw-bold">Nomor Telepon</label>
-                <input type="tel" class="form-control" id="nomorTelepon" name="NO_TLPN" placeholder="Contoh: 08123456789"
-                    required maxlength="15" pattern="^08\d{0,13}$" inputmode="numeric"
-                    aria-describedby="nomorTeleponHelp nomorTeleponError"
-                    value="{{ old('NO_TLPN', $laporanReferensi->NO_TLPN ?? '') }}">
-                <div id="nomorTeleponHelp" class="form-text">Nomor telepon harus diawali dengan "08" dan terdiri dari
-                    10-15 digit angka.</div>
-                <div id="nomorTeleponError" class="invalid-feedback"></div>
+                <input type="tel" class="form-control" id="nomorTelepon" name="NO_TLPN"
+                    placeholder="Contoh: 08123456789" required maxlength="15" pattern="^08\d{8,13}$" inputmode="numeric">
+                <div class="form-text">Nomor telepon harus diawali dengan "08" dan terdiri dari 10-15 digit angka.</div>
             </div>
 
             <div class="mb-3" id="wrapper_no_medrec">
                 <label class="form-label fw-bold" for="nomorRekamMedis">Nomor Rekam Medis (Opsional)</label>
-                <input type="text" class="form-control" id="nomorRekamMedis" placeholder="Masukkan nomor rekam medis jika ada"
-                    name="NO_MEDREC" value="{{ old('NO_MEDREC', $laporanReferensi->NO_MEDREC ?? '') }}">
-                <small class="text-muted">Nomor rekam medis membantu kami mengidentifikasi Anda dengan lebih cepat.</small>
+                <input type="text" class="form-control" id="nomorRekamMedis"
+                    placeholder="Masukkan nomor rekam medis jika ada" name="NO_MEDREC">
             </div>
 
             <div class="mb-3" id="wrapper_deskripsi">
                 <label class="form-label fw-bold">Deskripsi Pengaduan</label>
-                <textarea class="form-control" rows="4" placeholder="Jelaskan secara detail pengaduan anda"
-                    name="ISI_COMPLAINT" required></textarea>
+                <textarea class="form-control" rows="4" placeholder="Jelaskan secara detail pengaduan anda" name="ISI_COMPLAINT"
+                    required></textarea>
             </div>
 
             <div class="mb-4" id="wrapper_bukti">
@@ -101,11 +79,9 @@
                     (Opsional)</label>
                 <input type="file" id="buktiPendukungFile" name="bukti_pendukung[]" class="d-none"
                     accept=".jpg, .jpeg, .png, .pdf" multiple>
-
                 <label id="buktiPendukungDropZone" for="buktiPendukungFile" class="upload-box d-block"
                     style="cursor: pointer;">
-                    <div class="upload-box-content">
-                    </div>
+                    <div class="upload-box-content"></div>
                 </label>
                 <div id="buktiPendukungFileErrors" class="text-danger mt-2"></div>
             </div>
@@ -116,7 +92,8 @@
         </form>
     </div>
 
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+        data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body p-4 text-center">

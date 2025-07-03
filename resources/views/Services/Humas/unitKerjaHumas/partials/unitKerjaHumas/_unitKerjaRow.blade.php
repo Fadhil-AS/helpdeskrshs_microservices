@@ -1,8 +1,8 @@
-<tr class="parent-row child-row group-{{ $unit->ID_PARENT_BAGIAN }}" data-child="group-{{ $unit->ID_BAGIAN }}"
-    data-level="{{ $level }}" @if ($level > 0) style="display: none;" @endif>
+<tr class="parent-row child-row @if ($unit->ID_PARENT_BAGIAN && !in_array($unit->ID_BAGIAN, $promotedIDs)) group-{{ $unit->ID_PARENT_BAGIAN }} @endif @if ($level > 0) hidden-row @endif"
+    data-child="group-{{ $unit->ID_BAGIAN }}" data-level="{{ $level }}">
     <td style="cursor: pointer;">
         <span style="padding-left: {{ $level * 25 }}px;">
-            @if (isset($children[$unit->ID_BAGIAN]) && $children[$unit->ID_BAGIAN]->isNotEmpty())
+            @if (!request()->filled('search') && isset($children[$unit->ID_BAGIAN]) && $children[$unit->ID_BAGIAN]->isNotEmpty())
                 <span class="toggle-icon">▸</span>
             @else
                 <span class="toggle-icon" style="opacity: 0; cursor: default;">▸</span>
@@ -39,7 +39,7 @@
     </td>
 </tr>
 
-@if (isset($children[$unit->ID_BAGIAN]))
+@if (!request()->filled('search') && isset($children[$unit->ID_BAGIAN]))
     @foreach ($children[$unit->ID_BAGIAN] as $child)
         @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaRow', [
             'unit' => $child,

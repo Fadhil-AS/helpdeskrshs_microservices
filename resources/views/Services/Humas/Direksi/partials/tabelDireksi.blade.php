@@ -40,66 +40,14 @@
             </div>
             <div class="input-group" style="width: 250px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-start-0" placeholder="Cari Direksi...">
+                <input type="text" class="form-control border-start-0" placeholder="Cari Direksi..."
+                    id="search-direksi-input" data-url="{{ route('humas.direksi-humas') }}">
             </div>
         </div>
 
         <!-- Table -->
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead class="border-bottom">
-                    <tr class="text-nowrap">
-                        <th>ID</th>
-                        <th>Nama Direksi</th>
-                        <th>Nomor Telepon</th>
-                        <th>Keterangan</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($allDireksi as $direksi)
-                        <tr>
-                            <td><strong>{{ $direksi->ID_DIREKSI }}</strong></td>
-                            <td>{{ $direksi->NAMA }}</td>
-                            <td><i class="bi bi-telephone me-2"></i>{{ $direksi->NO_TLPN }}</td>
-                            <td><span class="badge bg-info">{{ $direksi->KET }}</span></td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditDireksi"
-                                    data-id="{{ $direksi->ID_DIREKSI }}" data-nama="{{ $direksi->NAMA }}"
-                                    data-no_tlpn="{{ $direksi->NO_TLPN }}" data-ket="{{ $direksi->KET }}">
-                                    <i class="bi bi-pencil-square me-2"></i>
-                                </a>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#hapusModal"
-                                    data-id="{{ $direksi->ID_DIREKSI }}" data-nama="{{ $direksi->NAMA }}">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="d-flex justify-content-end mt-3 page-tabel">
-            {{-- <nav aria-label="Page navigation example">
-                <ul class="pagination mb-0">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav> --}}
-            {{ $allDireksi->links() }}
+        <div id="direksi-table-container">
+            @include('Services.Humas.Direksi.partials.contentTabelDireksi', ['allDireksi' => $allDireksi])
         </div>
     </div>
 </div>

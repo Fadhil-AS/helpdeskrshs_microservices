@@ -31,8 +31,9 @@
 
     @include('Services.Ticketing.buatLaporan.partials.fungsiKlasifikasi')
 
-    @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan')
+    {{-- @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan') --}}
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}"></script>
 </body>
 

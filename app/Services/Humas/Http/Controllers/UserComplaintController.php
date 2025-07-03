@@ -86,7 +86,7 @@ class UserComplaintController extends Controller{
     public function resetUserPassword(UserComplaint $userComplaint)
     {
         try {
-            $defaultPassword = 'rshs_2025';
+            $defaultPassword = 'rshs_'.date('Y');
 
             $userComplaint->update([
                 'PASSWORD'      => sha1($defaultPassword),

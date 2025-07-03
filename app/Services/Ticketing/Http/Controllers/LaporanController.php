@@ -49,7 +49,7 @@ class LaporanController extends Controller
         Log::info('Request to uploadFile - Data:', $request->all());
         try {
             $validatedData = $request->validate([
-                'file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+                'file' => 'required|file|mimes:jpg,jpeg,png,pdf',
                 'upload_id' => 'required|string',
             ]);
 
@@ -86,7 +86,9 @@ class LaporanController extends Controller
             'NO_MEDREC' => 'nullable|string|max:10',
         ];
 
-        if ($klasifikasiText === 'gratifikasi' || $klasifikasiText === 'sponsorship') {
+        $isAnonimAllowed = ($klasifikasiText === 'gratifikasi' || $klasifikasiText === 'sponsorship');
+
+        if ($isAnonimAllowed) {
             $rules['NAME'] = 'nullable|string|max:100';
             $rules['NO_TLPN'] = 'nullable|string|max:15';
             $rules['uploaded_files'] = 'required|array|min:1';
@@ -120,7 +122,7 @@ class LaporanController extends Controller
         $laporan->NO_MEDREC = $validatedData['NO_MEDREC'] ?? null;
         $laporan->ID_COMPLAINT_REFERENSI = $validatedData['ID_COMPLAINT_REFERENSI'] ?? null;
 
-        if ($klasifikasiText === 'gratifikasi' || $klasifikasiText === 'sponsorship') {
+        if ($isAnonimAllowed) {
             $laporan->NAME = empty($validatedData['NAME']) ? 'Anonimus' : $validatedData['NAME'];
             $laporan->NO_TLPN = $validatedData['NO_TLPN'] ?? null;
         } else {

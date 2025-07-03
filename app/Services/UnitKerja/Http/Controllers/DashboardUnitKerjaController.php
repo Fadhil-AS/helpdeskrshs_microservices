@@ -140,14 +140,15 @@ class DashboardUnitKerjaController extends Controller {
                 if ($request->hasFile('file_bukti')) {
                     $existingFiles = json_decode($complaint->FILE_BUKTI_KLARIFIKASI, true) ?? [];
 
+                    foreach ($existingFiles as $oldFile) {
+                        Storage::disk('public')->delete($oldFile);
+                    }
                     $newUploadedPaths = [];
                     foreach ($request->file('file_bukti') as $file) {
                         $path = $file->store('bukti_klarifikasi', 'public');
                         $newUploadedPaths[] = $path;
                     }
-
-                    $allFiles = array_merge($existingFiles, $newUploadedPaths);
-                    $updateData['FILE_BUKTI_KLARIFIKASI'] = json_encode($allFiles);
+                    $updateData['FILE_BUKTI_KLARIFIKASI'] = json_encode($newUploadedPaths);
                 }
 
                 $complaint->update($updateData);
