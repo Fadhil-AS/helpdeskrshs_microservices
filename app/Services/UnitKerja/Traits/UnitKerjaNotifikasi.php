@@ -9,7 +9,7 @@ trait UnitKerjaNotifikasi
 {
     public function sendWhatsappNotification(string $target, string $message): void
     {
-        $token = env('FONNTE_API_TOKEN');
+        $token = config('fonnte.token');
 
         if (!$token) {
             Log::error('Fonnte API token tidak ditemukan di file .env');

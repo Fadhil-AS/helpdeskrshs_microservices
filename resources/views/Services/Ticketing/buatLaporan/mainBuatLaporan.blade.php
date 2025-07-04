@@ -43,7 +43,8 @@
                 <select name="ID_KLASIFIKASI" id="ID_KLASIFIKASI" class="form-select" required>
                     <option value="" selected disabled>Pilih Klasifikasi Pengaduan</option>
                     @foreach ($klasifikasiPengaduan as $klasifikasi)
-                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}">
+                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}"
+                            {{ old('ID_KLASIFIKASI', $laporanReferensi->ID_KLASIFIKASI ?? '') == $klasifikasi->ID_KLASIFIKASI ? 'selected' : '' }}>
                             {{ $klasifikasi->KLASIFIKASI_PENGADUAN }}
                         </option>
                     @endforeach
@@ -58,14 +59,20 @@
             <div class="mb-3" id="wrapper_no_tlpn">
                 <label for="nomorTelepon" class="form-label fw-bold">Nomor Telepon</label>
                 <input type="tel" class="form-control" id="nomorTelepon" name="NO_TLPN"
-                    placeholder="Contoh: 08123456789" required maxlength="15" pattern="^08\d{8,13}$" inputmode="numeric">
-                <div class="form-text">Nomor telepon harus diawali dengan "08" dan terdiri dari 10-15 digit angka.</div>
+                    placeholder="Contoh: 08123456789" required maxlength="15" pattern="^08\d{0,13}$" inputmode="numeric"
+                    aria-describedby="nomorTeleponHelp nomorTeleponError"
+                    value="{{ old('NO_TLPN', $laporanReferensi->NO_TLPN ?? '') }}">
+                <div id="nomorTeleponHelp" class="form-text">Nomor telepon harus diawali dengan "08" dan terdiri dari
+                    10-15 digit angka.</div>
+                <div id="nomorTeleponError" class="invalid-feedback"></div>
             </div>
 
             <div class="mb-3" id="wrapper_no_medrec">
                 <label class="form-label fw-bold" for="nomorRekamMedis">Nomor Rekam Medis (Opsional)</label>
                 <input type="text" class="form-control" id="nomorRekamMedis"
-                    placeholder="Masukkan nomor rekam medis jika ada" name="NO_MEDREC">
+                    placeholder="Masukkan nomor rekam medis jika ada" name="NO_MEDREC"
+                    value="{{ old('NO_MEDREC', $laporanReferensi->NO_MEDREC ?? '') }}">
+                <small class="text-muted">Nomor rekam medis membantu kami mengidentifikasi Anda dengan lebih cepat.</small>
             </div>
 
             <div class="mb-3" id="wrapper_deskripsi">
@@ -92,8 +99,8 @@
         </form>
     </div>
 
-    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
-        data-bs-keyboard="false">
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body p-4 text-center">

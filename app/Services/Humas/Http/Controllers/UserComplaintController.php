@@ -6,8 +6,12 @@ use Illuminate\Http\Request;
 use App\Services\Ticketing\Models\UserComplaint;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
 
 class UserComplaintController extends Controller{
+
+    use NotifikasiWhatsappPelapor;
+
     public function getUserComplaint()
     {
         return redirect()->route('humas.unit-kerja-humas');
@@ -15,7 +19,7 @@ class UserComplaintController extends Controller{
 
     public function storeUserComplaint(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'USERNAME' => 'required|string|unique:user_complaint,USERNAME',
             'PASSWORD' => 'required|string|min:6',
             'NAME' => 'required|string|max:255',
@@ -40,18 +44,27 @@ class UserComplaintController extends Controller{
 
         $dataToCreate = [
             'NO_REGISTER' => $newNoRegister,
-            'USERNAME' => $request->USERNAME,
-            'NAME' => $request->NAME,
-            'PASSWORD' => sha1($request->PASSWORD),
-            'PASSWORD_REAL' => $request->PASSWORD,
-            'ID_BAGIAN' => $request->ID_BAGIAN,
-            'NIP' => $request->NIP,
-            'NO_TLPN' => $request->NO_TLPN,
+            'USERNAME' => $validatedData['USERNAME'],
+            'NAME' => $validatedData['NAME'],
+            'PASSWORD' => sha1($validatedData['PASSWORD']),
+            'PASSWORD_REAL' => $validatedData['PASSWORD'],
+            'ID_BAGIAN' => $validatedData['ID_BAGIAN'],
+            'NIP' => $validatedData['NIP'],
+            'NO_TLPN' => $validatedData['NO_TLPN'],
             'VALIDASI' => 'N',
-            'SPESIAL_CODE' => $request->SPESIAL_CODE,
+            'SPESIAL_CODE' => $validatedData['SPESIAL_CODE'] ?? null,
         ];
 
         UserComplaint::create($dataToCreate);
+
+        $pesan = "Yth. Bapak/Ibu \n" . $validatedData['NAME'] . ",\n\n";
+        $pesan .= "Akun admin unit kerja Anda telah berhasil dibuat dengan detail sebagai berikut:\n\n";
+        $pesan .= "Username: " . $validatedData['USERNAME'] . "\n";
+        $pesan .= "Password: ". $validatedData['PASSWORD'] ."\n\n";
+        $pesan .= "Akun Anda akan aktif setelah melakukan login pertama kali dan mengganti password. Terima kasih.\n\n";
+        $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
+
+        $this->kirimPesanWA($validatedData['NO_TLPN'], $pesan);
 
         return response()->json([
             'success' => true,
@@ -72,6 +85,13 @@ class UserComplaintController extends Controller{
         ]);
 
         $dataToUpdate = $request->except('PASSWORD');
+
+        $pesan = "Yth. Bapak/Ibu \n" . $userComplaint->NAME . ",\n\n";
+        $pesan .= "Data akun admin unit kerja Anda telah berhasil diperbarui. ";
+        $pesan .= "Jika Anda tidak merasa melakukan perubahan ini, harap segera hubungi tim Humas. Terima kasih.\n\n";
+        $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
+
+        $this->kirimPesanWA($userComplaint->NO_TLPN, $pesan);
 
         if ($request->filled('PASSWORD')) {
             $dataToUpdate['PASSWORD'] = sha1($request->PASSWORD);
@@ -94,6 +114,14 @@ class UserComplaintController extends Controller{
                 'VALIDASI'      => 'N',
             ]);
 
+            $pesan = "Yth. Bapak/Ibu \n" . $userComplaint->NAME . ",\n\n";
+            $pesan .= "Password untuk akun admin unit kerja Anda (" . $userComplaint->USERNAME . ") telah berhasil direset.\n\n";
+            $pesan .= "Password baru Anda adalah: " . $defaultPassword . "\n\n";
+            $pesan .= "Harap segera login dan ganti password Anda. Akun Anda perlu divalidasi kembali oleh tim Humas. Terima kasih.\n\n";
+            $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
+
+            $this->kirimPesanWA($userComplaint->NO_TLPN, $pesan);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Password untuk user ' . $userComplaint->USERNAME . ' berhasil direset.'
@@ -109,6 +137,14 @@ class UserComplaintController extends Controller{
 
     public function destroyUserComplaint(UserComplaint $userComplaint){
         $userName = $userComplaint->NAME;
+
+        $pesan = "Yth. Bapak/Ibu \n" . $userComplaint->NAME . ",\n\n";
+        $pesan .= "Akun admin unit kerja Anda telah dihapus dari sistem. ";
+        $pesan .= "Terima kasih atas kontribusi Anda. Jika ini adalah sebuah kesalahan, harap hubungi tim Humas.\n\n";
+        $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
+
+        $this->kirimPesanWA($userComplaint->NO_TLPN, $pesan);
+
         $userComplaint->delete();
         return redirect()->route('humas.unit-kerja-humas')
                          ->with('success', 'Admin unit kerja"' . $userName . '" berhasil dihapus.');

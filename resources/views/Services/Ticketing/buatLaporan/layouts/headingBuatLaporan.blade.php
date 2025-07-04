@@ -21,6 +21,11 @@
         .upload-box.is-invalid:focus-within {
             box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
         }
+
+        .upload-box.is-dragging-over {
+            border-color: #007b8a;
+            background-color: #f0f8ff;
+        }
     </style>
 </head>
 
@@ -33,8 +38,9 @@
 
     {{-- @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan') --}}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}"></script>
+    <script
+        src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}?v={{ filemtime(public_path('assets/js/Ticketing/buatLaporan/handlerLaporan.js')) }}">
+    </script>
 </body>
 
 </html>
