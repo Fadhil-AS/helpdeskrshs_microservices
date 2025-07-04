@@ -36,7 +36,7 @@
 
     @include('Services.Ticketing.buatLaporan.partials.fungsiKlasifikasi')
 
-    {{-- @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan') --}}
+    @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan')
 
     <script
         src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}?v={{ filemtime(public_path('assets/js/Ticketing/buatLaporan/handlerLaporan.js')) }}">
