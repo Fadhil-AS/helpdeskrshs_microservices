@@ -65,8 +65,8 @@ trait NotifikasiWhatsappPelapor
 
     private function kirimPesanWA($target, $message)
     {
-        $token = env('FONNTE_API_TOKEN');
-        $apiUrl = env('FONNTE_API_URL');
+        $token = config('fonnte.token');
+        $apiUrl = config('fonnte.url');
 
         if (!$token || !$apiUrl) {
             Log::error('Konfigurasi API WhatsApp tidak ditemukan di .env');
