@@ -1,0 +1,6 @@
+projectKey=helpdeskrshs_microservices_v3
+serverUrl=http://localhost:9000
+serverVersion=25.4.0.105899
+dashboardUrl=http://localhost:9000/dashboard?id=helpdeskrshs_microservices_v3
+ceTaskId=da246a4c-0900-478a-816e-8d0cd294be84
+ceTaskUrl=http://localhost:9000/api/ce/task?id=da246a4c-0900-478a-816e-8d0cd294be84
