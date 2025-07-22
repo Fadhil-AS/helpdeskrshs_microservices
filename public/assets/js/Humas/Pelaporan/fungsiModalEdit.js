@@ -185,6 +185,7 @@ $(document).ready(function () {
 
                 $('#editTanggalPengaduan').val(fixDate(data.TGL_COMPLAINT));
                 $('#editTanggalEvaluasi').val(fixDate(data.TGL_EVALUASI));
+                $('#editTanggalTindakLanjutHumas').val(fixDate(data.TGL_TINDAK_LANJUT_HUMAS));
                 $('#editTanggalSelesai').val(fixDate(data.TGL_SELESAI));
 
                 $('input[name="gradingOptions"]').prop('checked', false);

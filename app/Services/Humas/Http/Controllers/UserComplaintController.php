@@ -4,10 +4,14 @@ namespace App\Services\Humas\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Ticketing\Models\UserComplaint;
+use App\Services\Humas\Traits\NotifikasiWhatsappAkunUnitKerja;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserComplaintController extends Controller{
+
+    use NotifikasiWhatsappAkunUnitKerja;
+
     public function getUserComplaint()
     {
         return redirect()->route('humas.unit-kerja-humas');
@@ -51,7 +55,9 @@ class UserComplaintController extends Controller{
             'SPESIAL_CODE' => $request->SPESIAL_CODE,
         ];
 
-        UserComplaint::create($dataToCreate);
+        $newUser = UserComplaint::create($dataToCreate);
+
+        $this->sendNewUserNotification($newUser);
 
         return response()->json([
             'success' => true,
@@ -79,6 +85,7 @@ class UserComplaintController extends Controller{
         }
 
         $userComplaint->update($dataToUpdate);
+        $this->sendProfileUpdateNotification($userComplaint);
 
         return response()->json(['success' => true, 'message' => 'Data admin unit kerja berhasil diperbarui!']);
     }
@@ -93,6 +100,8 @@ class UserComplaintController extends Controller{
                 'PASSWORD_REAL' => $defaultPassword,
                 'VALIDASI'      => 'N',
             ]);
+
+            $this->sendPasswordResetNotification($userComplaint, $defaultPassword);
 
             return response()->json([
                 'success' => true,
@@ -109,6 +118,7 @@ class UserComplaintController extends Controller{
 
     public function destroyUserComplaint(UserComplaint $userComplaint){
         $userName = $userComplaint->NAME;
+        $this->sendAccountDeletionNotification($userComplaint);
         $userComplaint->delete();
         return redirect()->route('humas.unit-kerja-humas')
                          ->with('success', 'Admin unit kerja"' . $userName . '" berhasil dihapus.');

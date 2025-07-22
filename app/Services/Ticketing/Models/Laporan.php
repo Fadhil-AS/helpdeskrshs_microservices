@@ -39,6 +39,7 @@ class Laporan extends Model {
         'PETUGAS_EVALUASI',
         'TGL_PENUGASAN',
         'TGL_EVALUASI',
+        'TGL_TINDAK_LANJUT_HUMAS',
         'GRANDING',
         'PETUGAS_PELAPOR',
         'NO_MEDREC',

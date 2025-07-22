@@ -106,20 +106,24 @@
                     <!-- Evaluasi & Penyelesaian -->
                     <div class="tab-pane fade" id="tab3" role="tabpanel">
                         <div class="row mb-2">
-                            <div class="col-md-6">
-                                <strong>Petugas Evaluasi</strong><br><span id="detailPetugasEvaluasi">-</span>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <strong>Tanggal Evaluasi</strong><br><span id="detailTanggalEvaluasi">-</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Tanggal Tindak Lanjut Humas</strong><br><span
+                                    id="detailTanggalTindakLanjut">-</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Tanggal Selesai</strong><br><span id="detailTanggalSelesai">-</span>
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <strong>Petugas Evaluasi</strong><br><span id="detailPetugasEvaluasi">-</span>
+                            </div>
+                            <div class="col-md-4">
                                 <strong>Penyelesaian Pengaduan</strong><br><span
                                     id="detailPenyelesaianPengaduan">-</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Tanggal Selesai</strong><br><span id="detailTanggalSelesai">-</span>
                             </div>
                         </div>
 
@@ -133,19 +137,6 @@
                         <div class="mb-3">
                             <label class="fw-bold pb-2">File Bukti Klarifikasi</label>
                             <div class="file-display-container" id="buktiKlarifikasiContainer">
-                                {{-- <div class="file-klarifikasi-item"> <a href="images\logoRSHS.png" target=""
-                                        rel="noopener noreferrer" title="foto1.jpg">
-                                        <img src="path/to/image.jpg" alt="Bukti Foto" class="img-fluid rounded mb-1">
-                                        <small class="d-block text-truncate">foto1.jpg</small>
-                                    </a>
-                                </div>
-                                <div class="file-klarifikasi-item"> <a href="path/to/document.pdf" target=""
-                                        rel="noopener noreferrer" class="text-decoration-none text-dark"
-                                        title="dokumen1.pdf">
-                                        <i class="bi bi-file-earmark-pdf display-4 text-danger mb-1"></i> <small
-                                            class="d-block text-truncate">dokumen1.pdf</small>
-                                    </a>
-                                </div> --}}
                                 <p class="text-muted">Tidak ada file bukti klarifikasi.</p>
                             </div>
                         </div>

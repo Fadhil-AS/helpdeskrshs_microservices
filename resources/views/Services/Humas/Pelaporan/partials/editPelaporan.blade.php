@@ -180,17 +180,26 @@
                         <!-- Evaluasi & Penyelesaian -->
                         <div class="tab-pane fade" id="tab3Edit" role="tabpanel">
                             <div class="row mb-2">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Tanggal Evaluasi</label>
+                                    <input type="text" class="form-control" id="editTanggalEvaluasi" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Tanggal Tindak Lanjut Humas</label>
+                                    <input type="text" class="form-control" id="editTanggalTindakLanjutHumas"
+                                        readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Tanggal Selesai</label>
+                                    <input type="text" class="form-control" id="editTanggalSelesai" readonly>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Petugas Evaluasi</label>
                                     <input type="text" class="form-control " id="editPetugasEvaluasi"
                                         name="PETUGAS_EVALUASI" readonly>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Tanggal Evaluasi</label>
-                                    <input type="text" class="form-control" id="editTanggalEvaluasi" readonly>
-                                </div>
-                            </div>
-                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdPenyelesaian">Penyelesaian
                                         Pengaduan</label>
@@ -204,10 +213,6 @@
                                             @endforeach
                                         @endif
                                     </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Tanggal Selesai</label>
-                                    <input type="text" class="form-control" id="editTanggalSelesai" readonly>
                                 </div>
                             </div>
                             <div class="mb-3">

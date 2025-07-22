@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\GantiPassword\Traits\NotifikasiGantiPassword;
 
 class GantiPasswordController extends Controller {
+    use NotifikasiGantiPassword;
     public function getGantiPass(){
         return view('Services.GantiPassword.mainGantiPassword');
     }
@@ -38,6 +40,11 @@ class GantiPasswordController extends Controller {
 
         $request->session()->forget('user_for_password_change');
         $user = DB::table('user_complaint')->where('USERNAME', $username)->first();
+
+        if ($user && isset($user->NO_TLPN) && isset($user->USERNAME)) {
+            $this->sendPasswordChangeSuccessNotification($user->NO_TLPN, $user->USERNAME);
+        }
+
         $role = (preg_match('/[0-9]/', $user->ID_BAGIAN)) ? 'unit_kerja' : 'direksi';
 
         session(['user' => $user, 'role' => $role]);

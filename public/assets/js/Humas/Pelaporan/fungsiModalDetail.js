@@ -68,6 +68,8 @@ $(document).ready(function () {
                 var tglEvaluasi = data.TGL_EVALUASI ? new Date(data.TGL_EVALUASI).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
                 $('#detailTanggalEvaluasi').text(tglEvaluasi);
                 $('#detailPenyelesaianPengaduan').text(data.penyelesaian_pengaduan ? data.penyelesaian_pengaduan.PENYELESAIAN_PENGADUAN : '-');
+                var tglTindakLanjut = data.TGL_TINDAK_LANJUT_HUMAS ? new Date(data.TGL_TINDAK_LANJUT_HUMAS).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
+                $('#detailTanggalTindakLanjut').text(tglTindakLanjut);
                 var tglSelesai = data.TGL_SELESAI ? new Date(data.TGL_SELESAI).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
                 $('#detailTanggalSelesai').text(tglSelesai);
                 $('#detailKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '-');
