@@ -35,14 +35,14 @@ trait NotifikasiWhatsappPelapor
         $namaPelapor = $laporan->NAME;
         $idLaporan = $laporan->ID_COMPLAINT;
         $judulLaporan = $laporan->JUDUL_COMPLAINT;
-
-        $pesanHeader = "Yth. Bpk/Ibu *" . $namaPelapor . "*,\n\n";
-        $pesanFooter = "\n\nTerima kasih atas kepercayaan Anda.";
+        $urlLacak = route('ticketing.lacak', ['id_complaint' => $idLaporan]);
+        $pesanHeader = "Yth.\nBapak/Ibu *" . $namaPelapor . "*,\n\n";
+        $pesanFooter = "\n\nUntuk melacak status laporan Anda, silakan kunjungi link berikut:\n" . $urlLacak ."\n\nTerima kasih atas kepercayaan Anda kepada layanan kami"."\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
         $pesanBody = "";
 
         switch ($laporan->STATUS) {
             case 'Open':
-                $pesanBody = "Terima kasih, laporan Anda terkait *" . $judulLaporan . "* dengan nomor tiket *" . $idLaporan . "* telah kami terima dan akan segera kami proses.";
+                $pesanBody = "Terima kasih, laporan dengan nomor tiket *" . $idLaporan . "* telah kami terima dan akan segera kami proses.";
                 break;
             case 'On Progress':
                 $pesanBody = "Update Laporan [" . $idLaporan . "]: Laporan Anda terkait *" . $judulLaporan . "* saat ini sedang dalam proses penanganan oleh tim kami.";

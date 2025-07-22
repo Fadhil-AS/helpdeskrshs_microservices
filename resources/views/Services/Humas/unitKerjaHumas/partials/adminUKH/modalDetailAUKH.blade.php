@@ -22,7 +22,7 @@
 
                 <div class="row mb-2">
                     <div class="col-md-6"><strong>Unit Kerja</strong><br>-</div>
-                    <div class="col-md-6"><strong>Tanggal Update</strong><br><span id="detail_tgl_insrow">-</span></div>
+                    <div class="col-md-6"><strong>Tanggal Update</strong><br><span id="detail_tgl_update">-</span></div>
                 </div>
 
                 <div class="row mb-3">

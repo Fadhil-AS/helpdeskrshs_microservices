@@ -14,6 +14,12 @@ use App\Services\Humas\Http\Controllers\KlasifikasiPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisMediaController;
 use App\Services\Humas\Http\Controllers\PenyelesaianPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisLaporanController;
+use App\Services\UnitKerja\Http\Controllers\DashboardUnitKerjaController;
+use App\Services\Admin\Http\Controllers\DashboardAdminController;
+use App\Services\Chatbot\Http\Controllers\ChatbotController;
+use App\Services\Chatbot\Models\Chatbot;
+use App\Services\Login\Http\Controllers\LoginController;
+use App\Services\GantiPassword\Http\Controllers\GantiPasswordController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -38,8 +44,19 @@ Route::prefix('ticketing')->name('ticketing.')->group(function() {
 // route ssd services
 Route::get('/ssd', [SSDController::class, 'getSSD']);
 
+// route login
+Route::prefix('auth')->name('auth.')->group(function () {
+    Route::get('/login', [LoginController::class, 'getLogin'])->name('login');
+    Route::post('/login', [LoginController::class, 'postLogin'])->name('login.submit');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // lupa password
+    Route::get('/gantiPassword', [GantiPasswordController::class, 'getGantiPass'])->name('gantiPassword');
+    Route::post('/gantiPassword', [GantiPasswordController::class, 'updatePassword'])->name('gantiPassword.submit');
+});
+
 // route humas services
-Route::prefix('humas')->name('humas.')->group(function(){
+Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     // pelaporan
     Route::get('/pelaporanHumas', [PelaporanHumasController::class, 'getPelaporanHumas'])->name('pelaporan-humas');
     Route::post('/pelaporanHumas', [PelaporanHumasController::class, 'storePelaporanHumas'])->name('pelaporan-humas.store');
@@ -57,6 +74,7 @@ Route::prefix('humas')->name('humas.')->group(function(){
     Route::get('/userComplaint', [UserComplaintController::class, 'getUserComplaint'])->name('user-complaint.index');
     Route::post('/userComplaint', [UserComplaintController::class, 'storeUserComplaint'])->name('user-complaint.store');
     Route::put('/userComplaint/{userComplaint}', [UserComplaintController::class, 'updateUserComplaint'])->name('user-complaint.update');
+    Route::put('/userComplaint/{userComplaint}/reset', [UserComplaintController::class, 'resetUserPassword'])->name('user-complaint.reset');
     Route::delete('/userComplaint/{userComplaint}', [UserComplaintController::class, 'destroyUserComplaint'])->name('user-complaint.destroy');
 
     // direksi humas
@@ -88,3 +106,55 @@ Route::prefix('humas')->name('humas.')->group(function(){
     Route::put('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'update'])->name('jenis-laporan.update');
     Route::delete('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'destroy'])->name('jenis-laporan.destroy');
 });
+
+
+Route::prefix('unitKerja')->name('unitKerja.')->middleware('unit_kerja')->group(function(){
+    // dashboard unit kerja
+    Route::get('/dashboard', action: [DashboardUnitKerjaController::class, 'getDashboard'])->name('dashboard');
+    Route::get('/dashboard/detail/{id_complaint}', [DashboardUnitKerjaController::class, 'show'])->name('dashboard.show');
+    Route::post('/dashboard/update/{id_complaint}', [DashboardUnitKerjaController::class, 'update'])->name('dashboard.update');
+
+});
+
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function(){
+    Route::get('/dashboard', action: [DashboardAdminController::class, 'getDashboard'])->name('dashboard');
+    Route::get('/admin/dashboard/chart-data', [DashboardAdminController::class, 'getFilteredChartData'])->name('dashboard.chart-data');
+});
+
+
+
+// Route::prefix('chatbot')->name('chatbot.')->group(function(){
+//     Route::get('/chat', action: [ChatbotController::class, 'getChatbot'])->name('chat');
+
+//     //Pengiriman Chat
+//     Route::post('/chatbot', [ChatbotController::class, 'handleChat'])->name('handle');
+
+//     //Upload File Excel
+//     Route::post('/upload', [ChatbotController::class, 'uploadData'])->name('handle');
+// });
+
+Route::post('/chatbot', [ChatbotController::class, 'handleChat']);
+
+//Upload File Excel
+Route::post('/upload', [ChatbotController::class, 'uploadData']);
+
+//View Chatbot
+Route::get('/chat', function () {
+    return view('Services.Chatbot.mainChatbot');
+});
+
+
+//Menampilkan data di tabel
+Route::get('/upload', function () {
+    $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+    return view('Services.Chatbot.uploadData', compact('files'));
+});
+
+//Hapus File
+Route::delete('/file/{id}', function ($id) {
+    $file = Chatbot::findOrFail($id);
+    $file->delete();
+
+    return redirect('/upload')->with('status', 'File berhasil dihapus.');
+})->name('delete.file');
+

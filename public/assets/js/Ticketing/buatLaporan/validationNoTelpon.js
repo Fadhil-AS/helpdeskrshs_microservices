@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const phoneErrorDiv = document.getElementById('nomorTeleponError');
 
     if (phoneInput) {
-        // 1. Memastikan hanya angka yang bisa diketik & panjang maksimal
         phoneInput.addEventListener('input', function (e) {
             let value = e.target.value;
             value = value.replace(/\D/g, '');
@@ -17,12 +16,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (phoneErrorDiv) phoneErrorDiv.textContent = '';
         });
 
-        // 2. Validasi saat pengguna meninggalkan field
         phoneInput.addEventListener('blur', function () {
             validatePhoneNumberField(phoneInput, phoneErrorDiv);
         });
 
-        // 3. Validasi saat form di-submit
         const form = phoneInput.closest('form');
         if (form) {
             form.addEventListener('submit', function (event) {

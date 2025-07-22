@@ -13,6 +13,7 @@
 
     </style>
     <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/modalEdit.css') }}">
 </head>
 
 <body>
@@ -36,6 +37,7 @@
 
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiTabel.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/filteringPelapor.JS') }}"></script>
+    <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalTambah.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalDetail.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalEdit.js') }}"></script>
 

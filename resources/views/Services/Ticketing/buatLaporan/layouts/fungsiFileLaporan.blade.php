@@ -1,10 +1,10 @@
 <script src="{{ asset('assets/js/ticketing/buatLaporan/validation.js') }}"></script>
+<script src="{{ asset('assets/js/ticketing/buatLaporan/validationNoTelpon.js') }}"></script>
 <script src="{{ asset('assets/js/ticketing/buatLaporan/buktiPendukungUI.js') }}"></script>
 <script src="{{ asset('assets/js/ticketing/buatLaporan/formSubmitHandler.js') }}"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Ambil Elemen DOM ---
         const buktiPendukungFileInput = document.getElementById('buktiPendukungFile');
         const buktiPendukungDropAreaLabel = document.getElementById('buktiPendukungDropZone');
         let uploadBoxContent = null;
@@ -18,8 +18,6 @@
         }
         const buktiErrorContainer = document.getElementById('buktiPendukungFileErrors');
 
-        // Array GLOBAL untuk menyimpan file bukti pendukung yang valid dari modul UI
-        // Modul buktiPendukungUI.js akan memanipulasi array ini melalui referensi.
         let validBuktiPendukungFilesGlobal = [];
 
         const originalUploadBoxHTMLGlobal = `
@@ -44,12 +42,10 @@
             console.error("Elemen #formMessage TIDAK ditemukan!");
         }
 
-        // Variabel Global untuk route dan token (akan di-pass ke handler)
         const csrfTokenGlobal = '{{ csrf_token() }}';
         const uploadFileRouteGlobal = '{{ route('ticketing.upload-file') }}';
         const storeLaporanRouteGlobal = '{{ route('ticketing.store-laporan') }}';
 
-        // --- Inisialisasi Modul UI Bukti Pendukung ---
         if (buktiPendukungFileInput && buktiPendukungDropAreaLabel && uploadBoxContent &&
             typeof initBuktiPendukungUI === 'function') {
             initBuktiPendukungUI(
@@ -58,7 +54,7 @@
                 uploadBoxContent,
                 buktiErrorContainer,
                 originalUploadBoxHTMLGlobal,
-                validBuktiPendukungFilesGlobal // Pass array global sebagai referensi
+                validBuktiPendukungFilesGlobal
             );
         } else {
             let missing = [];
@@ -71,29 +67,19 @@
             );
         }
 
-        // --- Fungsi Getter untuk File Bukti Pendukung dari Modul UI ---
-        // Ini dipanggil oleh formSubmitHandler untuk mendapatkan file yang akan diunggah
         function getValidBuktiPendukungFilesFromMain() {
-            // validBuktiPendukungFilesGlobal diisi/dimanipulasi oleh modul buktiPendukungUI.js
-            // melalui referensi array yang di-pass saat initBuktiPendukungUI.
             return Array.isArray(validBuktiPendukungFilesGlobal) ? validBuktiPendukungFilesGlobal : [];
         }
 
-        // --- Fungsi untuk Reset UI Setelah Sukses Submit ---
-        // Ini dipanggil oleh formSubmitHandler setelah laporan berhasil disimpan
         function resetAllUIAfterSuccess() {
             if (formPengaduan) formPengaduan.reset();
 
-            // Mengosongkan array validBuktiPendukungFilesGlobal
-            // Karena modul UI memanipulasi array ini via referensi, ini akan mengosongkannya juga di sana.
             if (Array.isArray(validBuktiPendukungFilesGlobal)) {
                 validBuktiPendukungFilesGlobal.length = 0;
             } else {
-                validBuktiPendukungFilesGlobal = []; // Jika karena suatu hal bukan array, reset jadi array
+                validBuktiPendukungFilesGlobal = [];
             }
 
-
-            // Panggil renderBuktiPendukungUI dari modul UI untuk mereset tampilan file
             if (typeof renderBuktiPendukungUI === 'function') {
                 renderBuktiPendukungUI();
             } else {
@@ -101,20 +87,18 @@
             }
 
             if (buktiErrorContainer) buktiErrorContainer.innerHTML = '';
-            // Form message akan diurus oleh formSubmitHandler (dihilangkan setelah timeout)
         }
 
-        // --- Inisialisasi Form Submit Handler ---
         if (formPengaduan && submitButton && formMessageDiv && typeof setupFormSubmitHandler === 'function') {
             setupFormSubmitHandler(
                 formPengaduan,
                 submitButton,
                 formMessageDiv,
-                getValidBuktiPendukungFilesFromMain, // Fungsi getter untuk file
+                getValidBuktiPendukungFilesFromMain,
                 csrfTokenGlobal,
                 uploadFileRouteGlobal,
                 storeLaporanRouteGlobal,
-                resetAllUIAfterSuccess // Fungsi callback untuk reset UI
+                resetAllUIAfterSuccess
             );
         } else {
             let missing = [];

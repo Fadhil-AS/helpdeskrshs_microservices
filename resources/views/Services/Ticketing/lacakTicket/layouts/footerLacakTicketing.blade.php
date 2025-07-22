@@ -9,6 +9,53 @@
     let feedbackModalInstance = null;
     let belumSelesaiModalInstance = null;
 
+    function generateFileAttachmentHtml(files, title) {
+        if (!files || files.length === 0) {
+            return '';
+        }
+
+        const fileItems = files.map(filePath => {
+            if (!filePath || filePath.trim() === '') return '';
+
+            const trimmedPath = filePath.trim();
+            const fileName = trimmedPath.split('/').pop();
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+            const publicUrl = `/storage/${trimmedPath}`;
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+
+            if (imageExtensions.includes(fileExtension)) {
+                return `
+                    <div class="file-attachment-item-image">
+                        <a href="${publicUrl}" target="_blank" title="${fileName}">
+                            <img src="${publicUrl}" alt="${fileName}" class="timeline-image-preview">
+                            <span class="file-name">${fileName}</span>
+                        </a>
+                    </div>`;
+            } else {
+                let iconClass = 'bi bi-file-earmark-text text-secondary';
+                if (fileExtension === 'pdf') {
+                    iconClass = 'bi bi-file-earmark-pdf text-danger';
+                } else if (['doc', 'docx'].includes(fileExtension)) {
+                    iconClass = 'bi bi-file-earmark-word text-info';
+                }
+                return `
+                    <div class="file-attachment-item">
+                        <a href="${publicUrl}" target="_blank" title="${fileName}">
+                            <i class="${iconClass}"></i> ${fileName}
+                        </a>
+                    </div>`;
+            }
+        }).join('');
+
+        return `
+            <div class="file-attachment-container mt-2">
+                <small class="text-muted d-block mb-1">${title}:</small>
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    ${fileItems}
+                </div>
+            </div>`;
+    }
+
     async function cariTiket() {
         const searchInput = document.getElementById('inputTiket');
         const hasilArea = document.getElementById('hasilArea');
@@ -59,7 +106,8 @@
                     const errorData = await response.json();
                     errorText = errorData.message || errorText;
                 } catch (e) {
-                    /* ignore */ }
+                    /* ignore */
+                }
                 console.error('Error HTTP dari searchTicket:', errorText);
                 hasilArea.innerHTML =
                     `<div class="no-data"><i class="bi bi-wifi-off"></i><div class="text-bold mt-2">Gagal Memuat Data</div><div>${errorText}. Silakan coba lagi.</div></div>`;
@@ -92,13 +140,40 @@
 
             if (result.success && result.tiket) {
                 const tiket = result.tiket;
+                const files = result.files;
+
+                const filePengaduanAwalHtml = generateFileAttachmentHtml(files.pengaduan, 'File Pengaduan Awal');
+
                 const initialTimelineEntryHtml =
-                    `<div class="timeline-item"><div class="fw-bold">Pelapor <span class="text-muted small fw-normal">${tiket.tanggal_complaint_timelineFormat || 'N/A'}</span></div><div class="timeline-title">Tiket Dibuat</div><div>Tiket ${tiket.id_complaint || 'N/A'} telah dibuat.</div></div>`;
+                    `<div class="timeline-item">
+                        <div class="fw-bold">Pelapor <span class="text-muted small fw-normal">${tiket.tanggal_complaint_timelineFormat || 'N/A'}</span></div>
+                        <div class="timeline-title">Tiket Dibuat</div>
+                        <div>Tiket <b> ${tiket.id_complaint || 'N/A'} </b> telah dibuat.</div>
+                        ${filePengaduanAwalHtml}
+                    </div>`;
+
                 const additionalRiwayatHtml = (result.riwayat_penanganan && Array.isArray(result
-                        .riwayat_penanganan) && result.riwayat_penanganan.length > 0) ?
-                    result.riwayat_penanganan.map(item =>
-                        `<div class="timeline-item"><div class="fw-bold">${item.aktor || 'N/A'} <span class="text-muted small fw-normal">${item.tanggal_aksi || 'N/A'}</span></div><div class="timeline-title">${item.judul_aksi || 'N/A'}</div><div>${item.deskripsi_aksi || ''}</div></div>`
-                        ).join('') : '';
+                        .riwayat_penanganan)) ?
+                    result.riwayat_penanganan.map(item => {
+                        let fileRiwayatHtml = '';
+                        const judulAksiLower = item.judul_aksi ? item.judul_aksi.toLowerCase() : '';
+
+                        if (judulAksiLower.includes('klarifikasi')) {
+                            fileRiwayatHtml = generateFileAttachmentHtml(files.klarifikasi,
+                                'File Bukti Klarifikasi');
+                        } else if (judulAksiLower.includes('tindak lanjuti')) {
+                            fileRiwayatHtml = generateFileAttachmentHtml(files.tindak_lanjut,
+                                'File Tindak Lanjut');
+                        }
+
+                        return `
+                            <div class="timeline-item">
+                                <div class="fw-bold">${item.aktor || 'N/A'} <span class="text-muted small fw-normal">${item.tanggal_aksi || 'N/A'}</span></div>
+                                <div class="timeline-title">${item.judul_aksi || 'N/A'}</div>
+                                <div>${item.deskripsi_aksi || ''}</div>
+                                ${fileRiwayatHtml}
+                            </div>`;
+                    }).join('') : '';
                 const fullRiwayatHtml = initialTimelineEntryHtml + additionalRiwayatHtml;
                 const timelineSectionHtml =
                     `<hr class="my-3"><h5 class="fw-bold">Riwayat Penanganan</h5><p class="text-muted mb-2">Perkembangan penanganan tiket Anda</p><div class="timeline">${fullRiwayatHtml}</div>`;
@@ -124,7 +199,7 @@
                     }
                 }
 
-                let statusBadgeClass = 'bg-secondary';
+                let statusBadgeClass = 'bg-success';
                 if (tiket.status === 'On Progress' || tiket.status === 'Dalam Proses') statusBadgeClass =
                     'bg-primary';
                 else if (tiket.status === 'Menunggu Konfirmasi Pelapor' || tiket.status === 'Menunggu Konfirmasi')
@@ -191,7 +266,8 @@
                     const errorData = await response.json();
                     errorText = errorData.message || errorText;
                 } catch (e) {
-                    /* ignore */ }
+                    /* ignore */
+                }
                 console.error('Error HTTP dari tanggapiTiket:', errorText);
                 alert(`Gagal memproses tanggapan: ${errorText}`);
                 reEnableButton();
@@ -293,48 +369,31 @@
 
     function startCountdown(elementId, progressBarId, tglSelesaiInternalISO, konfirmasiAreaId) {
         const countDownElement = document.getElementById(elementId);
-        const progressBarElement = document.getElementById(progressBarId);
-        const konfirmasiAreaElement = document.getElementById(konfirmasiAreaId);
+        const progressBar = document.getElementById(progressBarId);
+        if (!countDownElement || !progressBar) return;
 
-        if (!countDownElement || !progressBarElement || !tglSelesaiInternalISO || !konfirmasiAreaElement) {
-            console.warn("Elemen countdown tidak lengkap atau tanggal tidak valid:", {
-                elementId,
-                progressBarId,
-                tglSelesaiInternalISO,
-                konfirmasiAreaId
-            });
-            if (countDownElement) countDownElement.innerHTML = "N/A";
-            return;
-        }
-        const tglSelesai = new Date(tglSelesaiInternalISO);
-        if (isNaN(tglSelesai.getTime())) {
-            console.error("Format tglSelesaiInternalISO tidak valid:", tglSelesaiInternalISO);
-            if (countDownElement) countDownElement.innerHTML = "Err:Tgl";
-            return;
-        }
-        const batasWaktuKonfirmasi = new Date(tglSelesai.getTime() + 24 * 60 * 60 * 1000);
+        const batasWaktu = new Date(new Date(tglSelesaiInternalISO).getTime() + 72 * 60 * 60 * 1000);
+        const totalDurasiMs = 72 * 60 * 60 * 1000;
+
         if (countdownInterval) clearInterval(countdownInterval);
         countdownInterval = setInterval(() => {
-            const sekarang = new Date();
-            const sisaMs = batasWaktuKonfirmasi - sekarang;
+            const sisaMs = batasWaktu - new Date();
+
             if (sisaMs < 0) {
                 clearInterval(countdownInterval);
-                if (countDownElement) countDownElement.innerHTML = "Waktu habis";
-                if (progressBarElement) {
-                    /* ... logika progress bar waktu habis ... */ }
-                if (konfirmasiAreaElement) {
-                    /* ... logika disable tombol dan pesan waktu habis ... */ }
+                countDownElement.innerHTML = "Waktu habis";
+                progressBar.style.width = '0%';
                 return;
             }
+
+            const persenTersisa = (sisaMs / totalDurasiMs) * 100;
+            progressBar.style.width = persenTersisa + '%';
+
             const jam = Math.floor(sisaMs / (1000 * 60 * 60));
             const menit = Math.floor((sisaMs % (1000 * 60 * 60)) / (1000 * 60));
             const detik = Math.floor((sisaMs % (1000 * 60)) / 1000);
-            if (countDownElement) countDownElement.innerHTML =
+            countDownElement.innerHTML =
                 `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
-            const totalDurasiMs = 24 * 60 * 60 * 1000;
-            const persenSisa = (sisaMs / totalDurasiMs) * 100;
-            if (progressBarElement) {
-                /* ... logika update progress bar ... */ }
         }, 1000);
     }
 
@@ -369,10 +428,11 @@
                 feedbackModalEl.addEventListener('show.bs.modal', function(event) {
                     const button = event.relatedTarget;
                     currentComplaintIdForModal = (button && button.matches(
-                        '[data-bs-toggle="modal"]')) ? button.getAttribute('data-id-complaint') : null;
+                            '[data-bs-toggle="modal"]')) ? button.getAttribute('data-id-complaint') :
+                        null;
 
                     const ratingContainer = feedbackModalEl.querySelector(
-                    '#ratingContainer'); // UNTUK TOMBOL RATING
+                        '#ratingContainer'); // UNTUK TOMBOL RATING
                     if (ratingContainer) {
                         ratingContainer.querySelectorAll('.rating-btn').forEach(btn => {
                             btn.classList.remove('btn-primary', 'text-white');
@@ -392,28 +452,22 @@
 
                 const ratingContainer = feedbackModalEl.querySelector('#ratingContainer');
                 if (ratingContainer) {
-                    const ratingButtons = Array.from(ratingContainer.querySelectorAll('.rating-btn'));
-                    ratingButtons.forEach(btn => {
-                        const newBtn = btn.cloneNode(true);
-                        btn.parentNode.replaceChild(newBtn, btn);
-                        newBtn.addEventListener('click', function() {
-                            const currentRating = parseInt(this.textContent);
-                            ratingButtons.forEach(innerBtn => {
-                                innerBtn.classList.remove('btn-primary', 'text-white');
-                                innerBtn.classList.add('btn-outline-secondary');
+                    ratingContainer.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('rating-btn')) {
+                            const clickedButton = e.target;
+
+                            ratingContainer.querySelectorAll('.rating-btn').forEach(btn => {
+                                btn.classList.remove('active');
                             });
-                            for (let i = 0; i < currentRating; i++) {
-                                if (ratingButtons[i]) {
-                                    ratingButtons[i].classList.remove('btn-outline-secondary');
-                                    ratingButtons[i].classList.add('btn-primary', 'text-white');
-                                }
-                            }
-                            const btnKirim = feedbackModalEl.querySelector(
-                            '#btnSubmitFeedback');
+
+                            clickedButton.classList.add('active');
+
+                            const ratingValue = clickedButton.textContent;
+                            const btnKirim = feedbackModalEl.querySelector('#btnSubmitFeedback');
                             if (btnKirim) {
-                                btnKirim.dataset.ratingBintang = currentRating;
+                                btnKirim.dataset.ratingBintang = ratingValue;
                             }
-                        });
+                        }
                     });
                 }
 
@@ -478,7 +532,8 @@
                 belumSelesaiModalEl.addEventListener('show.bs.modal', function(event) {
                     const button = event.relatedTarget;
                     currentComplaintIdForModal = (button && button.matches(
-                        '[data-bs-toggle="modal"]')) ? button.getAttribute('data-id-complaint') : null;
+                            '[data-bs-toggle="modal"]')) ? button.getAttribute('data-id-complaint') :
+                        null;
 
                     const refTicketIdWarningEl = belumSelesaiModalEl.querySelector(
                         '#refTicketIdWarning');

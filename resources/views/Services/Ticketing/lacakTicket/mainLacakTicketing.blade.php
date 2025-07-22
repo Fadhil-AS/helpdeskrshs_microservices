@@ -19,7 +19,7 @@
 
         <div class="input-group mb-4 mt-5">
             <input id="inputTiket" type="text" class="form-control"
-                placeholder="Masukkan no tiket/no telepon/nama/no medrec">
+                placeholder="Masukkan no tiket/no telepon/nama/no medrec" value="{{ $idComplaint ?? '' }}">
             <button class="btn btn-simpan text-white" onclick="cariTiket()">
                 <i class="bi bi-search"></i> Lacak
             </button>
@@ -45,13 +45,15 @@
                     <div class="modal-body">
                         <p>Mohon berikan saran dan kritik anda untuk membantu kami meningkatkan layanan.</p>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Penilaian (1-5)</label>
-                            <div id="ratingContainer" class="d-flex gap-1">
-                                <button type="button" class="btn btn-outline-secondary rating-btn">1</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">2</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">3</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">4</button>
-                                <button type="button" class="btn btn-outline-secondary rating-btn">5</button>
+                            <label class="form-label fw-bold text-center d-block">Penilaian (1-5)</label>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <div id="ratingContainer">
+                                    <button type="button" class="rating-btn">1</button>
+                                    <button type="button" class="rating-btn">2</button>
+                                    <button type="button" class="rating-btn">3</button>
+                                    <button type="button" class="rating-btn">4</button>
+                                    <button type="button" class="rating-btn">5</button>
+                                </div>
                             </div>
                         </div>
                         <div class="mb-3">
@@ -61,9 +63,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary btn-simpan" id="btnSubmitFeedback"
-                            data-id="">Kirim
+                        <button type="button" class="btn btn-simpan" id="btnSubmitFeedback" data-id="">Kirim
                             Feedback</button>
                     </div>
                 </div>
@@ -95,9 +95,9 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="button" class="btn btn-primary btn-simpan" id="btnBuatTiketBaruDariModal"
-                            data-id="">Buat Tiket
+                        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-simpan" id="btnBuatTiketBaruDariModal" data-id="">Buat
+                            Tiket
                             Baru</button>
                     </div>
                 </div>
@@ -106,5 +106,20 @@
     </div>
 @endsection
 @push('scripts')
+    <script>
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('rating-btn')) {
+                const clickedButton = event.target;
+                const ratingContainer = clickedButton.closest('#ratingContainer');
+                if (!ratingContainer) return;
+
+                const allButtons = ratingContainer.querySelectorAll('.rating-btn');
+
+                allButtons.forEach(btn => btn.classList.remove('active'));
+
+                clickedButton.classList.add('active');
+            }
+        });
+    </script>
     <script src="{{ asset('assets/js/Ticketing/lacakTicketing/lacak.js') }}"></script>
 @endpush

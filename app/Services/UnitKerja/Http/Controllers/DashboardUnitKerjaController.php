@@ -1,0 +1,181 @@
+<?php
+
+namespace App\Services\UnitKerja\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Services\Ticketing\Models\UnitKerja;
+use App\Services\Ticketing\Models\JenisLaporan;
+use App\Services\Ticketing\Models\JenisMedia;
+use App\Services\Ticketing\Models\KlasifikasiPengaduan;
+use App\Services\Ticketing\Models\Laporan;
+use App\Services\Ticketing\Models\PenyelesaianPengaduan;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use App\Services\UnitKerja\Traits\UnitKerjaNotifikasi;
+
+class DashboardUnitKerjaController extends Controller {
+    use UnitKerjaNotifikasi;
+
+    public function getDashboard (Request $request){
+        $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+
+        if (!$idBagianPengguna) {
+            $dataComplaint = Laporan::whereRaw('1 = 0')->paginate(10);
+            return view('services.unitKerja.dashboard.mainUnitKerja', ['dataComplaint' => $dataComplaint]);
+        }
+
+        $query = Laporan::with(['jenisMedia', 'unitKerja'])
+            ->whereNotNull('GRANDING')
+            ->where('ID_BAGIAN', $idBagianPengguna);
+
+
+        $dataComplaint = $query->filter($request->only(['search', 'status']))
+            ->orderBy('TGL_COMPLAINT', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view ('services.unitKerja.dashboard.mainUnitKerja', ['dataComplaint' => $dataComplaint]);
+    }
+
+    public function show($id_complaint)
+    {
+        $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+
+        $complaint = Laporan::with([
+            'unitKerja',
+            'jenisMedia',
+            'jenisLaporan',
+            'klasifikasiPengaduan',
+            'penyelesaianPengaduan'
+        ])
+        ->where('ID_COMPLAINT', $id_complaint)
+        ->where('ID_BAGIAN', $idBagianPengguna)
+        ->first();
+
+        if (!$complaint) {
+            return response()->json(['message' => 'Data pengaduan tidak ditemukan atau Anda tidak memiliki akses.'], 404);
+        }
+
+        $processFiles = function ($fileData) {
+            if (empty($fileData)) {
+                return [];
+            }
+            $decoded = json_decode($fileData, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+            if (str_contains($fileData, ';')) {
+                return explode(';', $fileData);
+            }
+            return [$fileData];
+        };
+
+        $complaint->pengaduan_files = $processFiles($complaint->FILE_PENGADUAN);
+        $complaint->klarifikasi_files = $processFiles($complaint->FILE_BUKTI_KLARIFIKASI);
+        $complaint->tindak_lanjut_files = $processFiles($complaint->FILE_TINDAK_LANJUT_HUMAS);
+
+        return response()->json($complaint);
+    }
+
+    public function update(Request $request, $id_complaint)
+    {
+        $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+        $complaint = Laporan::where('ID_COMPLAINT', $id_complaint)
+                                    ->where('ID_BAGIAN', $idBagianPengguna)
+                                    ->firstOrFail();
+
+
+        $minEvaluationDate = $complaint->TGL_PENUGASAN ? Carbon::parse($complaint->TGL_PENUGASAN)->format('Y-m-d') : null;
+
+        $rules = [
+            'JUDUL_COMPLAINT'    => 'required|string|max:255',
+            'klarifikasi_unit'   => 'required|string|max:5000',
+            'file_bukti'         => 'nullable|array',
+            'file_bukti.*'       => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
+            'PETUGAS_EVALUASI'   => 'required|string|max:150',
+            'TGL_EVALUASI'       => ['required', 'date', 'before_or_equal:today'],
+        ];
+
+        if ($minEvaluationDate) {
+            $rules['TGL_EVALUASI'][] = 'after_or_equal:' . $minEvaluationDate;
+        }
+         $messages = [
+            'klarifikasi_unit.required' => 'Kolom Klarifikasi Unit wajib diisi.',
+            'TGL_EVALUASI.required'     => 'Kolom Tanggal Evaluasi wajib diisi.',
+            'TGL_EVALUASI.after_or_equal' => 'Tanggal evaluasi tidak boleh sebelum tanggal penugasan (' . ($minEvaluationDate ? Carbon::parse($minEvaluationDate)->format('d M Y') : '') . ').',
+            'TGL_EVALUASI.before_or_equal'=> 'Tanggal evaluasi tidak boleh melebihi tanggal hari ini.',
+            'file_bukti.*.mimes'        => 'Tipe file bukti tidak valid. Hanya boleh: jpg, jpeg, png, pdf, doc, docx.',
+            'file_bukti.*.max'          => 'Ukuran setiap file bukti tidak boleh lebih dari 2MB.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return redirect()
+            ->back()
+            ->
+            withErrors($validator)
+            ->withInput()
+            ->with('error_complaint_id', $id_complaint);
+            // ->with('show_modal_on_error', '#editModal');
+        }
+
+        try {
+            DB::transaction(function () use ($request, $id_complaint) {
+
+                $complaint = Laporan::findOrFail($id_complaint);
+
+                $updateData = [
+                    'JUDUL_COMPLAINT'    => $request->input('JUDUL_COMPLAINT'),
+                    'EVALUASI_COMPLAINT' => $request->input('klarifikasi_unit'),
+                    'PETUGAS_EVALUASI'   => $request->input('PETUGAS_EVALUASI'),
+                    'TGL_EVALUASI'       => $request->input('TGL_EVALUASI'),
+                    'STATUS'             => 'On Progress',
+                    // 'TGL_SELESAI'        => Carbon::now(),
+                ];
+
+                if ($request->hasFile('file_bukti')) {
+                    $existingFiles = json_decode($complaint->FILE_BUKTI_KLARIFIKASI, true) ?? [];
+
+                    $newUploadedPaths = [];
+                    foreach ($request->file('file_bukti') as $file) {
+                        $path = $file->store('bukti_klarifikasi', 'public');
+                        $newUploadedPaths[] = $path;
+                    }
+
+                    $allFiles = array_merge($existingFiles, $newUploadedPaths);
+                    $updateData['FILE_BUKTI_KLARIFIKASI'] = json_encode($allFiles);
+                }
+
+                $complaint->update($updateData);
+            });
+
+            $updatedComplaint = Laporan::find($id_complaint);
+            if ($updatedComplaint && $updatedComplaint->NO_TLPN) {
+                $urlLacak = route('ticketing.lacak', ['id_complaint' => $updatedComplaint->ID_COMPLAINT]);
+
+                $message = "Yth.\nBapak/Ibu {$updatedComplaint->NAME},\n\n" .
+                           "Laporan Anda dengan ID *{$updatedComplaint->ID_COMPLAINT}* telah diperbarui.\n\n" .
+                           "Status saat ini: *{$updatedComplaint->STATUS}*.\n" .
+                           "Klarifikasi dari unit kami: '{$updatedComplaint->EVALUASI_COMPLAINT}'\n\n" .
+                           "Untuk melacak status laporan Anda, silakan kunjungi link berikut:\n" . $urlLacak .
+                           "\n\nTerima kasih atas perhatian Anda.".
+                           "\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
+
+                $this->sendWhatsappNotification($updatedComplaint->NO_TLPN, $message);
+            }
+
+            return redirect()->route('unitKerja.dashboard')
+                             ->with('success', 'Klarifikasi untuk ID ' . $id_complaint . ' berhasil disimpan.');
+
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()
+                             ->with('error', 'Terjadi kesalahan sistem saat menyimpan data: ' . $e->getMessage())
+                             ->withInput();
+        }
+    }
+}

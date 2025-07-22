@@ -16,8 +16,8 @@ class UserComplaintController extends Controller{
     public function storeUserComplaint(Request $request)
     {
         $request->validate([
-            'USERNAME' => 'required|string|unique:user_complaint,USERNAME|different:PASSWORD',
-            'PASSWORD' => 'required|string|min:6|unique:user_complaint,PASSWORD_REAL',
+            'USERNAME' => 'required|string|unique:user_complaint,USERNAME',
+            'PASSWORD' => 'required|string|min:6',
             'NAME' => 'required|string|max:255',
             'ID_BAGIAN' => 'required|string|exists:unit_kerja,ID_BAGIAN',
             'NIP' => 'required|string|unique:user_complaint,NIP',
@@ -81,6 +81,30 @@ class UserComplaintController extends Controller{
         $userComplaint->update($dataToUpdate);
 
         return response()->json(['success' => true, 'message' => 'Data admin unit kerja berhasil diperbarui!']);
+    }
+
+    public function resetUserPassword(UserComplaint $userComplaint)
+    {
+        try {
+            $defaultPassword = 'rshs_2025';
+
+            $userComplaint->update([
+                'PASSWORD'      => sha1($defaultPassword),
+                'PASSWORD_REAL' => $defaultPassword,
+                'VALIDASI'      => 'N',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password untuk user ' . $userComplaint->USERNAME . ' berhasil direset.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mereset password: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroyUserComplaint(UserComplaint $userComplaint){

@@ -12,9 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
             modalDetailAdmin.querySelector('#detail_name').textContent = adminData.NAME;
             modalDetailAdmin.querySelector('#detail_nip').textContent = adminData.NIP || '-';
             modalDetailAdmin.querySelector('#detail_no_tlpn').textContent = adminData.NO_TLPN || '-';
-            modalDetailAdmin.querySelector('#detail_special_code').textContent = adminData.SPECIAL_CODE || '-';
+            modalDetailAdmin.querySelector('#detail_special_code').textContent = adminData.SPESIAL_CODE || '-';
             modalDetailAdmin.querySelector('#detail_unit_kerja').textContent = adminData.unit_kerja ? adminData.unit_kerja.NAMA_BAGIAN : 'N/A';
             modalDetailAdmin.querySelector('#detail_tgl_insrow').textContent = new Date(adminData.TGL_INSROW).toLocaleDateString('id-ID', dateOptions);
+            modalDetailAdmin.querySelector('#detail_tgl_update').textContent = new Date(adminData.TGL_UPDATE).toLocaleDateString('id-ID', dateOptions);
 
             const statusBadge = modalDetailAdmin.querySelector('#detail_status_badge');
             if (adminData.VALIDASI === 'Y') {

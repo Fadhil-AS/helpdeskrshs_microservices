@@ -44,6 +44,7 @@
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalTambah.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalDetail.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalEdit.js') }}"></script>
+    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiReset.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/filteringAUKH.js') }}"></script>
 
     <script src="{{ asset('assets/js/Humas/navbar.js') }}"></script>

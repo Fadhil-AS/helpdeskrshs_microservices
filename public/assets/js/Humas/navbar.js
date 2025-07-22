@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.text();
         })
         .then((data) => {
-            const navbarPlaceholder = document.getElementById("navbar-humas-placeholder");
+            const navbarPlaceholder = document.getElementById("navbar-humas");
             if (navbarPlaceholder) {
                 navbarPlaceholder.innerHTML = data;
             } else {

@@ -79,12 +79,22 @@
                             </div>
                         </div>
                         <div class="mb-2">
-                            <strong>Deskripsi Pengaduan</strong>
-                            <div class="bg-light p-2 rounded" id="detailDeskripsiPengaduanContent">-</div>
+                            <label class="fw-bold pb-2">Deskripsi Pengaduan</label>
+                            <textarea class="form-control bg-light" rows="2" id="detailDeskripsiPengaduanContent" readonly>-</textarea>
+                            {{-- <strong>Deskripsi Pengaduan</strong>
+                            <div class="bg-light p-2 rounded" id="detailDeskripsiPengaduanContent">-</div> --}}
+                        </div>
+                        <div class="mb-2">
+                            <label class="fw-bold pb-2">Rangkuman Permasalahan</label>
+                            <textarea class="form-control bg-light" rows="2" id="detailRangkumanPermasalahanContent" readonly>-</textarea>
+                            {{-- <strong>Rangkuman Permasalahan</strong>
+                            <div class="bg-light p-2 rounded" id="detailRangkumanPermasalahanContent">-
+                            </div> --}}
                         </div>
                         <div class="mb-4">
-                            <strong>Rangkuman Permasalahan</strong>
-                            <div class="bg-light p-2 rounded" id="detailRangkumanPermasalahanContent">-
+                            <label class="fw-bold pb-2">File Pengaduan</label>
+                            <div class="file-display-container" id="filePengaduanContainer">
+                                <p class="text-muted m-0">Tidak ada file pengaduan.</p>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
@@ -115,15 +125,14 @@
 
                         <!-- Klarifikasi Unit -->
                         <div class="mb-3">
-                            <strong>Klarifikasi Unit</strong>
-                            <textarea class="form-control bg-light" rows="3" id="detailKlarifikasiUnitContent"
-                                readonly>-</textarea>
+                            <label class="fw-bold pb-2">Klarifikasi Unit</label>
+                            <textarea class="form-control bg-light" rows="2" id="detailKlarifikasiUnitContent" readonly>-</textarea>
                         </div>
 
                         <!-- File Bukti Klarifikasi -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                            <div class="d-flex flex-wrap gap-3 mt-2 bg-light" id="buktiKlarifikasiContainer">
+                            <label class="fw-bold pb-2">File Bukti Klarifikasi</label>
+                            <div class="file-display-container" id="buktiKlarifikasiContainer">
                                 {{-- <div class="file-klarifikasi-item"> <a href="images\logoRSHS.png" target=""
                                         rel="noopener noreferrer" title="foto1.jpg">
                                         <img src="path/to/image.jpg" alt="Bukti Foto" class="img-fluid rounded mb-1">
@@ -143,9 +152,15 @@
 
                         <!-- Tindak Lanjut Humas -->
                         <div class="mb-4">
-                            <strong>Tindak Lanjut Humas</strong>
-                            <textarea class="form-control bg-light" rows="3" id="detailTindakLanjutHumasContent"
-                                readonly>Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
+                            <label class="fw-bold pb-2">Tindak Lanjut Humas</label>
+                            <textarea class="form-control bg-light" rows="2" id="detailTindakLanjutHumasContent" readonly>Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="fw-bold pb-2">File Tindak Lanjut Humas</label>
+                            <div class="file-display-container" id="fileTindakLanjutContainer">
+                                <p class="text-muted m-0">Tidak ada file tindak lanjut humas.</p>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">

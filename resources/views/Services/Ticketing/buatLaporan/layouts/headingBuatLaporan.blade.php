@@ -10,15 +10,30 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Ticketing/styleTicketing.css') }}">
+    <style>
+        .upload-box.is-invalid {
+            border-color: #dc3545 !important;
+            /* Warna merah error default Bootstrap */
+        }
+
+        /* Opsi tambahan: Sedikit animasi untuk membuatnya lebih terlihat */
+        .upload-box.is-invalid:focus-within {
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
 </head>
 
 <body>
     @include('Services.Ticketing.partials.navbarTicketing')
+
     @yield('containBuatLaporan')
-    @include('Services.Ticketing.buatLaporan.layouts.fungsiFileLaporan')
+
     @include('Services.Ticketing.buatLaporan.partials.fungsiKlasifikasi')
-    <script src="{{ asset('assets/js/ticketing/buatLaporan/validationNoTelpon.js') }}"></script>
+
     @include('Services.Ticketing.buatLaporan.layouts.footerBuatLaporan')
+
+    <script src="{{ asset('assets/js/Ticketing/buatLaporan/handlerLaporan.js') }}"></script>
 </body>
 
 </html>

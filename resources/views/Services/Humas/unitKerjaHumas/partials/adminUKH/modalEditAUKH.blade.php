@@ -39,7 +39,7 @@
                         <label class="form-label fw-bold" for="edit_id_bagian">Unit Kerja</label>
                         <select class="form-select" id="edit_id_bagian" name="ID_BAGIAN" required>
                             <option selected disabled>--- Pilih unit kerja ---</option>
-                            @foreach ($allUnits as $unit)
+                            @foreach ($unitsForDropdown as $unit)
                                 <option value="{{ $unit->ID_BAGIAN }}">{{ $unit->ID_BAGIAN }} - {{ $unit->NAMA_BAGIAN }}
                                 </option>
                             @endforeach

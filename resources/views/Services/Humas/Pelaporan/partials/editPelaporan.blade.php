@@ -1,21 +1,22 @@
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content rounded-4">
-            <form id="editComplaintForm" method="POST" action="">
+            <form id="editComplaintForm" method="POST" action="" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-body p-4">
-                    {{-- Ganti dengan kode ini --}}
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        {{-- Bagian Kiri: Judul dan ID --}}
                         <div class="d-flex flex-column">
                             <h6 class="mb-1" id="editModalLabel">Edit Pengaduan</h6>
                             <small class="text-muted" id="editComplaintIdText">ID: -</small>
                         </div>
 
-                        {{-- Bagian Kanan: Status --}}
                         <div class="d-flex align-items-center gap-2">
-                            <label for="editStatus" class="form-label fw-bold mb-0 text-nowrap">Status:</label>
+                            <div>
+                                <small class="text-bold">Status: </small>
+                                <span class="badge bg-success" id="editStatusBadge">-</span>
+                            </div>
+                            {{-- <label for="editStatus" class="form-label fw-bold mb-0 text-nowrap">Status:</label>
                             <select class="form-select form-select-sm" id="editStatus" name="STATUS"
                                 style="width: auto;">
                                 <option value="Open">Open</option>
@@ -23,7 +24,7 @@
                                 <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
                                 <option value="Close">Close</option>
                                 <option value="Banding">Banding</option>
-                            </select>
+                            </select> --}}
                         </div>
                     </div>
 
@@ -47,56 +48,54 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editJudul">Judul Pengaduan</label>
-                                    <input type="text" class="form-control" value="Pelayanaan Lambat di Poli Mata"
-                                        id="editJudul" name="JUDUL_COMPLAINT">
+                                    <input type="text" class="form-control" id="editJudul" name="JUDUL_COMPLAINT">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editTanggalPengaduan">Tanggal
                                         Pengaduan</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalPengaduan"
-                                        readonly>
+                                    <input type="text" class="form-control" id="editTanggalPengaduan" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2" id="editNamaPelaporWrapper">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Nama Pelapor</label>
+                                    <input type="text" class="form-control" id="editNamaPelapor" name="NAME">
+                                </div>
+                                <div class="col-md-6" id="editNoTelpWrapper">
+                                    <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
+                                    <input type="text" class="form-control" id="editNoTelp" name="NO_TLPN">
                                 </div>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="editNoTelp">No. Telepon</label>
-                                    <input type="text" class="form-control" id="editNoTelp" name="NO_TLPN"
-                                        value="081234567890">
+                                    <label class="form-label fw-bold" for="editPetugasPelapor">Petugas Pelapor</label>
+                                    <input type="text" class="form-control" id="editPetugasPelapor"
+                                        name="PETUGAS_PELAPOR">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold d-block mb-3">Grading</label>
                                     <div class="d-flex justify-content-between align-items-center">
-
-                                        {{-- FIX: ID dan Label untuk 'Hijau' disamakan --}}
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
-                                                id="editGradingHijau" value="Hijau">
+                                                id="editGradingHijau" value="Hijau" required>
                                             <label class="form-check-label" for="editGradingHijau">Hijau</label>
                                         </div>
-
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
                                                 id="editGradingKuning" value="Kuning">
                                             <label class="form-check-label" for="editGradingKuning">Kuning</label>
                                         </div>
-
-                                        {{-- FIX: Hapus 'checked' default agar dikontrol penuh oleh JS --}}
                                         <div class="form-check form-check-inline me-0">
                                             <input class="form-check-input" type="radio" name="gradingOptions"
                                                 id="editGradingMerah" value="Merah">
                                             <label class="form-check-label" for="editGradingMerah">Merah</label>
                                         </div>
-
                                     </div>
                                 </div>
-
                             </div>
+
                             <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Nama Pelapor</label>
-                                    <input type="text" class="form-control" value="Ahmad Sulaiman"
-                                        id="editNamaPelapor" name="NAME">
-                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Unit Kerja Tujuan</label>
                                     <select class="form-select" id="editIdBagian" name="ID_BAGIAN" required>
@@ -108,13 +107,21 @@
                                         @endif
                                     </select>
                                 </div>
-                            </div>
-                            <div class="row mb-2">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">No. Medrec</label>
-                                    <input type="text" class="form-control" value="RM123456" id="editNoMedrec"
-                                        name="NO_MEDREC">
+                                    <label class="form-label fw-bold" for="editIdJenisMedia">Media Pengaduan</label>
+                                    <select class="form-select" id="editIdJenisMedia" name="ID_JENIS_MEDIA" required>
+                                        <option value="" selected disabled>Pilih media</option>
+                                        @if (isset($JenisMedia) && $JenisMedia->count() > 0)
+                                            @foreach ($JenisMedia as $jm)
+                                                <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
                                 </div>
+                            </div>
+
+                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdJenisLaporan">Jenis Laporan</label>
                                     <select class="form-select" id="editIdJenisLaporan" name="ID_JENIS_LAPORAN"
@@ -128,32 +135,11 @@
                                         @endif
                                     </select>
                                 </div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="editIdJenisMedia">Media Pengaduan</label>
-                                    <select class="form-select" id="editIdJenisMedia" name="ID_JENIS_MEDIA" required>
-                                        <option value="" selected disabled>Pilih media</option>
-                                        @if (isset($JenisMedia) && $JenisMedia->count() > 0)
-                                            @foreach ($JenisMedia as $jm)
-                                                <option value="{{ $jm->ID_JENIS_MEDIA }}">{{ $jm->JENIS_MEDIA }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold" for="editPetugasPelapor">Petugas Pelapor</label>
-                                    <input type="text" class="form-control" id="editPetugasPelapor"
-                                        name="PETUGAS_PELAPOR">
-                                </div>
-                            </div>
-                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdKlasifikasi">Klasifikasi
                                         Pengaduan</label>
-                                    <select class="form-select" data-live-search="true" id="editIdKlasifikasi"
-                                        name="ID_KLASIFIKASI" required>
+                                    <select class="form-select" id="editIdKlasifikasi" name="ID_KLASIFIKASI"
+                                        required>
                                         <option value="" selected disabled>Pilih klasifikasi pengaduan</option>
                                         @if (isset($klasifikasiPengaduan) && $klasifikasiPengaduan->count() > 0)
                                             @foreach ($klasifikasiPengaduan as $kp)
@@ -165,14 +151,29 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="mb-2">
-                                <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi Pengaduan</label>
-                                <textarea class="form-control" rows="3" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
+
+                            <div class="row mb-2" id="editNoMedrecWrapper">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">No. Medrec</label>
+                                    <input type="text" class="form-control" id="editNoMedrec" name="NO_MEDREC">
+                                </div>
                             </div>
-                            <div class="mb-4">
+
+                            <div class="mb-2">
+                                <label class="form-label fw-bold" for="editIsiComplaint">Deskripsi
+                                    Pengaduan</label>
+                                <textarea class="form-control" rows="2" id="editIsiComplaint" name="ISI_COMPLAINT" required></textarea>
+                            </div>
+                            <div class="mb-2">
                                 <label class="form-label fw-bold" for="editPermasalahan">Rangkuman
                                     Permasalahan</label>
-                                <textarea class="form-control" rows="3" id="editPermasalahan" name="PERMASALAHAN"></textarea>
+                                <textarea class="form-control" rows="2" id="editPermasalahan" name="PERMASALAHAN"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">File Pengaduan</label>
+                                <div class="file-display-container" id="editPengaduanContainer">
+                                    <p class="text-muted m-0">Tidak ada file pengaduan.</p>
+                                </div>
                             </div>
                         </div>
 
@@ -181,13 +182,12 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Petugas Evaluasi</label>
-                                    <input type="text" class="form-control bg-light" id="editPetugasEvaluasi"
+                                    <input type="text" class="form-control " id="editPetugasEvaluasi"
                                         name="PETUGAS_EVALUASI" readonly>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Evaluasi</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalEvaluasi"
-                                        readonly>
+                                    <input type="text" class="form-control" id="editTanggalEvaluasi" readonly>
                                 </div>
                             </div>
                             <div class="row mb-2">
@@ -204,38 +204,46 @@
                                             @endforeach
                                         @endif
                                     </select>
-
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Tanggal Selesai</label>
-                                    <input type="text" class="form-control bg-light" id="editTanggalSelesai"
-                                        readonly>
+                                    <input type="text" class="form-control" id="editTanggalSelesai" readonly>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold" for="editKlarifikasiUnitContent">Klarifikasi
                                     Unit</label>
-                                <textarea class="form-control bg-light" rows="3" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT"
-                                    readonly></textarea>
+                                <textarea class="form-control" rows="2" id="editKlarifikasiUnitContent" name="KLARIFIKASI_UNIT_TEXT" readonly></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">File Bukti Klarifikasi</label>
-                                <div class="d-flex flex-wrap gap-3 mt-2 p-2 bg-light rounded"
-                                    id="editBuktiKlarifikasiContainer">
-                                    {{-- Konten file akan diisi oleh JavaScript --}}
+                                <div class="file-display-container" id="editBuktiKlarifikasiContainer">
                                 </div>
                             </div>
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label class="form-label fw-bold" for="editTindakLanjutHumasContent">Tindak Lanjut
                                     Humas</label>
-                                <textarea class="form-control" rows="3" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
+                                <textarea class="form-control" rows="2" id="editTindakLanjutHumasContent" name="TINDAK_LANJUT_HUMAS"></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold" for="file_tindak_lanjut_input">File Tindak Lanjut
+                                    Humas
+                                    (Jika Ada)</label>
+                                <input type="file"
+                                    class="form-control @error('file_tindak_lanjut.*') is-invalid @enderror"
+                                    id="FILE_PENGADUAN_input" name="file_tindak_lanjut[]" multiple>
+                                @error('file_tindak_lanjut.*')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text">Ukuran file maksimal: 2MB dan file dapat lebih dari
+                                    satu.</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <button class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
-                        <button class="btn btn-simpan">Simpan Perubahan</button>
+                        <button class="btn btn-outline-danger" data-bs-dismiss="modal" type="button">Batal</button>
+                        <button class="btn btn-simpan" type="submit">Simpan Perubahan</button>
                     </div>
                 </div>
             </form>

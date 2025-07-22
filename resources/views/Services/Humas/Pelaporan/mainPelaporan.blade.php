@@ -1,7 +1,7 @@
 @extends('Services.Humas.Pelaporan.layouts.headingPelaporan')
 @section('containPelaporHumas')
 
-    <div class="container my-5 pt-2">
+    <div class="container rounded container-tabel my-5 pt-2">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
@@ -78,6 +78,7 @@
                             <th>Judul</th>
                             <th>Media</th>
                             <th>Unit Kerja</th>
+                            <th>Waktu Respon</th>
                             <th>Status</th>
                             <th>Klarifikasi</th>
                             <th>Grading</th>
@@ -92,7 +93,7 @@
                                     @if ($dc->JUDUL_COMPLAINT != null)
                                         <td>{{ $dc->JUDUL_COMPLAINT }}</td>
                                     @else
-                                        <td>{{ $dc->JUDUL_COMPLAINT }}</td>
+                                        <td>Belum ada judul</td>
                                     @endif
 
                                     @if ($dc->JenisMedia && $dc->JenisMedia->JENIS_MEDIA !== null)
@@ -104,8 +105,20 @@
                                     @if ($dc->unitKerja && $dc->unitKerja->NAMA_BAGIAN != null)
                                         <td>{{ $dc->unitKerja->NAMA_BAGIAN }}</td>
                                     @else
-                                        <td>Pelapor eksternal</td>
+                                        <td>Belum dipilih unit kerja</td>
                                     @endif
+
+                                    <td class="text-center">
+                                        @if (!is_null($dc->response_time))
+                                            @if ($dc->response_time == 0)
+                                                1 Hari
+                                            @else
+                                                {{ $dc->response_time }} Hari
+                                            @endif
+                                        @else
+                                            <span class="badge bg-light text-dark">N/A</span>
+                                        @endif
+                                    </td>
 
                                     @if ($dc->STATUS == 'Open')
                                         <td><span class="badge bg-success">Open</span></td>
@@ -119,10 +132,8 @@
                                         <td><span class="badge bg-danger text-light">Banding</span></td>
                                     @endif
 
-                                    @if ($dc->EVALUASI_COMPLAINT == 'Sudah')
+                                    @if (!empty($dc->EVALUASI_COMPLAINT))
                                         <td><span class="badge bg-info">Sudah</span></td>
-                                    @elseif ($dc->EVALUASI_COMPLAINT == 'Belum')
-                                        <td><span class="badge bg-danger text-light">Belum</span></td>
                                     @else
                                         <td><span class="badge bg-danger text-light">Belum</span></td>
                                     @endif

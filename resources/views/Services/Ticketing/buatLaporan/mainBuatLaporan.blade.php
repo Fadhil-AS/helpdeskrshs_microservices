@@ -31,7 +31,8 @@
         @endif
 
         <form id="formPengaduan" method="POST" action="{{ route('ticketing.store-laporan') }}"
-            enctype="multipart/form-data">
+            data-upload-url="{{ route('ticketing.upload-file') }}" data-csrf-token="{{ csrf_token() }}"
+            data-redirect-url="{{ url('/') }}" enctype="multipart/form-data" novalidate>
             @csrf
 
             @if (isset($idComplaintReferensi) && !empty($idComplaintReferensi))
@@ -43,29 +44,38 @@
                 </div>
             @endif
 
-            <div class="mb-3" id="wrapper_nama">
-                <label class="form-label fw-bold">Nama Lengkap</label>
-                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME"
-                    value="{{ old('NAME', $laporanReferensi->NAME ?? '') }}" required>
+            <div class="mb-3">
+                <label class="form-label fw-bold" for="jenisPelapor">Jenis Pelapor</label>
+                <select name="jenis_pelapor" id="jenisPelapor" class="form-select" required>
+                    <option value="" selected disabled>Pilih Jenis Pelapor</option>
+                    <option value="Pasien" {{ old('jenis_pelapor') == 'Pasien' ? 'selected' : '' }}>Pasien</option>
+                    <option value="Non-Pasien" {{ old('jenis_pelapor') == 'Non-Pasien' ? 'selected' : '' }}>Non-Pasien
+                    </option>
+                </select>
             </div>
 
             <div class="mb-3">
                 <label class="form-label fw-bold" for="ID_KLASIFIKASI">Klasifikasi Pengaduan</label>
                 <select name="ID_KLASIFIKASI" id="ID_KLASIFIKASI" class="form-select" required>
-                    <option value="">Pilih Klasifikasi Pengaduan</option>
+                    <option value="" selected disabled>Pilih Klasifikasi Pengaduan</option>
                     @foreach ($klasifikasiPengaduan as $klasifikasi)
-                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}"
-                            {{ old('ID_KLASIFIKASI', $laporanReferensi->ID_KLASIFIKASI ?? '') == $klasifikasi->ID_KLASIFIKASI ? 'selected' : '' }}>
+                        <option value="{{ $klasifikasi->ID_KLASIFIKASI }}" {{ old('ID_KLASIFIKASI', $laporanReferensi->ID_KLASIFIKASI ?? '') == $klasifikasi->ID_KLASIFIKASI ? 'selected' : '' }}>
                             {{ $klasifikasi->KLASIFIKASI_PENGADUAN }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3" id="wrapper_nama">
+                <label class="form-label fw-bold">Nama Lengkap</label>
+                <input type="text" class="form-control" placeholder="Masukkan nama lengkap anda" name="NAME"
+                    value="{{ old('NAME', $laporanReferensi->NAME ?? '') }}" required>
+            </div>
+
+            <div class="mb-3" id="wrapper_no_tlpn">
                 <label for="nomorTelepon" class="form-label fw-bold">Nomor Telepon</label>
-                <input type="tel" class="form-control" id="nomorTelepon" name="NO_TLPN"
-                    placeholder="Contoh: 08123456789" required maxlength="15" pattern="^08\d{0,13}$" inputmode="numeric"
+                <input type="tel" class="form-control" id="nomorTelepon" name="NO_TLPN" placeholder="Contoh: 08123456789"
+                    required maxlength="15" pattern="^08\d{0,13}$" inputmode="numeric"
                     aria-describedby="nomorTeleponHelp nomorTeleponError"
                     value="{{ old('NO_TLPN', $laporanReferensi->NO_TLPN ?? '') }}">
                 <div id="nomorTeleponHelp" class="form-text">Nomor telepon harus diawali dengan "08" dan terdiri dari
@@ -74,20 +84,21 @@
             </div>
 
             <div class="mb-3" id="wrapper_no_medrec">
-                <label class="form-label fw-bold">Nomor Rekam Medis (Opsional)</label>
-                <input type="text" class="form-control" placeholder="Masukkan nomor rekam medis jika ada"
+                <label class="form-label fw-bold" for="nomorRekamMedis">Nomor Rekam Medis (Opsional)</label>
+                <input type="text" class="form-control" id="nomorRekamMedis" placeholder="Masukkan nomor rekam medis jika ada"
                     name="NO_MEDREC" value="{{ old('NO_MEDREC', $laporanReferensi->NO_MEDREC ?? '') }}">
                 <small class="text-muted">Nomor rekam medis membantu kami mengidentifikasi Anda dengan lebih cepat.</small>
             </div>
 
             <div class="mb-3" id="wrapper_deskripsi">
                 <label class="form-label fw-bold">Deskripsi Pengaduan</label>
-                <textarea class="form-control" rows="4" placeholder="Jelaskan secara detail pengaduan anda" name="ISI_COMPLAINT"
-                    required></textarea>
+                <textarea class="form-control" rows="4" placeholder="Jelaskan secara detail pengaduan anda"
+                    name="ISI_COMPLAINT" required></textarea>
             </div>
 
             <div class="mb-4" id="wrapper_bukti">
-                <label for="buktiPendukungFile" class="form-label fw-bold">Bukti Pendukung (Opsional)</label>
+                <label for="buktiPendukungFile" class="form-label fw-bold" id="buktiPendukungLabel">Bukti Pendukung
+                    (Opsional)</label>
                 <input type="file" id="buktiPendukungFile" name="bukti_pendukung[]" class="d-none"
                     accept=".jpg, .jpeg, .png, .pdf" multiple>
 
@@ -103,5 +114,20 @@
                 <button type="submit" class="btn btn-simpan">Kirim Laporan</button>
             </div>
         </form>
+    </div>
+
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4.5rem;"></i>
+                    </div>
+                    <h5 class="mb-2" id="modalTicketNumber">Nomor tiket anda:</h5>
+                    <p class="text-muted">Simpan nomor tiket ini untuk melacak status laporan anda.</p>
+                    <button type="button" class="btn btn-simpan mt-2" id="modalOkButton">OK</button>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

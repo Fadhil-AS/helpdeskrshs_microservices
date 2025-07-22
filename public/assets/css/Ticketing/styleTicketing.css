@@ -14,7 +14,7 @@
     background-color: white;
     border-radius: 10px;
     padding: 30px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;
     max-width: 1300px;
 }
 
@@ -30,6 +30,10 @@
     background-color: #fff3cd;
     color: #856404;
 }
+
+/* .status-badge.bg-warning {
+    color: white !important;
+} */
 
 .progress-bar {
     background-color: #00B9AD !important;
@@ -62,6 +66,40 @@
     margin-bottom: 4px;
     font-size: 0.9rem;
     color: #555;
+}
+
+.file-attachment-container {
+    background-color: #f8f9fa;
+    border: 1px solid gainsboro;
+    border-radius: 0.375rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+}
+
+.file-attachment-item a {
+    display: block;
+    text-decoration: none;
+    color: #495057;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
+}
+
+.file-attachment-item a:hover {
+    background-color: #e2e6ea;
+    color: #000;
+}
+
+.file-attachment-item i {
+    margin-right: 0.5rem;
+    color: #6c757d;
 }
 
 .no-data {
@@ -208,10 +246,61 @@
     border-color: #60C0D0;
 }
 
-
 @media (max-width: 1300px) {
     .lacak-container {
         margin-left: 16px !important;
         margin-right: 16px !important;
     }
+}
+
+@media (max-width: 768px) {
+    #hasilArea .card-header,
+    #hasilArea .d-flex.justify-content-between {
+        flex-direction: column;
+        align-items: center !important;
+        gap: 0.5rem;
+    }
+
+    #hasilArea .card-header .fs-5 {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* Style Modal */
+#successModal .modal-content {
+    border: 3px solid white;
+    border-radius: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+#successModal .modal-body {
+    padding: 3rem 2.5rem;
+}
+
+#successModal .bi-check-circle-fill {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+}
+
+#successModal #modalTicketNumber {
+    color: #343a40;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+#successModal #modalTicketNumber strong {
+    color: #007b8a;
+}
+
+#successModal p.text-muted {
+    margin-bottom: 2rem;
+}
+
+#successModal #modalOkButton {
+    width: 100%;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
 }

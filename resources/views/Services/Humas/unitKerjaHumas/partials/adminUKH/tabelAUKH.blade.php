@@ -1,4 +1,4 @@
-<div class="container my-5 pt-2">
+<div class="container rounded container-tabel my-5 pt-2">
     <!-- Header Box -->
     <div class="p-4 rounded-top" style="background-color: #00B9AD; color: white;">
         <h5 class="mb-1">Manajemen Admin Unit Kerja RSHS Bandung</h5>
@@ -74,12 +74,16 @@
                             </td>
                             <td>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetailAdmin"
-                                    data-admin='{{ json_encode($admin) }}'>
+                                    title="Detail Admin" data-admin='{{ json_encode($admin) }}'>
                                     <i class="bi bi-eye me-2"></i>
                                 </a>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalEditAdmin"
-                                    data-admin='{{ json_encode($admin) }}'>
+                                    title="Edit Admin" data-admin='{{ json_encode($admin) }}'>
                                     <i class="bi bi-pencil-square me-2"></i>
+                                </a>
+                                <a href="#" class="reset-password-btn me-2" title="Reset Password"
+                                    data-id="{{ $admin->NO_REGISTER }}" data-name="{{ $admin->NAME }}">
+                                    <i class="bi bi-arrow-counterclockwise text-primary"></i>
                                 </a>
                                 <form action="{{ route('humas.user-complaint.destroy', $admin) }}" method="POST"
                                     class="d-inline"
@@ -87,7 +91,7 @@
                                     @csrf
                                     @method('DELETE')
 
-                                    <button type="submit" class="btn btn-link text-danger p-0"
+                                    <button type="submit" class="btn btn-link text-danger p-0" title="Hapus Admin"
                                         style="vertical-align: baseline;" onclick="event.stopPropagation()">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -106,23 +110,6 @@
         </div>
         <!-- Pagination -->
         <div class="d-flex justify-content-end mt-3 page-tabel">
-            {{-- <nav aria-label="Page navigation example">
-                <ul class="pagination mb-0">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav> --}}
             {{ $admins->appends(request()->except('page'))->links() }}
         </div>
     </div>
