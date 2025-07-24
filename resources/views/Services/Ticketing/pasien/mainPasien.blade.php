@@ -18,7 +18,7 @@
     <div class="container">
         <div class="row g-4 justify-content-center">
             <!-- Card 1 -->
-            <div class="col-md-4">
+            <div class="col-md-5 col-lg-4">
                 <div class="card">
                     <div class="card-body text-center mt-3">
                         <div class="circle-icon" style="background-color: #00B9AD;">
@@ -39,7 +39,7 @@
             </div>
 
             <!-- Card 2 -->
-            <div class="col-md-4">
+            <div class="col-md-5 col-lg-4">
                 <div class="card">
                     <div class="card-body text-center mt-3">
                         <div class="circle-icon" style="background-color: #60C0D0;">
@@ -60,7 +60,7 @@
             </div>
 
             <!-- Card 3 -->
-            <div class="col-md-4">
+            <div class="col-md-5 col-lg-4">
                 <div class="card">
                     <div class="card-body text-center mt-3">
                         <div class="circle-icon" style="background-color: #CDDC29;">
