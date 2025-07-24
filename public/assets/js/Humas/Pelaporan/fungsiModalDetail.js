@@ -61,7 +61,7 @@ $(document).ready(function () {
                 $('#detailMediaPengaduan').text(data.jenis_media ? data.jenis_media.JENIS_MEDIA : '-');
                 $('#detailJenisLaporan').text(data.jenis_laporan ? data.jenis_laporan.JENIS_LAPORAN : '-');
                 $('#detailKlasifikasiPengaduan').text(data.klasifikasi_pengaduan ? data.klasifikasi_pengaduan.KLASIFIKASI_PENGADUAN : '-');
-                $('#detailPetugasPelapor').text(data.PETUGAS_PELAPOR || 'Admin Humas');
+                $('#detailPetugasPelapor').text(data.PETUGAS_PELAPOR || '-');
                 $('#detailDeskripsiPengaduanContent').text(data.ISI_COMPLAINT || '-');
                 $('#detailRangkumanPermasalahanContent').text(data.PERMASALAHAN || '-');
                 $('#detailPetugasEvaluasi').text(data.PETUGAS_EVALUASI || '-');

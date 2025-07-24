@@ -102,20 +102,25 @@
                     <!-- Evaluasi & Penyelesaian -->
                     <div class="tab-pane fade" id="tab3" role="tabpanel">
                         <div class="row mb-2">
-                            <div class="col-md-6">
-                                <strong>Petugas Evaluasi</strong><br><span id="detail-petugas-evaluasi">-</span>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <strong>Tanggal Evaluasi</strong><br><span id="detail-tanggal-evaluasi"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Tanggal Tindak Lanjut Humas</strong><br><span
+                                    id="detail-tanggal-tindak-lanjut"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Tanggal Selesai</strong><br><span id="detail-tanggal-selesai"></span>
                             </div>
                         </div>
                         <div class="row mb-2">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <strong>Penyelesaian Pengaduan</strong><br><span id="detail-penyelesaian"></span>
                             </div>
-                            <div class="col-md-6">
-                                <strong>Tanggal Selesai</strong><br><span id="detail-tanggal-selesai"></span>
+                            <div class="col-md-8">
+                                <strong>Petugas Evaluasi</strong><br><span id="detail-petugas-evaluasi">-</span>
                             </div>
+
                         </div>
 
                         <!-- Klarifikasi Unit -->

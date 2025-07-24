@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateFile(file) {
         const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 5 * 1024 * 1024;
         if (!allowedTypes.includes(file.type)) {
             return { valid: false, message: `Tipe file tidak diizinkan: ${file.name}.` };
         }
@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         renderFileUI();
+        buktiPendukungFileInput.value = '';
     }
 
     uploadBoxContent.addEventListener('click', function(e) {
@@ -82,48 +83,69 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function handleKlasifikasiChange() {
-        const selectedOptionText = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim();
+        const selectedOptionText = klasifikasiSelect.options[klasifikasiSelect.selectedIndex]?.text.trim() || '';
         const wrapperNama = document.getElementById('wrapper_nama');
         const wrapperNoTlpn = document.getElementById('wrapper_no_tlpn');
         const wrapperNoMedrec = document.getElementById('wrapper_no_medrec');
         const inputNama = document.querySelector('[name="NAME"]');
         const inputNoTlpn = document.querySelector('[name="NO_TLPN"]');
+        const inputNoMedrec = document.querySelector('[name="NO_MEDREC"]');
         const fileLabel = document.getElementById('buktiPendukungLabel');
         const labelNama = wrapperNama.querySelector('label');
         const labelTelepon = wrapperNoTlpn.querySelector('label');
 
-        if (selectedOptionText === 'Sponsorship') {
-            jenisPelaporSelect.value = 'Non-Pasien';
-            handleJenisPelaporChange();
-        }
+        buktiPendukungFileInput.required = false;
 
-        wrapperNama.style.display = 'block';
-        wrapperNoTlpn.style.display = 'block';
-        wrapperNoMedrec.style.display = 'block';
-        inputNama.required = true;
-        inputNoTlpn.required = true;
-        labelNama.innerHTML = 'Nama Lengkap';
-        labelTelepon.innerHTML = 'Nomor Telepon';
-        fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
-
-        if (selectedOptionText === 'Sponsorship') {
-            inputNama.required = false;
-            inputNoTlpn.required = false;
-            labelNama.innerHTML = 'Nama Lengkap (Opsional)';
-            labelTelepon.innerHTML = 'Nomor Telepon (Opsional)';
-            fileLabel.innerHTML = 'Surat Undangan (Wajib)';
-            wrapperNoMedrec.style.display = 'none';
-        } else if (selectedOptionText === 'Gratifikasi') {
-            fileLabel.innerHTML = 'Bukti Pendukung (Wajib)';
+        if (selectedOptionText === 'Gratifikasi') {
             wrapperNama.style.display = 'none';
-            wrapperNoTlpn.style.display = 'none';
-            wrapperNoMedrec.style.display = 'none';
             inputNama.required = false;
+            inputNama.disabled = true;
+
+            wrapperNoTlpn.style.display = 'none';
             inputNoTlpn.required = false;
+            inputNoTlpn.disabled = true;
+
+            wrapperNoMedrec.style.display = 'none';
+            inputNoMedrec.disabled = true;
+
+            fileLabel.innerHTML = 'Bukti Pendukung (Wajib)';
+
+        } else if (selectedOptionText === 'Sponsorship') {
+            jenisPelaporSelect.value = 'Non-Pasien';
+
+            wrapperNama.style.display = 'block';
+            inputNama.required = false;
+            inputNama.disabled = false;
+            labelNama.innerHTML = 'Nama Lengkap (Opsional)';
+
+            wrapperNoTlpn.style.display = 'block';
+            inputNoTlpn.required = false;
+            inputNoTlpn.disabled = false;
+            labelTelepon.innerHTML = 'Nomor Telepon (Opsional)';
+
+            wrapperNoMedrec.style.display = 'none';
+            inputNoMedrec.disabled = true;
+
+            fileLabel.innerHTML = 'Surat Undangan (Wajib)';
+
         } else {
+            wrapperNama.style.display = 'block';
+            inputNama.required = true;
+            inputNama.disabled = false;
+            labelNama.innerHTML = 'Nama Lengkap';
+
+            wrapperNoTlpn.style.display = 'block';
+            inputNoTlpn.required = true;
+            inputNoTlpn.disabled = false;
+            labelTelepon.innerHTML = 'Nomor Telepon';
+
+            wrapperNoMedrec.style.display = 'block';
+            inputNoMedrec.disabled = false;
+
             fileLabel.innerHTML = 'Bukti Pendukung (Opsional)';
         }
     }
+
 
     function handleJenisPelaporChange() {
         const selectedPelapor = jenisPelaporSelect.value;
@@ -142,43 +164,81 @@ document.addEventListener('DOMContentLoaded', function() {
     jenisPelaporSelect.addEventListener('change', handleJenisPelaporChange);
 
     buktiPendukungFileInput.addEventListener('change', (e) => processFiles(e.target.files));
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        buktiPendukungDropAreaLabel.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+    ['dragenter', 'dragover'].forEach(eventName => {
+        buktiPendukungDropAreaLabel.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            buktiPendukungDropAreaLabel.classList.add('is-dragging-over');
+        }, false);
     });
-    buktiPendukungDropAreaLabel.addEventListener('drop', e => processFiles(e.dataTransfer.files));
+
+    ['dragleave'].forEach(eventName => {
+        buktiPendukungDropAreaLabel.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            buktiPendukungDropAreaLabel.classList.remove('is-dragging-over');
+        }, false);
+    });
+    buktiPendukungDropAreaLabel.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        buktiPendukungDropAreaLabel.classList.remove('is-dragging-over');
+
+        processFiles(e.dataTransfer.files);
+    }, false);
+
 
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
+        handleKlasifikasiChange();
+        console.log('PENANDA 1: Proses submit dimulai.');
+
         formMessageDiv.innerHTML = '';
         buktiErrorContainer.innerHTML = '';
         buktiPendukungDropAreaLabel.classList.remove('is-invalid');
+        form.classList.remove('was-validated');
 
-        const formDataForDebug = new FormData(form);
-        console.log("Data yang akan dikirim:");
-        for (let [key, value] of formDataForDebug.entries()) {
-            console.log(`${key}: ${value}`);
+        let isFormValid = true;
+        console.log('--- MEMERIKSA VALIDITAS SETIAP KOLOM ---');
+        for (const element of form.elements) {
+            if (element.name && !element.checkValidity()) {
+                console.error(`KOLOM TIDAK VALID:`, {
+                    nama_kolom: element.name,
+                    nilai: element.value,
+                    wajib_diisi: element.required,
+                    non_aktif: element.disabled,
+                    detail_validitas: element.validity
+                });
+                isFormValid = false;
+            }
         }
-        if (!form.checkValidity()) {
+        console.log('--- PEMERIKSAAN SELESAI ---');
+
+        if (!isFormValid) {
+            console.error('PROSES BERHENTI: Validasi gagal karena ada kolom yang tidak valid (lihat detail di atas).');
             form.classList.add('was-validated');
-            form.querySelector(':invalid:not(fieldset)')?.focus();
             return;
         }
+        console.log('PENANDA 2: Validasi form dasar berhasil.');
 
         const selectedKlasifikasi = klasifikasiSelect.options[klasifikasiSelect.selectedIndex].text.trim();
         if ((selectedKlasifikasi === 'Gratifikasi' || selectedKlasifikasi === 'Sponsorship') && validBuktiPendukungFiles.length === 0) {
+            console.error('PROSES BERHENTI: Validasi file untuk klasifikasi wajib gagal.');
             let pesanError = 'Bukti pendukung wajib diunggah.';
             if (selectedKlasifikasi === 'Sponsorship') {
                 pesanError = 'Surat undangan wajib diunggah.';
             }
-
             buktiErrorContainer.innerHTML = `<div class="text-danger mt-1">${pesanError}</div>`;
             buktiPendukungDropAreaLabel.classList.add('is-invalid');
             buktiPendukungDropAreaLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
+        console.log('PENANDA 3: Validasi file manual berhasil.');
 
         submitButton.disabled = true;
         submitButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Mengirim...';
+        console.log('PENANDA 4: Memulai proses upload file temporer...');
 
         const uploadId = Date.now().toString();
         const tempPaths = [];
@@ -188,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const fileFormData = new FormData();
             fileFormData.append('file', file);
             fileFormData.append('upload_id', uploadId);
-
             try {
                 const response = await fetch(uploadUrl, {
                     method: 'POST',
@@ -204,28 +263,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             }
         }
+        console.log('PENANDA 5: Proses upload file temporer selesai.');
 
         if (uploadError) {
+            console.error('PROSES BERHENTI: Terjadi error saat upload file temporer.');
             submitButton.disabled = false;
             submitButton.innerHTML = 'Kirim Laporan';
             return;
         }
 
-        const finalFormData = new FormData(form);
-        finalFormData.set('jenis_pelapor', jenisPelaporSelect.value);
+        console.log('PENANDA 6: Membangun data akhir untuk dikirim ke server.');
+        const finalFormData = new FormData();
+        finalFormData.append('ID_KLASIFIKASI', klasifikasiSelect.value);
+        finalFormData.append('jenis_pelapor', jenisPelaporSelect.value);
+        finalFormData.append('ISI_COMPLAINT', form.querySelector('[name="ISI_COMPLAINT"]').value);
+        finalFormData.append('NAME', form.querySelector('[name="NAME"]').value);
+        finalFormData.append('NO_TLPN', form.querySelector('[name="NO_TLPN"]').value);
+        finalFormData.append('NO_MEDREC', form.querySelector('[name="NO_MEDREC"]').value);
+
+        const refInput = form.querySelector('[name="ID_COMPLAINT_REFERENSI"]');
+        if (refInput) {
+            finalFormData.append('ID_COMPLAINT_REFERENSI', refInput.value);
+        }
         finalFormData.append('upload_id', uploadId);
         tempPaths.forEach(path => finalFormData.append('uploaded_files[]', path));
-        finalFormData.delete('bukti_pendukung[]');
 
         try {
+            console.log('PENANDA 7: Mengirim data akhir ke server...');
             const finalResponse = await fetch(form.action, {
                 method: 'POST',
                 body: finalFormData,
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
             });
+
+            console.log('PENANDA 8: Mendapat respons dari server.');
             const finalResult = await finalResponse.json();
 
+            console.log('Isi Respons Aktual dari Server:', finalResult);
             if (!finalResult.success) {
+                console.error('PROSES GAGAL: Server merespons dengan status gagal.', finalResult);
                 let errorHtml = finalResult.message || 'Terjadi kesalahan.';
                 if (finalResult.errors) {
                     errorHtml += '<ul>' + Object.values(finalResult.errors).map(e => `<li>${e[0]}</li>`).join('') + '</ul>';
@@ -233,7 +309,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(errorHtml);
             }
 
-            // --- LOGIKA MODAL ---
             form.reset();
             validBuktiPendukungFiles.length = 0;
             renderFileUI();
@@ -264,17 +339,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 formMessageDiv.innerHTML = `<div class="alert alert-success">${finalResult.message || 'Laporan berhasil dikirim!'}</div>`;
                 setTimeout(() => window.location.href = redirectUrl, 3000);
             }
-            // --- AKHIR LOGIKA MODAL ---
 
         } catch (error) {
+            console.error('PROSES ERROR: Terjadi kesalahan di blok try-catch akhir.', error);
             formMessageDiv.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-        } finally {
             submitButton.disabled = false;
             submitButton.innerHTML = 'Kirim Laporan';
         }
     });
 
-    // Inisialisasi awal
     renderFileUI();
     handleKlasifikasiChange();
     handleJenisPelaporChange();

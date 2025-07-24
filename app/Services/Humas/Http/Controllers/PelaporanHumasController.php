@@ -163,6 +163,12 @@ class PelaporanHumasController extends Controller {
             ]);
 
             $selectedKlasifikasiId = $request->input('ID_KLASIFIKASI');
+            $gratifikasiKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Gratifikasi')->first();
+            $sponsorshipKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Sponsorship')->first();
+            $excludedIds = array_filter([
+                $gratifikasiKlasifikasi ? $gratifikasiKlasifikasi->ID_KLASIFIKASI : null,
+                $sponsorshipKlasifikasi ? $sponsorshipKlasifikasi->ID_KLASIFIKASI : null
+            ]);
             $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
 
             // $klasifikasiText = KlasifikasiPengaduan::find($selectedKlasifikasiId)->KLASIFIKASI_PENGADUAN ?? 'Pengaduan';
@@ -338,8 +344,8 @@ class PelaporanHumasController extends Controller {
             }
 
              if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
-                if (is_null($complaint->TGL_SELESAI)) {
-                    $updateData['TGL_SELESAI'] = Carbon::now();
+                if (is_null($complaint->TGL_TINDAK_LANJUT_HUMAS)) {
+                    $updateData['TGL_TINDAK_LANJUT_HUMAS'] = Carbon::now();
                 }
             }
 

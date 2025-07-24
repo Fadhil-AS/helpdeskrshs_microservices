@@ -50,6 +50,7 @@ class LacakTicketingController extends Controller
                 if ($tanggapan === 'selesai') {
                     $laporan->STATUS = 'Close';
                     $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
+                    $laporan->TGL_SELESAI = Carbon::now()->toDateString();
                     $laporan->save();
                     $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
 
@@ -61,6 +62,7 @@ class LacakTicketingController extends Controller
                         // Jika tiket lama ditemukan, tutup juga
                         if ($laporanReferensi) {
                             $laporanReferensi->STATUS = 'Close';
+                            $laporanReferensi->TGL_SELESAI = Carbon::now()->toDateString();
                             $laporanReferensi->FEEDBACK_PELAPOR = 'Ditutup karena banding terselesaikan melalui tiket ' . $laporan->ID_COMPLAINT;
                             $laporanReferensi->save();
                             $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
@@ -150,7 +152,7 @@ class LacakTicketingController extends Controller
                 }
 
                 // History: Tindak Lanjut oleh Humas (berdasarkan penyelesaian)
-                // Tanggal diambil dari TGL_SELESAI
+                // Tanggal diambil dari TGL_TINDAK_LANJUT_HUMAS
                 if (!empty($laporan->DISPOSISI) || !empty($laporan->TINDAK_LANJUT_HUMAS)) {
                     $deskripsiTindakLanjut = '';
                     if (!empty($laporan->DISPOSISI)) {
@@ -160,7 +162,7 @@ class LacakTicketingController extends Controller
                     }
 
                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI ?? $laporan->TGL_EVALUASI)->format('d M Y'),
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_TINDAK_LANJUT_HUMAS ?? $laporan->TGL_EVALUASI)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Sudah ditindak lanjuti oleh Humas',
                         'deskripsi_aksi' => $deskripsiTindakLanjut,
@@ -168,10 +170,10 @@ class LacakTicketingController extends Controller
                 }
 
                 // History: Menunggu Konfirmasi
-                // Tanggal diambil dari TGL_SELESAI
+                // Tanggal diambil dari TGL_TINDAK_LANJUT_HUMAS
                 if (in_array($laporan->STATUS, ['Menunggu Konfirmasi', 'Menunggu Konfirmasi Pelapor'])) {
                     $riwayatPenanganan[] = [
-                        'tanggal_aksi' => Carbon::parse($laporan->TGL_SELESAI ?? $laporan->TGL_EVALUASI)->format('d M Y'),
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_TINDAK_LANJUT_HUMAS ?? $laporan->TGL_EVALUASI)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Menunggu Konfirmasi Pelapor',
                         'deskripsi_aksi' => 'Klarifikasi telah diberikan, sistem menunggu tanggapan dari Anda.',
@@ -257,7 +259,11 @@ class LacakTicketingController extends Controller
                         break;
                     case 'Close':
                     case 'Selesai':
-                        $deskripsiStatusTerkini = 'Laporan Anda telah diselesaikan.';
+                        if (!empty($laporan->RATING_LAPORAN) && is_numeric($laporan->RATING_LAPORAN)) {
+                            $deskripsiStatusTerkini = 'Terima kasih, laporan Anda telah diselesaikan dan kami telah menerima feedback Anda.';
+                        } else {
+                            $deskripsiStatusTerkini = 'Laporan Anda telah diselesaikan.';
+                        }
                         break;
                     default:
                         $deskripsiStatusTerkini = 'Status laporan Anda saat ini: ' . $displayStatus . '.';
@@ -296,6 +302,7 @@ class LacakTicketingController extends Controller
                         'deskripsi_status_terkini' => $deskripsiStatusTerkini,
                         'tgl_selesai_internal' => $tglSelesaiInternalISO,
                         'is_menunggu_konfirmasi' => $isMenungguKonfirmasi,
+                        'sudah_memberi_feedback' => !empty($laporan->RATING_LAPORAN) && is_numeric($laporan->RATING_LAPORAN),
                         'waktu_konfirmasi_tersisa' => $waktuKonfirmasiTersisa,
                         'persen_waktu_konfirmasi' => $persenWaktuKonfirmasi,
                         'tanggal_complaint_timelineFormat' => Carbon::parse($laporan->TGL_INSROW ?? $laporan->TGL_COMPLAINT)->format('d M Y'),
@@ -341,7 +348,7 @@ class LacakTicketingController extends Controller
             $laporan->RATING_LAPORAN = (string) $request->rating;
             $laporan->FEEDBACK_PELAPOR = $request->input('feedback_text', null);
 
-            $laporan->TGL_INSROW = Carbon::now()->toDateString();
+            $laporan->TGL_SELESAI = Carbon::now()->toDateString();
             $laporan->save();
 
             return response()->json(['success' => true, 'message' => 'Terima kasih atas feedback dan penilaian Anda!']);
