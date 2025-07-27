@@ -69,7 +69,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline-danger" data-bs-dismiss="modal" type="button">Batal</button>
-                    <button class="btn text-white btn-simpan" type="submit">Tambah Pengaduan</button>
+                    <button class="btn text-white btn-simpan" type="submit">Tambah Admin</button>
                 </div>
             </form>
         </div>

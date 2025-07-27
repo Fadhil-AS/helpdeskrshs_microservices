@@ -1,10 +1,10 @@
 @extends('Services.Ticketing.pasien.layouts.headingPasien')
 @section('containPasien')
     <!-- Hiasan Sudut -->
-    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan top-left" />
-    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan top-right" />
-    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan bottom-left" />
-    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan bottom-right" />
+    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan top-left" alt=""/>
+    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan top-right" alt=""/>
+    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan bottom-left" alt=""/>
+    <img src="{{ asset('assets/images/Hiasan_Layar.png') }}" class="hiasan bottom-right" alt=""/>
 
     <!-- Header -->
     <div class="text-center judul mb-5">

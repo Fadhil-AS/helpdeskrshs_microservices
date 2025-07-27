@@ -94,6 +94,10 @@
             <li class="nav-item"><a class="nav-link {{ request()->routeIs('humas.data-referensi-humas') ? 'active' : '' }}" href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a></li> --}}
             @if (session('role') === 'humas')
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
+                        href="{{ route('admin.dashboard') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.pelaporan-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.pelaporan-humas') }}">Daftar Pelaporan</a>
                 </li>
@@ -101,10 +105,10 @@
                     <a class="nav-link {{ request()->routeIs('humas.unit-kerja-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.unit-kerja-humas') }}">Unit Kerja</a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.user-complaint*') ? 'active' : '' }}"
                         href="{{ route('humas.user-complaint.index') }}">Admin Unit Kerja</a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.direksi-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.direksi-humas') }}">Direksi</a>
