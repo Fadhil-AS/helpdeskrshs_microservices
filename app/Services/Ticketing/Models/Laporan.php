@@ -2,14 +2,18 @@
 
 namespace App\Services\Ticketing\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\Ticketing\Models\UnitKerja;
 use App\Services\Ticketing\Models\KlasifikasiPengaduan;
 use App\Services\Ticketing\Models\JenisMedia;
 use App\Services\Ticketing\Models\PenyelesaianPengaduan;
 use App\Services\Ticketing\Models\JenisLaporan;
+use Database\Factories\LaporanFactory;
 
 class Laporan extends Model {
+    use HasFactory;
+
     protected $table = 'data_complaint';
     protected $primaryKey = 'ID_COMPLAINT';
     public $incrementing = false;
@@ -120,5 +124,10 @@ class Laporan extends Model {
         $query->when($filters['status'] ?? false, function ($query, $status) {
             return $query->where('STATUS', $status);
         });
+    }
+
+    protected static function newFactory(): LaporanFactory
+    {
+        return LaporanFactory::new();
     }
 }

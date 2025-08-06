@@ -4,6 +4,7 @@ namespace App\Services\SSD\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\KategoriSSDFactory;
 
 class KategoriSSD extends Model
 {
@@ -16,5 +17,10 @@ class KategoriSSD extends Model
     public function ssd()
     {
         return $this->hasMany(SSD::class, 'ID_KATEGORI_SSD', 'ID_KATEGORI_SSD');
+    }
+
+    protected static function newFactory()
+    {
+        return KategoriSSDFactory::new();
     }
 }

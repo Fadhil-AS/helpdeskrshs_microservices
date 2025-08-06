@@ -21,12 +21,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
-        $this->loadMigrationsFrom([
-            database_path('migrations'),
-            database_path('migrations/ticketing'),
-            database_path('migrations/unit_kerja'),
-            database_path('migrations/ssd'),
-            database_path('migrations/chatbot'),
-        ]);
+        // $this->loadMigrationsFrom([
+        //     database_path('migrations'),
+        //     database_path('migrations/ticketing'),
+        //     database_path('migrations/unit_kerja'),
+        //     database_path('migrations/ssd'),
+        //     database_path('migrations/chatbot'),
+        // ]);
     }
 }

@@ -137,7 +137,7 @@ return [
             'url' => env('DB_CHATBOT_URL'),
             'host' => env('DB_CHATBOT_HOST', '127.0.0.1'),
             'port' => env('DB_CHATBOT_PORT', '3306'),
-            'database' => env('DB_CHATBOT_DATABASE', 'db_chabotrshs'),
+            'database' => env('DB_CHATBOT_DATABASE', 'db_chatbotrshs'),
             'username' => env('DB_CHATBOT_USERNAME', 'root'),
             'password' => env('DB_CHATBOT_PASSWORD', ''),
             'unix_socket' => env('DB_CHATBOT_SOCKET', ''),

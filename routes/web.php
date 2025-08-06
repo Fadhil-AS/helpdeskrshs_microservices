@@ -145,8 +145,13 @@ Route::get('/chat', function () {
 
 
 //Menampilkan data di tabel
+// Route::get('/upload', function () {
+//     $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+//     return view('Services.Chatbot.uploadData', compact('files'));
+// });
+
 Route::get('/upload', function () {
-    $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+    $files = \App\Services\Chatbot\Models\Chatbot::all(); // Ambil semua kolom, termasuk id
     return view('Services.Chatbot.uploadData', compact('files'));
 });
 

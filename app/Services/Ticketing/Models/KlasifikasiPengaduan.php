@@ -2,9 +2,13 @@
 
 namespace App\Services\Ticketing\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\KlasifikasiPengaduanFactory;
 
 class KlasifikasiPengaduan extends Model {
+    use HasFactory;
+
     protected $table = 'klasifikasi_pengaduan';
     protected $primaryKey = 'ID_KLASIFIKASI';
     public $incrementing = false;
@@ -15,4 +19,9 @@ class KlasifikasiPengaduan extends Model {
         'KLASIFIKASI_PENGADUAN',
         'STATUS',
     ];
+
+    protected static function newFactory(): KlasifikasiPengaduanFactory
+    {
+        return KlasifikasiPengaduanFactory::new();
+    }
 }
