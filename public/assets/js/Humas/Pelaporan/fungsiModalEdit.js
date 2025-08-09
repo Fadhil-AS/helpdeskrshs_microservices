@@ -6,7 +6,7 @@ $(document).ready(function () {
     function setDependentFieldsReadOnly(isLocked) {
         const fields = $('#editNoTelp, #editNamaPelapor, #editNoMedrec, #editIdJenisMedia, #editIdKlasifikasi, #editTanggalPengaduan, #editDeskripsiPengaduan');
 
-        fields.each(function() {
+        fields.each(function () {
             const el = $(this);
             el.is('select') ? el.prop('disabled', isLocked) : el.prop('readonly', isLocked);
             el.toggleClass('form-control-readonly', isLocked);
@@ -240,7 +240,7 @@ $(document).ready(function () {
                 var buktiContainer = $('#editBuktiKlarifikasiContainer');
                 buktiContainer.html('');
                 if (data.klarifikasi_files && data.klarifikasi_files.length > 0) {
-                    data.klarifikasi_files.forEach(function(filePath) {
+                    data.klarifikasi_files.forEach(function (filePath) {
                         if (!filePath || filePath.trim() === '') return;
                         var fileUrl = (typeof storageBaseUrl !== 'undefined' ? storageBaseUrl : '/storage') + '/' + filePath.trim();
                         var fileName = filePath.split(/[\\/]/).pop();
@@ -292,9 +292,45 @@ $(document).ready(function () {
         $('#editStatus').css({ 'pointer-events': 'auto', 'background-color': '' });
         $('#editNamaPelaporWrapper, #editNoTelpWrapper, #editNoMedrecWrapper').show();
 
+        const unitKerjaContainer = $('#unitKerjaContainer');
+        unitKerjaContainer.find('.input-group:not(:first)').remove();
+        unitKerjaContainer.find('.input-group:first select').val('');
+
         setDependentFieldsReadOnly(false);
         const md = $('#editIdJenisMedia');
         md.prop('disabled', false).removeClass('form-control-readonly');
         md.find('option').prop('disabled', false);
+    });
+
+    $('#addUnitKerjaBtn').on('click', function () {
+        const container = $('#unitKerjaContainer');
+        const lastSelectGroup = container.find('.input-group').last();
+
+        if (lastSelectGroup.length > 0 && !lastSelectGroup.find('select').val()) {
+            Swal.fire({
+                title: 'Peringatan',
+                text: 'Silakan pilih unit kerja pada baris sebelumnya terlebih dahulu.',
+                icon: 'warning',
+                confirmButtonColor: '#00B9AD',
+                confirmButtonText: 'Baik, saya mengerti'
+            });
+            return;
+        }
+
+        const template = container.find('.input-group:first').clone();
+
+        template.find('select').val('');
+        if (template.find('.remove-unit-kerja-btn').length === 0) {
+            template.append(`
+            <button class="btn btn-outline-danger remove-unit-kerja-btn" type="button" title="Hapus">
+                <i class="bi bi-trash"></i>
+            </button>
+        `);
+        }
+        container.append(template);
+    });
+
+    $('#unitKerjaContainer').on('click', '.remove-unit-kerja-btn', function () {
+        $(this).closest('.input-group').remove();
     });
 });
