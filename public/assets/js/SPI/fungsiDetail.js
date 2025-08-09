@@ -149,7 +149,6 @@ $(document).ready(function () {
         });
     });
 
-    // Event ini akan berjalan setiap kali modal selesai ditutup.
     $('#detailModal').on('hidden.bs.modal', function () {
         console.log('Detail modal telah ditutup.');
     });

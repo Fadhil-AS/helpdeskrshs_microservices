@@ -17,12 +17,18 @@ class Laporan extends Model {
     public $timestamps = true;
     const CREATED_AT = 'TGL_INSROW';
     const UPDATED_AT = 'TGL_INSROW';
-    protected $appends = ['file_list'];
+    protected $appends = [
+        'pengaduan_files',
+        'klarifikasi_files',
+        'tindak_lanjut_files',
+        'unit_kerja_list'
+    ];
 
     protected $fillable = [
         'ID_COMPLAINT',
         'ID_COMPLAINT_REFERENSI',
         'ID_BAGIAN',
+        'ID_BAGIAN_LAINNYA',
         'ID_KLASIFIKASI',
         'ID_JENIS_MEDIA',
         'ID_PENYELESAIAN',
@@ -43,32 +49,17 @@ class Laporan extends Model {
         'GRANDING',
         'PETUGAS_PELAPOR',
         'NO_MEDREC',
-        // 'PENANGGUNG_JAWAB',
         'TGL_SELESAI',
-        // 'DATA_PENGADUAN',
         'SMS_DIREKSI',
         'FILE_PENGADUAN',
         'FILE_BUKTI_KLARIFIKASI',
         'FILE_TINDAK_LANJUT_HUMAS',
         'TINDAK_LANJUT_HUMAS',
         'DISPOSISI',
-        // 'INFO_DIREKSI',
         'PERMASALAHAN',
-        // 'KD_PENGADUAN',
         'RATING_LAPORAN',
         'FEEDBACK_PELAPOR',
     ];
-
-    public function getFileListAttribute()
-    {
-        $files = $this->attributes['FILE_PENGADUAN'];
-
-        if ($files) {
-            return explode(';', $files);
-        }
-
-        return [];
-    }
 
     public function previous()
     {
@@ -82,7 +73,14 @@ class Laporan extends Model {
 
     public function unitKerja()
     {
-        return $this->belongsTo(UnitKerja::class, 'ID_BAGIAN', 'ID_BAGIAN');
+        $idBagianData = $this->attributes['ID_BAGIAN'] ?? null;
+        if (!$idBagianData) {
+            return $this->belongsTo(UnitKerja::class, 'ID_BAGIAN', 'ID_BAGIAN')->whereRaw('1 = 0');
+        }
+
+        $ids = explode(',', $idBagianData);
+        $firstId = trim($ids[0]);
+        return $this->belongsTo(UnitKerja::class, 'ID_BAGIAN', 'ID_BAGIAN')->where('ID_BAGIAN', '=', $firstId);
     }
 
     public function klasifikasiPengaduan()
@@ -122,21 +120,55 @@ class Laporan extends Model {
         });
     }
 
-    public function getPengaduanFilesAttribute()
+    private function processFiles(string $fileData = null): array
     {
-        $files = $this->attributes['FILE_PENGADUAN'] ?? '';
-        return $files ? explode(';', $files) : [];
+        if (empty($fileData)) {
+            return [];
+        }
+
+        $decoded = json_decode($fileData, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        if (str_contains($fileData, ';')) {
+            return explode(';', $fileData);
+        }
+
+        return [$fileData];
     }
 
-    public function getKlarifikasiFilesAttribute()
+    public function getPengaduanFilesAttribute(): array
     {
-        $files = $this->attributes['FILE_BUKTI_KLARIFIKASI'] ?? '';
-        return $files ? explode(';', $files) : [];
+        return $this->processFiles($this->attributes['FILE_PENGADUAN'] ?? null);
     }
 
-    public function getTindakLanjutFilesAttribute()
+    public function getKlarifikasiFilesAttribute(): array
     {
-        $files = $this->attributes['FILE_TINDAK_LANJUT_HUMAS'] ?? '';
-        return $files ? explode(';', $files) : [];
+        return $this->processFiles($this->attributes['FILE_BUKTI_KLARIFIKASI'] ?? null);
+    }
+
+    public function getTindakLanjutFilesAttribute(): array
+    {
+        return $this->processFiles($this->attributes['FILE_TINDAK_LANJUT_HUMAS'] ?? null);
+    }
+
+    public function getUnitKerjaListAttribute()
+    {
+        $firstId = $this->attributes['ID_BAGIAN'] ?? null;
+        $otherIdsJson = $this->attributes['ID_BAGIAN_LAINNYA'] ?? null;
+
+        $otherIds = $otherIdsJson ? json_decode($otherIdsJson, true) : [];
+        if (!is_array($otherIds)) {
+            $otherIds = [];
+        }
+
+        $allIds = array_merge([$firstId], $otherIds);
+        $validIds = array_filter($allIds);
+
+        if (empty($validIds)) {
+            return collect();
+        }
+        return UnitKerja::whereIn('ID_BAGIAN', $validIds)->get();
     }
 }

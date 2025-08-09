@@ -125,9 +125,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function(){
 Route::prefix('spi')->name('spi.')->middleware('spi')->group(function(){
     // pelaporan SPI
     Route::get('/pelaporanSPI', [SPIController::class, 'getPelaporanSPI'])->name('pelaporan-SPI');
-    // Route::post('/pelaporanSPI', [SPIController::class, 'storePelaporanSPI'])->name('pelaporan-SPI.store');
     Route::get('/pelaporanSPI/{id_complaint}/detail', [SPIController::class, 'showPelaporanDetail'])->name('pelaporan-SPI.detail');
-    Route::put('/pelaporanSPI/{id_complaint}', [SPIController::class, 'updatePelaporanSPI'])->name('pelaporan-SPI.update');
 });
 
 

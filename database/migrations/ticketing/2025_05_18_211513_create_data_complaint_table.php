@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('ID_COMPLAINT', 20)->primary();
             $table->string('ID_COMPLAINT_REFERENSI')->nullable();
             $table->string('ID_BAGIAN', 5)->nullable();
+            $table->text('ID_BAGIAN_LAINNYA')->nullable();
             $table->string('ID_KLASIFIKASI', 20)->nullable();
             $table->string('ID_JENIS_MEDIA', 20)->nullable();
             $table->string('ID_PENYELESAIAN', 20)->nullable();

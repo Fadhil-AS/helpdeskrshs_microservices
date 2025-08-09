@@ -57,7 +57,20 @@ $(document).ready(function () {
                 else $('#detailGrading').addClass('bg-secondary text-light');
 
                 $('#detailNoMedrec').text(data.NO_MEDREC || '-');
-                $('#detailUnitKerja').text(data.unit_kerja ? data.unit_kerja.NAMA_BAGIAN : '-');
+                // $('#detailUnitKerja').text(data.unit_kerja ? data.unit_kerja.NAMA_BAGIAN : '-');
+
+                var unitKerjaHtml = '';
+                if (data.unit_kerja_list && data.unit_kerja_list.length > 0) {
+                    unitKerjaHtml = '<ul>';
+                    data.unit_kerja_list.forEach(function(unit) {
+                        unitKerjaHtml += '<li>' + (unit.NAMA_BAGIAN || '-') + '</li>';
+                    });
+                    unitKerjaHtml += '</ul>';
+                    $('#detailUnitKerja').html(unitKerjaHtml);
+                } else {
+                    $('#detailUnitKerja').text('-');
+                }
+
                 $('#detailMediaPengaduan').text(data.jenis_media ? data.jenis_media.JENIS_MEDIA : '-');
                 $('#detailJenisLaporan').text(data.jenis_laporan ? data.jenis_laporan.JENIS_LAPORAN : '-');
                 $('#detailKlasifikasiPengaduan').text(data.klasifikasi_pengaduan ? data.klasifikasi_pengaduan.KLASIFIKASI_PENGADUAN : '-');

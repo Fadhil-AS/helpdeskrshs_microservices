@@ -30,17 +30,20 @@ class PelaporanHumasController extends Controller {
         $klasifikasiPengaduan = KlasifikasiPengaduan::where('STATUS', '1')->get();
         $penyelesaianPengaduan = PenyelesaianPengaduan::where('STATUS', '1')->get();
 
-        $query = Laporan::with(['unitKerja', 'jenisMedia'])
+        $query = Laporan::with(['unitKerja', 'jenisMedia', 'klasifikasiPengaduan'])
         ->select(
             'data_complaint.*',
             DB::raw('TIMESTAMPDIFF(DAY, TGL_PENUGASAN, TGL_EVALUASI) as response_time')
-        );
+        )
+        ->whereHas('klasifikasiPengaduan', function ($q) {
+            $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
+        });
 
         if ($request->filled('status')) {
             $query->where('STATUS', $request->status);
         }
 
-        $dataComplaint = $query->orderBy('ID_COMPLAINT', 'asc')
+        $dataComplaint = $query->orderBy('ID_COMPLAINT', 'desc')
                                 ->paginate(10)
                                 ->withQueryString();
 
@@ -219,24 +222,15 @@ class PelaporanHumasController extends Controller {
                 return response()->json(['error' => 'Data pengaduan tidak ditemukan.'], 404);
             }
 
-            $processFiles = function ($fileData) {
-                if (empty($fileData)) {
-                    return [];
-                }
-                $decoded = json_decode($fileData, true);
-                if (is_array($decoded)) {
-                    return $decoded;
-                }
-                if (str_contains($fileData, ';')) {
-                    return explode(';', $fileData);
-                }
-                return [$fileData];
-            };
-            $complaint->pengaduan_files = $processFiles($complaint->FILE_PENGADUAN);
-            $complaint->klarifikasi_files = $processFiles($complaint->FILE_BUKTI_KLARIFIKASI);
-            $complaint->tindak_lanjut_files = $processFiles($complaint->FILE_TINDAK_LANJUT_HUMAS);
+            $dataAsArray = $complaint->toArray();
 
-            return response()->json($complaint);
+            array_walk_recursive($dataAsArray, function (&$item, $key) {
+                if (is_string($item)) {
+                    $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                }
+            });
+
+            return response()->json($dataAsArray);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage()], 500);
         }
@@ -257,7 +251,8 @@ class PelaporanHumasController extends Controller {
         $rules = [
             'JUDUL_COMPLAINT'       => 'required|string|max:255',
             'PETUGAS_PELAPOR'       => 'nullable|string|max:150',
-            'ID_BAGIAN'             => 'required|string|exists:unit_kerja,ID_BAGIAN',
+            'ID_BAGIAN'             => 'required|array',
+            'ID_BAGIAN.*'           => 'required|string|exists:unit_kerja,ID_BAGIAN',
             'ID_JENIS_LAPORAN'      => 'required|string|exists:jenis_laporan,ID_JENIS_LAPORAN',
             'PERMASALAHAN'          => 'nullable|string',
             'STATUS'                => 'sometimes|in:Open,On Progress,Menunggu Konfirmasi,Close,Banding',
@@ -293,12 +288,22 @@ class PelaporanHumasController extends Controller {
                         ->with('showModal', '#editModal');
         }
 
+        $validatedData = $validator->validated();
+
         DB::beginTransaction();
         try {
-            $updateData = $request->except(['_token', '_method', 'new_files', 'deleted_files_input', 'file_tindak_lanjut']);
-            // $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
-            // $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
-            // $statusSekarang = $complaint->STATUS;
+            $complaint = Laporan::findOrFail($id_complaint);
+            $updateData = $validatedData;
+
+            if (isset($updateData['ID_BAGIAN']) && is_array($updateData['ID_BAGIAN'])) {
+                $idBagianArray = $updateData['ID_BAGIAN'];
+                $firstId = array_shift($idBagianArray);
+                $updateData['ID_BAGIAN'] = $firstId;
+                $updateData['ID_BAGIAN_LAINNYA'] = !empty($idBagianArray) ? json_encode(array_values($idBagianArray)) : null;
+            }
+
+            $updateData['GRANDING'] = $updateData['gradingOptions'];
+            unset($updateData['gradingOptions']);
 
             if (!$isFromWebsite) {
                 $currentPengaduanFiles = json_decode($complaint->FILE_PENGADUAN, true) ?? [];
@@ -349,7 +354,7 @@ class PelaporanHumasController extends Controller {
                 }
             }
 
-            $updateData['GRANDING'] = $request->input('gradingOptions');
+
 
             if ($request->filled('ID_PENYELESAIAN')) {
                 $penyelesaian = DB::table('penyelesaian_pengaduan')

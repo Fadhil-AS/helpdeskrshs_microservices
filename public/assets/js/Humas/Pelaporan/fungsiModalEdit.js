@@ -197,7 +197,38 @@ $(document).ready(function () {
                 $('#editPetugasPelapor').val(data.PETUGAS_PELAPOR || '');
                 $('#editIsiComplaint').val(data.ISI_COMPLAINT || '');
                 $('#editPermasalahan').val(data.PERMASALAHAN || '');
-                $('#editIdBagian').val(data.ID_BAGIAN || '');
+                // $('#editIdBagian').val(data.ID_BAGIAN || '');
+
+                var unitKerjaContainer = $('#unitKerjaContainer');
+                unitKerjaContainer.html('');
+
+                function createUnitKerjaDropdown() {
+                    var optionsHtml = '<option value="" selected disabled>Pilih unit kerja</option>';
+                    if (typeof allUnitKerja !== 'undefined' && allUnitKerja.length > 0) {
+                        allUnitKerja.forEach(function(uK) {
+                            optionsHtml += `<option value="${uK.ID_BAGIAN}">${uK.NAMA_BAGIAN}</option>`;
+                        });
+                    }
+                    return `<select class="form-select" name="ID_BAGIAN[]" required>${optionsHtml}</select>`;
+                }
+
+                if (data.unit_kerja_list && data.unit_kerja_list.length > 0) {
+                    data.unit_kerja_list.forEach(function(unit, index) {
+                        var dropdownHtml = createUnitKerjaDropdown();
+                        var removeButtonHtml = index > 0 ? `
+                            <button class="btn btn-outline-danger remove-unit-kerja-btn" type="button" title="Hapus">
+                                <i class="bi bi-trash"></i>
+                            </button>` : '';
+
+                        var newGroup = $(`<div class="input-group mb-2">${dropdownHtml}${removeButtonHtml}</div>`);
+                        newGroup.find('select').val(unit.ID_BAGIAN);
+                        unitKerjaContainer.append(newGroup);
+                    });
+                } else {
+                    // Jika tidak ada data, tampilkan satu dropdown kosong
+                    unitKerjaContainer.html(`<div class="input-group mb-2">${createUnitKerjaDropdown()}</div>`);
+                }
+
                 $('#editIdJenisLaporan').val(data.ID_JENIS_LAPORAN || '');
                 $('#editIdJenisMedia').val(data.ID_JENIS_MEDIA || '');
                 $('#editIdKlasifikasi').val(data.ID_KLASIFIKASI || '');

@@ -33,12 +33,12 @@
 
     <!-- Filter & Action -->
     <div class="bg-white p-3 rounded-bottom shadow-sm">
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
-            <div class="d-flex flex-wrap gap-2 grup-tombol">
-                <form action="{{ route('humas.pelaporan-humas') }}" method="GET" id="filterForm"
-                    class="d-flex flex-wrap gap-2">
 
-                    <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
+        <div class="d-flex flex-wrap gap-2 grup-tombol">
+            <form action="{{ route('spi.pelaporan-SPI') }}" method="GET" id="filterForm"
+                class="d-flex flex-wrap gap-2">
+                <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
+                    <select class="form-select" name="status" id="filterStatus" style="width: 180px;">
                         <option value="">Semua Status</option>
                         <option value="Open" {{ request('status') == 'Open' ? 'selected' : '' }}>Open</option>
                         <option value="On Progress" {{ request('status') == 'On Progress' ? 'selected' : '' }}>On
@@ -50,16 +50,18 @@
                         <option value="Banding" {{ request('status') == 'Banding' ? 'selected' : '' }}>Banding</option>
                     </select>
 
-                    <button type="button" class="btn btn-outline-secondary" id="resetFilter"
-                        data-url="{{ route('humas.pelaporan-humas') }}"><i class="bi bi-arrow-counterclockwise"></i>
-                        Reset</button>
+                    <a href="{{ route('spi.pelaporan-SPI') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
 
-                </form>
-            </div>
-            <div class="input-group" style="width: 250px;">
-                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-start-0" placeholder="Cari Pengaduan...">
-            </div>
+                    <div class="input-group" style="width: 250px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0" name="search" id="searchInput"
+                            placeholder="Cari Pengaduan" value="{{ request('search') }}">
+                    </div>
+
+                </div>
+            </form>
         </div>
 
         <!-- Table -->
@@ -126,10 +128,10 @@
                                         data-bs-target="#detailModal" data-id="{{ $dc->ID_COMPLAINT }}">
                                         <i class="bi bi-eye me-2"></i>
                                     </a>
-                                    <a href="javascript:void(0);" class="edit-complaint-btn" data-bs-toggle="modal"
+                                    {{-- <a href="javascript:void(0);" class="edit-complaint-btn" data-bs-toggle="modal"
                                         data-bs-target="#editModal" data-id="{{ $dc->ID_COMPLAINT }}">
                                         <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                    </a> --}}
                                 </td>
                             </tr>
                         @endforeach
@@ -203,8 +205,7 @@
     </div>
 </div>
 
-<script>
+{{-- <script>
     var detailUrlTemplate = "{{ route('spi.pelaporan-SPI.detail', ['id_complaint' => ':id']) }}";
     var storageBaseUrl = "{{ asset('storage') }}";
-    var updateUrlTemplate = "{{ route('humas.pelaporan-humas.update', ['id_complaint' => ':id']) }}";
-</script>
+</script> --}}

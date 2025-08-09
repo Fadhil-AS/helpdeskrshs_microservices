@@ -231,6 +231,7 @@
     </div>
 
     <script>
+        var allUnitKerja = @json($unitKerja);
         var detailUrlTemplate = "{{ route('humas.pelaporan-humas.detail', ['id_complaint' => ':id']) }}";
         var storageBaseUrl = "{{ asset('storage') }}";
         var updateUrlTemplate = "{{ route('humas.pelaporan-humas.update', ['id_complaint' => ':id']) }}";
