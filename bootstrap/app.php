@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'humas'      => \App\Services\Login\Http\Middleware\HumasMiddleware::class,
             'unit_kerja' => \App\Services\Login\Http\Middleware\UnitKerjaMiddleware::class,
             'admin'      => \App\Services\Login\Http\Middleware\AdminMiddleware::class,
+            'spi' => \App\Services\Login\Http\Middleware\SpiMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

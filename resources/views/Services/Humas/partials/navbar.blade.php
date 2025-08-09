@@ -47,6 +47,11 @@
                         <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
                             href="{{ route('admin.dashboard') }}">Dashboard</a>
                     </li>
+                @elseif (session('role') === 'spi')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('spi.pelaporan-SPI*') ? 'active' : '' }}"
+                            href="{{ route('spi.pelaporan-SPI') }}">Daftar Pelaporan</a>
+                    </li>
                 @endif
             </ul>
 
@@ -130,6 +135,11 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
                         href="{{ route('admin.dashboard') }}">Dashboard</a>
+                </li>
+            @elseif (session('role') === 'spi')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('spi.pelaporan-SPI*') ? 'active' : '' }}"
+                        href="{{ route('spi.pelaporan-SPI') }}">Daftar Pelaporan</a>
                 </li>
             @endif
         </ul>

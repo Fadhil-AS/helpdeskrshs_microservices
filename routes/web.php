@@ -20,6 +20,7 @@ use App\Services\Chatbot\Http\Controllers\ChatbotController;
 use App\Services\Chatbot\Models\Chatbot;
 use App\Services\Login\Http\Controllers\LoginController;
 use App\Services\GantiPassword\Http\Controllers\GantiPasswordController;
+use App\Services\SPI\Http\Controllers\SPIController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -121,6 +122,13 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function(){
     Route::get('/admin/dashboard/chart-data', [DashboardAdminController::class, 'getFilteredChartData'])->name('dashboard.chart-data');
 });
 
+Route::prefix('spi')->name('spi.')->middleware('spi')->group(function(){
+    // pelaporan SPI
+    Route::get('/pelaporanSPI', [SPIController::class, 'getPelaporanSPI'])->name('pelaporan-SPI');
+    // Route::post('/pelaporanSPI', [SPIController::class, 'storePelaporanSPI'])->name('pelaporan-SPI.store');
+    Route::get('/pelaporanSPI/{id_complaint}/detail', [SPIController::class, 'showPelaporanDetail'])->name('pelaporan-SPI.detail');
+    Route::put('/pelaporanSPI/{id_complaint}', [SPIController::class, 'updatePelaporanSPI'])->name('pelaporan-SPI.update');
+});
 
 
 // Route::prefix('chatbot')->name('chatbot.')->group(function(){

@@ -121,4 +121,22 @@ class Laporan extends Model {
             return $query->where('STATUS', $status);
         });
     }
+
+    public function getPengaduanFilesAttribute()
+    {
+        $files = $this->attributes['FILE_PENGADUAN'] ?? '';
+        return $files ? explode(';', $files) : [];
+    }
+
+    public function getKlarifikasiFilesAttribute()
+    {
+        $files = $this->attributes['FILE_BUKTI_KLARIFIKASI'] ?? '';
+        return $files ? explode(';', $files) : [];
+    }
+
+    public function getTindakLanjutFilesAttribute()
+    {
+        $files = $this->attributes['FILE_TINDAK_LANJUT_HUMAS'] ?? '';
+        return $files ? explode(';', $files) : [];
+    }
 }
