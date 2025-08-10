@@ -46,6 +46,19 @@ trait NotifikasiWhatsappPelapor
                 break;
             case 'On Progress':
                 $pesanBody = "Update Laporan [" . $idLaporan . "]: Laporan Anda terkait *" . $judulLaporan . "* saat ini sedang dalam proses penanganan oleh tim kami.";
+                if (!empty($laporan->klarifikasi_list)) {
+                    $unitKerjaMap = $laporan->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
+                    $klarifikasiList = $laporan->klarifikasi_list;
+
+                    if (!empty($klarifikasiList)) {
+                        $pesanBody .= "\n\nBerikut adalah klarifikasi dari unit terkait:";
+                        foreach ($klarifikasiList as $klarifikasi) {
+                            $namaBagian = $unitKerjaMap[$klarifikasi['id_bagian']] ?? 'Unit Tidak Dikenal';
+                            $tanggalFormatted = date('d-m-Y', strtotime($klarifikasi['tanggal']));
+                            $pesanBody .= "\n- *".$namaBagian."* (".$klarifikasi['petugas']." pada ".$tanggalFormatted."): \"".$klarifikasi['klarifikasi']."\"";
+                        }
+                    }
+                }
                 break;
             case 'Menunggu Konfirmasi':
                 $pesanBody = "Update Laporan [" . $idLaporan . "]: Tindak lanjut untuk laporan Anda terkait *" . $judulLaporan . "* telah selesai kami lakukan. Mohon berikan konfirmasi Anda agar laporan dapat kami tutup.";

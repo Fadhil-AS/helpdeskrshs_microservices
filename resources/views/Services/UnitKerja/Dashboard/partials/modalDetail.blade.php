@@ -127,6 +127,9 @@
                         <div class="mb-3">
                             <label class="fw-bold pb-2">Klarifikasi Unit</label>
                             <textarea class="form-control bg-light" rows="2" id="detail-klarifikasi-unit" readonly></textarea>
+                            {{-- <div id="detail-klarifikasi-unit">
+                                <p class="text-muted m-0">Memuat klarifikasi...</p>
+                            </div> --}}
                         </div>
 
                         <!-- File Bukti Klarifikasi -->

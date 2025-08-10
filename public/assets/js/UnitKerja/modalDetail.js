@@ -88,7 +88,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('detail-no-tlpn').textContent = text(data.NO_TLPN);
         document.getElementById('detail-grading-badge').innerHTML = getGradingBadge(data.GRANDING);
         document.getElementById('detail-nama-pelapor').textContent = text(data.NAME);
-        document.getElementById('detail-unit-kerja').textContent = text(data.unit_kerja?.NAMA_BAGIAN);
+
+        const unitKerjaContainer = document.getElementById('detail-unit-kerja');
+        if (data.unit_kerja_list && data.unit_kerja_list.length > 0) {
+            let html = '<ul class="list-unstyled mb-0" style="padding-left: 0;">';
+            data.unit_kerja_list.forEach(unit => {
+                html += `<li>${unit.NAMA_BAGIAN || '-'}</li>`;
+            });
+            html += '</ul>';
+            unitKerjaContainer.innerHTML = html;
+        } else {
+            unitKerjaContainer.textContent = '-';
+        }
+
         document.getElementById('detail-no-medrec').textContent = text(data.NO_MEDREC);
         document.getElementById('detail-jenis-laporan').textContent = text(data.jenis_laporan?.JENIS_LAPORAN);
         document.getElementById('detail-media-pengaduan').textContent = text(data.jenis_media?.JENIS_MEDIA);
@@ -102,13 +114,35 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('detail-tanggal-tindak-lanjut').textContent = formatDate(data.TGL_TINDAK_LANJUT_HUMAS);
         document.getElementById('detail-tanggal-selesai').textContent = formatDate(data.TGL_SELESAI);
         document.getElementById('detail-penyelesaian').textContent = text(data.penyelesaian_pengaduan?.PENYELESAIAN_PENGADUAN);
-        document.getElementById('detail-klarifikasi-unit').value = text(data.TINDAK_LANJUT_HUMAS);
-        document.getElementById('detail-tindak-lanjut-humas').value = text(data.EVALUASI_COMPLAINT);
+
+        const klarifikasiTextarea = document.getElementById('detail-klarifikasi-unit');
+        klarifikasiTextarea.value = '';
+
+        if (data.klarifikasi_list && data.klarifikasi_list.length > 0) {
+            const formattedTextEntries = data.klarifikasi_list.map(item => {
+                const tanggal = item.tanggal
+                    ? new Date(item.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'Tanggal tidak tersedia';
+
+                return `[${item.nama_bagian || 'Unit Kerja'}] - ${tanggal}\n` +
+                       `Klarifikasi: ${item.klarifikasi || '-'}\n` +
+                       `Oleh: ${item.petugas || '-'}`;
+            });
+
+            const separator = "\n\n----------------------------------\n\n";
+            klarifikasiTextarea.value = formattedTextEntries.join(separator);
+
+        } else {
+            klarifikasiTextarea.value = 'Belum ada klarifikasi dari unit kerja.';
+        }
+
+
+        document.getElementById('detail-tindak-lanjut-humas').value = text(data.TINDAK_LANJUT_HUMAS);
 
         const pengaduanContainer = document.getElementById('filePengaduanContainer');
-        pengaduanContainer.innerHTML = ''; // Kosongkan dulu
+        pengaduanContainer.innerHTML = '';
         if (data.pengaduan_files && data.pengaduan_files.length > 0) {
-            pengaduanContainer.classList.add('d-flex', 'flex-wrap', 'gap-2'); // Tambahkan class untuk layout
+            pengaduanContainer.classList.add('d-flex', 'flex-wrap', 'gap-2');
             data.pengaduan_files.forEach(filePath => {
                 const trimmedPath = filePath.trim();
                 if (trimmedPath === '') return;
@@ -230,12 +264,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-judul').value = data.JUDUL_COMPLAINT || '';
         document.getElementById('edit-deskripsi').value = data.ISI_COMPLAINT || '';
         document.getElementById('edit-permasalahan').value = data.PERMASALAHAN || '';
-        document.getElementById('edit-petugas-evaluasi').value = data.PETUGAS_EVALUASI || 'Admin Unit Kerja';
-
-        document.getElementById('edit-tanggal-evaluasi').value = toInputDate(data.TGL_EVALUASI);
 
         document.getElementById('edit-klarifikasi-unit').value = data.EVALUASI_COMPLAINT || '';
         document.getElementById('edit-file-bukti').value = '';
+
+        const idBagianPengguna = data.id_bagian_pengguna;
+        const currentUserKlarifikasi = data.klarifikasi_list.find(item => item.id_bagian == idBagianPengguna);
+
+        document.getElementById('edit-klarifikasi-unit').value = currentUserKlarifikasi ? currentUserKlarifikasi.klarifikasi : '';
+        document.getElementById('edit-petugas-evaluasi').value = currentUserKlarifikasi ? currentUserKlarifikasi.petugas : 'Admin Unit Kerja';
 
         const tglEvaluasiInput = document.getElementById('edit-tanggal-evaluasi');
         const today = new Date();
@@ -249,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tglEvaluasiInput.removeAttribute('min');
         }
 
-        tglEvaluasiInput.value = data.TGL_EVALUASI ? toInputDate(data.TGL_EVALUASI) : maxDate;
+        tglEvaluasiInput.value = currentUserKlarifikasi && currentUserKlarifikasi.tanggal ? toInputDate(currentUserKlarifikasi.tanggal) : maxDate;
 
         const pengaduanContainerEdit = document.querySelector('#editModal #filePengaduanContainer');
         if (pengaduanContainerEdit) {

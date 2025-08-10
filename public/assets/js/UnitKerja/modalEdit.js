@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const toInputDate = (dateString) => {
             if (!dateString) return '';
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '';
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
@@ -62,12 +63,18 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('edit-judul').value = data.JUDUL_COMPLAINT || '';
         document.getElementById('edit-deskripsi').value = data.ISI_COMPLAINT || '';
         document.getElementById('edit-permasalahan').value = data.PERMASALAHAN || '';
-        document.getElementById('edit-petugas-evaluasi').value = data.PETUGAS_EVALUASI || 'Admin Unit Kerja';
+        // document.getElementById('edit-petugas-evaluasi').value = data.PETUGAS_EVALUASI || 'Admin Unit Kerja';
 
-        document.getElementById('edit-tanggal-evaluasi').value = toInputDate(data.TGL_EVALUASI);
+        // document.getElementById('edit-tanggal-evaluasi').value = toInputDate(data.TGL_EVALUASI);
 
-        document.getElementById('edit-klarifikasi-unit').value = data.EVALUASI_COMPLAINT || '';
+        // document.getElementById('edit-klarifikasi-unit').value = data.EVALUASI_COMPLAINT || '';
         document.getElementById('edit-file-bukti').value = '';
+
+        const idBagianPengguna = data.id_bagian_pengguna;
+        const currentUserKlarifikasi = data.klarifikasi_list.find(item => item.id_bagian == idBagianPengguna);
+
+        document.getElementById('edit-klarifikasi-unit').value = currentUserKlarifikasi ? currentUserKlarifikasi.klarifikasi : '';
+        document.getElementById('edit-petugas-evaluasi').value = currentUserKlarifikasi ? currentUserKlarifikasi.petugas : 'Admin Unit Kerja';
 
         const tanggalEvaluasiInput = document.getElementById('edit-tanggal-evaluasi');
 
@@ -75,14 +82,18 @@ document.addEventListener('DOMContentLoaded', function () {
             tanggalEvaluasiInput.disabled = false;
             tanggalEvaluasiInput.classList.remove('bg-light');
             tanggalEvaluasiInput.placeholder = '';
+            tanggalEvaluasiInput.min = toInputDate(data.TGL_PENUGASAN);
+            const today = new Date();
+            // const minDate = toInputDate(data.TGL_PENUGASAN);
+            // tanggalEvaluasiInput.min = minDate;
 
-            const minDate = toInputDate(data.TGL_PENUGASAN);
-            tanggalEvaluasiInput.min = minDate;
+            // const maxDate = toInputDate(new Date());
+            today.setHours(today.getHours() + 7);
+            tanggalEvaluasiInput.max = today.toISOString().split('T')[0];
 
-            const maxDate = toInputDate(new Date());
-            tanggalEvaluasiInput.max = maxDate;
-
-            tanggalEvaluasiInput.value = toInputDate(data.TGL_EVALUASI);
+            tanggalEvaluasiInput.value = currentUserKlarifikasi && currentUserKlarifikasi.tanggal
+            ? toInputDate(currentUserKlarifikasi.tanggal)
+            : tanggalEvaluasiInput.max;
 
         } else {
             tanggalEvaluasiInput.disabled = true;

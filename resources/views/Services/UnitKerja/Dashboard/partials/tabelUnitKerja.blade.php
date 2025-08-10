@@ -53,10 +53,17 @@
                         <td><strong>{{ $complaint->ID_COMPLAINT }}</strong></td>
                         <td>{{ $complaint->JUDUL_COMPLAINT ?? 'Belum ada judul' }}</td>
                         <td>{{ $complaint->jenisMedia?->JENIS_MEDIA ?? '-' }}</td>
-                        @if (!empty($complaint->EVALUASI_COMPLAINT))
+                        {{-- @if (!empty($complaint->EVALUASI_COMPLAINT))
                             <td><span class="badge bg-info">Sudah</span></td>
                         @else
                             <td><span class="badge bg-danger text-light">Belum</span></td>
+                        @endif --}}
+                        @if ($complaint->status_klarifikasi == 'Sudah')
+                            <td><span class="badge bg-info">Sudah</span></td>
+                        @elseif ($complaint->status_klarifikasi == 'Belum')
+                            <td><span class="badge bg-danger text-light">Belum</span></td>
+                        @else
+                            <td><span class="badge bg-secondary">N/A</span></td>
                         @endif
                         <td>
                             @if ($complaint->STATUS == 'Open')

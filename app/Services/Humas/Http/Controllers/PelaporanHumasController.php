@@ -222,7 +222,15 @@ class PelaporanHumasController extends Controller {
                 return response()->json(['error' => 'Data pengaduan tidak ditemukan.'], 404);
             }
 
+            $unitKerjaMap = $complaint->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
+            $klarifikasiList = $complaint->klarifikasi_list;
+            $augmentedKlarifikasi = array_map(function ($item) use ($unitKerjaMap) {
+                $item['nama_bagian'] = $unitKerjaMap[$item['id_bagian']] ?? 'Unit Kerja Tidak Dikenal';
+                return $item;
+            }, $klarifikasiList);
+
             $dataAsArray = $complaint->toArray();
+            $dataAsArray['klarifikasi_list'] = $augmentedKlarifikasi;
 
             array_walk_recursive($dataAsArray, function (&$item, $key) {
                 if (is_string($item)) {

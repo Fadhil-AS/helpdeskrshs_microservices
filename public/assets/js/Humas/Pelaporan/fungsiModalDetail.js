@@ -43,10 +43,12 @@ $(document).ready(function () {
 
                 var klarifikasiStatusBadge = $('#detailKlarifikasiStatus');
                 klarifikasiStatusBadge.removeClass().addClass('badge');
-                if (data.EVALUASI_COMPLAINT && data.EVALUASI_COMPLAINT.trim() !== '') {
+                if (data.status_klarifikasi === 'Sudah') {
                     klarifikasiStatusBadge.text('Sudah').addClass('bg-info');
-                } else {
+                } else if (data.status_klarifikasi === 'Belum') {
                     klarifikasiStatusBadge.text('Belum').addClass('bg-danger text-light');
+                } else {
+                    klarifikasiStatusBadge.text('-').addClass('bg-secondary');
                 }
 
                 $('#detailNamaPelapor').text(data.NAME || '-');
@@ -78,6 +80,20 @@ $(document).ready(function () {
                 $('#detailDeskripsiPengaduanContent').text(data.ISI_COMPLAINT || '-');
                 $('#detailRangkumanPermasalahanContent').text(data.PERMASALAHAN || '-');
                 $('#detailPetugasEvaluasi').text(data.PETUGAS_EVALUASI || '-');
+                var petugasContainer = $('#detailPetugasEvaluasi');
+                petugasContainer.html('');
+
+                if (data.klarifikasi_list && data.klarifikasi_list.length > 0) {
+                    var petugasHtml = '<ul class="ps-3 mb-0" style="list-style-type: disc;">';
+                    data.klarifikasi_list.forEach(function(item) {
+                        petugasHtml += `<li>${item.petugas || 'N/A'} <strong>(${item.nama_bagian || 'Unit'})</strong></li>`;
+                    });
+                    petugasHtml += '</ul>';
+                    petugasContainer.html(petugasHtml);
+                } else {
+                    petugasContainer.text('-');
+                }
+
                 var tglEvaluasi = data.TGL_EVALUASI ? new Date(data.TGL_EVALUASI).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
                 $('#detailTanggalEvaluasi').text(tglEvaluasi);
                 $('#detailPenyelesaianPengaduan').text(data.penyelesaian_pengaduan ? data.penyelesaian_pengaduan.PENYELESAIAN_PENGADUAN : '-');
@@ -85,7 +101,24 @@ $(document).ready(function () {
                 $('#detailTanggalTindakLanjut').text(tglTindakLanjut);
                 var tglSelesai = data.TGL_SELESAI ? new Date(data.TGL_SELESAI).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-';
                 $('#detailTanggalSelesai').text(tglSelesai);
-                $('#detailKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '-');
+                const klarifikasiTextarea = $('#detailKlarifikasiUnitContent');
+                klarifikasiTextarea.val('');
+
+                if (data.klarifikasi_list && data.klarifikasi_list.length > 0) {
+                    const formattedTextEntries = data.klarifikasi_list.map(item => {
+                        const tanggal = item.tanggal
+                            ? new Date(item.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                            : 'Tanggal tidak tersedia';
+
+                        return `[${item.nama_bagian || 'Unit Kerja'}] - ${tanggal}\n` +
+                               `Klarifikasi: ${item.klarifikasi || '-'}\n` +
+                               `Oleh: ${item.petugas || '-'}`;
+                    });
+                    const separator = "\n\n----------------------------------\n\n";
+                    klarifikasiTextarea.val(formattedTextEntries.join(separator));
+                } else {
+                    klarifikasiTextarea.val('Belum ada klarifikasi dari unit kerja.');
+                }
                 $('#detailTindakLanjutHumasContent').val(data.TINDAK_LANJUT_HUMAS || '-');
 
                 var pengaduanContainer = $('#filePengaduanContainer');
@@ -162,7 +195,6 @@ $(document).ready(function () {
         });
     });
 
-    // Event ini akan berjalan setiap kali modal selesai ditutup.
     $('#detailModal').on('hidden.bs.modal', function () {
         console.log('Detail modal telah ditutup.');
     });

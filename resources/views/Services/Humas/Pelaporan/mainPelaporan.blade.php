@@ -132,10 +132,12 @@
                                         <td><span class="badge bg-danger text-light">Banding</span></td>
                                     @endif
 
-                                    @if (!empty($dc->EVALUASI_COMPLAINT))
+                                    @if ($dc->status_klarifikasi == 'Sudah')
                                         <td><span class="badge bg-info">Sudah</span></td>
-                                    @else
+                                    @elseif ($dc->status_klarifikasi == 'Belum')
                                         <td><span class="badge bg-danger text-light">Belum</span></td>
+                                    @else
+                                        <td><span class="badge bg-secondary">-</span></td>
                                     @endif
 
                                     @if ($dc->GRANDING == 'Merah')

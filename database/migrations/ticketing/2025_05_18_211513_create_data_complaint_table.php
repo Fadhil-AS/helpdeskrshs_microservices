@@ -27,7 +27,7 @@ return new class extends Migration
             $table->text('ISI_COMPLAINT', 4000)->nullable();
             $table->date('TGL_INSROW');
             $table->string('STATUS', 30);
-            $table->string('EVALUASI_COMPLAINT', 4000)->nullable();
+            $table->text('EVALUASI_COMPLAINT')->nullable();
             $table->string('JUDUL_COMPLAINT', 4000)->nullable();
             $table->string('PETUGAS_EVALUASI', 100)->nullable();
             $table->date('TGL_PENUGASAN')->nullable();

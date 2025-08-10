@@ -234,7 +234,25 @@ $(document).ready(function () {
                 $('#editIdKlasifikasi').val(data.ID_KLASIFIKASI || '');
                 $('#editPetugasEvaluasi').val(data.PETUGAS_EVALUASI || '');
                 $('#editIdPenyelesaian').val(data.ID_PENYELESAIAN || '');
-                $('#editKlarifikasiUnitContent').val(data.EVALUASI_COMPLAINT || '');
+                const klarifikasiTextarea = $('#editKlarifikasiUnitContent');
+                klarifikasiTextarea.val('');
+
+                if (data.klarifikasi_list && data.klarifikasi_list.length > 0) {
+                    const formattedTextEntries = data.klarifikasi_list.map(item => {
+                        const tanggal = item.tanggal
+                            ? new Date(item.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                            : 'Tanggal tidak tersedia';
+
+                        return `[${item.nama_bagian || 'Unit Kerja'}] - ${tanggal}\n` +
+                               `Klarifikasi: ${item.klarifikasi || '-'}\n` +
+                               `Oleh: ${item.petugas || '-'}`;
+                    });
+                    const separator = "\n\n----------------------------------\n\n";
+                    klarifikasiTextarea.val(formattedTextEntries.join(separator));
+                } else {
+                    klarifikasiTextarea.val('Belum ada klarifikasi dari unit kerja.');
+                }
+
                 $('#editTindakLanjutHumasContent').val(data.TINDAK_LANJUT_HUMAS || '');
                 $('#editBuktiKlarifikasiContainer').val(data.FILE_BUKTI_KLARIFIKASI || '');
 

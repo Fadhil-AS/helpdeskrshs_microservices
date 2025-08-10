@@ -143,11 +143,21 @@ class LacakTicketingController extends Controller
                 // History: Klarifikasi dari Unit Kerja
                 // Tanggal diambil dari TGL_EVALUASI
                 if (!empty($laporan->EVALUASI_COMPLAINT) && !empty($laporan->TGL_EVALUASI)) {
+                    $klarifikasiList = $laporan->klarifikasi_list;
+                    $unitKerjaMap = $laporan->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
+
+                    $klarifikasiFormatted = [];
+                    foreach ($klarifikasiList as $item) {
+                        $namaBagian = $unitKerjaMap[$item['id_bagian']] ?? 'Unit Kerja';
+                        $klarifikasiFormatted[] = "<b>" . e($namaBagian) . ":</b><br>" . e($item['klarifikasi']);
+                    }
+                    $klarifikasiText = implode("<br><br>", $klarifikasiFormatted);
+
                     $riwayatPenanganan[] = [
                         'tanggal_aksi' => Carbon::parse($laporan->TGL_EVALUASI)->format('d M Y'),
-                        'aktor' => $laporan->unitKerja->NAMA_BAGIAN ?? 'Unit Kerja',
+                        'aktor' => 'Unit Kerja',
                         'judul_aksi' => 'Klarifikasi sudah diproses',
-                        'deskripsi_aksi' => 'Klarifikasi sudah diproses dengan hasil <b>'. $laporan->EVALUASI_COMPLAINT . '</b> dan akan ditindak lanjuti oleh Humas.',
+                        'deskripsi_aksi' => 'Klarifikasi dari unit kerja terkait telah diterima:<br><br>' . $klarifikasiText . '<br><br>Selanjutnya akan ditindaklanjuti oleh Humas.',
                     ];
                 }
 

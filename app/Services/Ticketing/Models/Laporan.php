@@ -8,6 +8,7 @@ use App\Services\Ticketing\Models\KlasifikasiPengaduan;
 use App\Services\Ticketing\Models\JenisMedia;
 use App\Services\Ticketing\Models\PenyelesaianPengaduan;
 use App\Services\Ticketing\Models\JenisLaporan;
+use Illuminate\Support\Facades\DB;
 
 class Laporan extends Model {
     protected $table = 'data_complaint';
@@ -21,7 +22,9 @@ class Laporan extends Model {
         'pengaduan_files',
         'klarifikasi_files',
         'tindak_lanjut_files',
-        'unit_kerja_list'
+        'unit_kerja_list',
+        'status_klarifikasi',
+        'klarifikasi_list'
     ];
 
     protected $fillable = [
@@ -164,11 +167,33 @@ class Laporan extends Model {
         }
 
         $allIds = array_merge([$firstId], $otherIds);
-        $validIds = array_filter($allIds);
+        $validIds = array_unique(array_filter($allIds));
 
         if (empty($validIds)) {
             return collect();
         }
+
         return UnitKerja::whereIn('ID_BAGIAN', $validIds)->get();
+    }
+
+    public function getKlarifikasiListAttribute()
+    {
+        $evaluasi = $this->attributes['EVALUASI_COMPLAINT'] ?? '[]';
+        return json_decode($evaluasi, true) ?: [];
+    }
+
+    public function getStatusKlarifikasiAttribute()
+    {
+        $unitKerjaTujuan = $this->unit_kerja_list;
+        $klarifikasiTersimpan = $this->klarifikasi_list;
+
+        if ($unitKerjaTujuan->isEmpty()) {
+            return '-';
+        }
+
+        $jumlahUnitKerja = $unitKerjaTujuan->count();
+        $jumlahKlarifikasi = count($klarifikasiTersimpan);
+
+        return ($jumlahKlarifikasi >= $jumlahUnitKerja) ? 'Sudah' : 'Belum';
     }
 }
