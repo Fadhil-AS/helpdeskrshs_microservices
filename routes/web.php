@@ -9,6 +9,7 @@ use App\Services\Humas\Http\Controllers\PelaporanHumasController;
 use App\Services\Humas\Http\Controllers\UnitKerjaHumasController;
 use App\Services\Humas\Http\Controllers\DireksiHumasController;
 use App\Services\Humas\Http\Controllers\DataReferensiHumasController;
+use App\Services\Humas\Http\Controllers\DataNomorController;
 use App\Services\Humas\Http\Controllers\UserComplaintController;
 use App\Services\Humas\Http\Controllers\KlasifikasiPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisMediaController;
@@ -86,6 +87,9 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
 
     // data referensi humas
     Route::get('/DataReferensiHumas', [DataReferensiHumasController::class, 'getDataReferensiHumas'])->name('data-referensi-humas');
+
+    // nomor WA humas & RSHS
+    Route::get('/DataNomorHumas&RSHS', [DataNomorController::class, 'getDataNomor'])->name('data-nomor-humas-rshs');
 
     // klasifikasi pengaduan
     Route::post('/klasifikasi-pengaduan', [KlasifikasiPengaduanController::class, 'store'])->name('klasifikasi-pengaduan.store');

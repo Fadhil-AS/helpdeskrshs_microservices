@@ -67,8 +67,12 @@
                         <div class="col-md-6">
                             <div class="mb-3" id="wrapper_no_tlpn">
                                 <label class="form-label fw-bold" for="NO_TLPN">Nomor Telepon</label>
-                                <input type="text" class="form-control" placeholder="Masukkan nomor telepon"
-                                    id="NO_TLPN" name="NO_TLPN" value="{{ old('NO_TLPN') }}" required>
+                                <input type="tel" class="form-control" placeholder="Masukkan nomor telepon"
+                                    id="NO_TLPN" name="NO_TLPN" value="{{ old('NO_TLPN') }}" required
+                                    pattern="[0-9]{10,15}"
+                                    maxlength="15"
+                                    title="Nomor Telepon harus terdiri dari 10 hingga 15 digit angka.">
+                                <small class="text-muted">Nomor harus terdiri dari 10-15 digit angka.</small>
                             </div>
                         </div>
                         <div class="col-md-6">

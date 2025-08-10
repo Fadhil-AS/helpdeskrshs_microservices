@@ -33,6 +33,10 @@
                         <a class="nav-link {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
                             href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('humas.data-nomor-humas-rshs*') ? 'active' : '' }}"
+                            href="{{ route('humas.data-nomor-humas-rshs') }}">Data Nomor WA</a>
+                    </li>
                 @elseif (session('role') === 'unit_kerja')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
@@ -121,6 +125,10 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('humas.data-nomor-humas-rshs*') ? 'active' : '' }}"
+                        href="{{ route('humas.data-nomor-humas-rshs') }}">Data Nomor WA</a>
                 </li>
             @elseif (session('role') === 'unit_kerja')
                 {{-- <li class="nav-item">

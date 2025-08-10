@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Pasien dipilih
         if (selectedPelapor === 'Pasien' && selectedKlasifikasi === 'sponsorship') {
-             klasifikasiSelect.value = '';
-             selectedKlasifikasi = '';
+            klasifikasiSelect.value = '';
+            selectedKlasifikasi = '';
         }
 
         // Atur status enable/disable dropdown
@@ -99,6 +99,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (jenisPelaporSelect) {
         jenisPelaporSelect.addEventListener('change', updateFormState);
+    }
+    if (noTlpnInput) {
+        noTlpnInput.addEventListener('input', function (event) {
+            const sanitizedValue = event.target.value.replace(/[^0-9]/g, '');
+            event.target.value = sanitizedValue;
+        });
     }
 
     modal.addEventListener('show.bs.modal', function () {
