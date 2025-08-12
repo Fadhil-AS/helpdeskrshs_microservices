@@ -17,6 +17,24 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
     <script src="{{ asset('assets/js/Humas/DataNomor/modalEdit.js') }}"></script>
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const failedId = '{{ old('id') }}';
+                const failedField = '{{ old('field_to_update') }}';
+
+                if (failedId && failedField) {
+                    const failedButton = document.querySelector(
+                        `a[data-id="${failedId}"][data-field="${failedField}"]`
+                    );
+
+                    if (failedButton) {
+                        failedButton.click();
+                    }
+                }
+            });
+        </script>
+    @endif
 </body>
 
 </html>

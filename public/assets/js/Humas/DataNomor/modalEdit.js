@@ -6,12 +6,16 @@ document.addEventListener('DOMContentLoaded', function() {
         var id = button.getAttribute('data-id');
         var nama = button.getAttribute('data-nama');
         var nomorLama = button.getAttribute('data-nomor');
+        var actionUrl = button.getAttribute('data-action');
+        var field = button.getAttribute('data-field');
+
         var form = modalEdit.querySelector('#editNomorForm');
-        var actionUrl = "/nomor-kontak/" + id;
         form.setAttribute('action', actionUrl);
+
         modalEdit.querySelector('#modalEditNomorLabel').textContent = "Ubah " + nama;
         modalEdit.querySelector('#edit_id').value = id;
-        modalEdit.querySelector('#nomor_lama_text').textContent = nomorLama;
+        modalEdit.querySelector('#edit_field').value = field;
+        modalEdit.querySelector('#nomor_lama_text').textContent = nomorLama || 'Belum diatur';
         modalEdit.querySelector('#edit_nomor_baru').value = '';
     });
 

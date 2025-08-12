@@ -98,21 +98,22 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Unit Kerja Tujuan</label>
-                                    {{-- Container untuk menampung dropdown unit kerja --}}
                                     <div id="unitKerjaContainer">
-                                        {{-- Dropdown Unit Kerja Pertama --}}
                                         <div class="input-group mb-2">
                                             <select class="form-select" name="ID_BAGIAN[]" required>
                                                 <option value="" selected disabled>Pilih unit kerja</option>
                                                 @if (isset($unitKerja) && $unitKerja->count() > 0)
                                                     @foreach ($unitKerja as $uK)
-                                                        <option value="{{ $uK->ID_BAGIAN }}">{{ $uK->NAMA_BAGIAN }}</option>
+                                                        <option value="{{ $uK->ID_BAGIAN }}"
+                                                            {{ $uK->SUPER == 1 ? 'disabled' : '' }}>
+                                                            {{ $uK->NAMA_BAGIAN }}</option>
                                                     @endforeach
                                                 @endif
                                             </select>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-md btn-tambah-pengaduan text-white mb-1" id="addUnitKerjaBtn">
+                                    <button type="button" class="btn btn-md btn-tambah-pengaduan text-white mb-1"
+                                        id="addUnitKerjaBtn">
                                         <i class="bi bi-plus-circle text-white"></i> Tambah Unit Kerja
                                     </button>
                                 </div>

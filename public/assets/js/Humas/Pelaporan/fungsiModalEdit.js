@@ -206,7 +206,8 @@ $(document).ready(function () {
                     var optionsHtml = '<option value="" selected disabled>Pilih unit kerja</option>';
                     if (typeof allUnitKerja !== 'undefined' && allUnitKerja.length > 0) {
                         allUnitKerja.forEach(function(uK) {
-                            optionsHtml += `<option value="${uK.ID_BAGIAN}">${uK.NAMA_BAGIAN}</option>`;
+                            var disabledAttribute = uK.SUPER == 1 ? 'disabled' : '';
+                            optionsHtml += `<option value="${uK.ID_BAGIAN}" ${disabledAttribute}>${uK.NAMA_BAGIAN}</option>`;
                         });
                     }
                     return `<select class="form-select" name="ID_BAGIAN[]" required>${optionsHtml}</select>`;

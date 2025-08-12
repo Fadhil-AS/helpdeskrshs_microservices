@@ -88,8 +88,9 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     // data referensi humas
     Route::get('/DataReferensiHumas', [DataReferensiHumasController::class, 'getDataReferensiHumas'])->name('data-referensi-humas');
 
-    // nomor WA humas & RSHS
+    // nomor WA humas
     Route::get('/DataNomorHumas&RSHS', [DataNomorController::class, 'getDataNomor'])->name('data-nomor-humas-rshs');
+    Route::put('/nomor-kontak/{humas}', [DataNomorController::class, 'updateNomor'])->name('nomor.update');
 
     // klasifikasi pengaduan
     Route::post('/klasifikasi-pengaduan', [KlasifikasiPengaduanController::class, 'store'])->name('klasifikasi-pengaduan.store');

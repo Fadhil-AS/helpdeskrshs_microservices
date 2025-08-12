@@ -10,19 +10,26 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="edit_id" name="id">
+                    <input type="hidden" id="edit_field" name="field_to_update">
 
-                    {{-- Menampilkan nomor lama --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nomor Saat Ini:</label>
                         <p><strong id="nomor_lama_text" class=""></strong></p>
                     </div>
 
-                    {{-- Input untuk nomor baru --}}
                     <div>
                         <label for="edit_nomor_baru" class="form-label fw-bold">Masukkan Nomor Baru:</label>
-                        <input type="tel" class="form-control" id="edit_nomor_baru" name="no_tlpn"
-                            placeholder="Contoh: 081234567890" required pattern="[0-9]{10,15}" maxlength="15"
+                        <input type="tel" class="form-control @error('no_tlpn') is-invalid @enderror"
+                            id="edit_nomor_baru" name="no_tlpn" value="{{ old('no_tlpn') }}" placeholder="Contoh: 081234567890" required
+                            pattern="[0-9]{10,15}" maxlength="15"
                             title="Nomor harus berupa angka dan terdiri dari 10-15 digit angka.">
+
+                        @error('no_tlpn')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
                         <small class="text-muted">Nomor harus berupa angka dan terdiri dari 10-15 digit angka.</small>
                     </div>
                 </div>

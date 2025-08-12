@@ -15,11 +15,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
+// use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
+use App\Services\Humas\Traits\NotifikasiWhatsApp;
 
 class PelaporanHumasController extends Controller {
 
-    use NotifikasiWhatsappPelapor;
+    use NotifikasiWhatsApp;
 
     public function getPelaporanHumas(Request $request){
         // dd($request->all());
@@ -190,8 +191,10 @@ class PelaporanHumasController extends Controller {
             $laporanBaru = Laporan::create($dataToCreate);
             $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
             if (!$isExcluded) {
-                $this->kirimNotifikasiStatusKePelapor($laporanBaru);
+                $this->kirimNotifikasiKePelapor($laporanBaru);
             }
+
+            $this->kirimNotifikasiKeHumas($laporanBaru, 'laporan_baru');
 
             DB::commit();
 
@@ -391,7 +394,8 @@ class PelaporanHumasController extends Controller {
             $complaint->update($updateData);
 
             if ($complaint->wasChanged('STATUS')) {
-                $this->kirimNotifikasiStatusKePelapor($complaint->fresh());
+                $this->kirimNotifikasiKePelapor($complaint->fresh());
+                $this->kirimNotifikasiStatusKeHumas($complaint->fresh());
             }
 
             DB::commit();

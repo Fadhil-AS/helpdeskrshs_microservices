@@ -14,10 +14,11 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use App\Services\UnitKerja\Traits\UnitKerjaNotifikasi;
-
+// use App\Services\UnitKerja\Traits\UnitKerjaNotifikasi;
+use App\Services\Humas\Traits\NotifikasiWhatsApp;
 class DashboardUnitKerjaController extends Controller {
-    use UnitKerjaNotifikasi;
+    // use UnitKerjaNotifikasi;
+    use NotifikasiWhatsApp;
 
     public function getDashboard (Request $request){
         $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
@@ -183,31 +184,12 @@ class DashboardUnitKerjaController extends Controller {
                 $complaint->update($updateData);
             });
 
-            $updatedComplaint = Laporan::find($id_complaint);
-            if ($updatedComplaint && $updatedComplaint->NO_TLPN) {
-                $urlLacak = route('ticketing.lacak', ['id_complaint' => $updatedComplaint->ID_COMPLAINT]);
+            $updatedComplaint = Laporan::with('unitKerja')->find($id_complaint);
 
-                $klarifikasiList = $updatedComplaint->klarifikasi_list;
-
-                $unitKerjaMap = $updatedComplaint->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
-
-                $klarifikasiFormatted = [];
-                foreach ($klarifikasiList as $item) {
-                    $namaBagian = $unitKerjaMap[$item['id_bagian']] ?? 'Unit Kerja';
-                    $klarifikasiFormatted[] = "*{$namaBagian}*:\n{$item['klarifikasi']}";
-                }
-                $klarifikasiText = implode("\n\n", $klarifikasiFormatted);
-
-                $message = "Yth.\nBapak/Ibu {$updatedComplaint->NAME},\n\n" .
-                           "Laporan Anda dengan ID *{$updatedComplaint->ID_COMPLAINT}* telah diperbarui.\n\n" .
-                           "Status saat ini: *{$updatedComplaint->STATUS}*.\n\n" .
-                           "Berikut adalah klarifikasi dari unit terkait:\n" . $klarifikasiText . "\n\n" .
-                           "Untuk melacak status laporan Anda, silakan kunjungi link berikut:\n" . $urlLacak .
-                           "\n\nTerima kasih atas perhatian Anda.".
-                           "\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
-
-                $this->sendWhatsappNotification($updatedComplaint->NO_TLPN, $message);
-            }
+            $this->kirimNotifikasiKePelapor($updatedComplaint);
+            $unitKerjaPengirim = UnitKerja::find($idBagianPengguna);
+            $namaUnitPengirim = $unitKerjaPengirim ? $unitKerjaPengirim->NAMA_BAGIAN : 'Unit Kerja';
+            $this->kirimNotifikasiKeHumas($updatedComplaint, 'klarifikasi_unit', ['nama_unit' => $namaUnitPengirim]);
 
             return redirect()->route('unitKerja.dashboard')
                              ->with('success', 'Klarifikasi untuk ID ' . $id_complaint . ' berhasil disimpan.');
