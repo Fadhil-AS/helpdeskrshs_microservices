@@ -181,6 +181,9 @@ $(document).ready(function () {
                     tindakLanjutContainer.html('<p class="text-muted m-0">Tidak ada file tindak lanjut.</p>');
                 }
 
+                var exportUrl = exportDetailPdfUrlTemplate.replace(':id', complaintId);
+                $('#exportDetailPdfBtn').attr('href', exportUrl);
+
                 modalInstance.show();
 
             },

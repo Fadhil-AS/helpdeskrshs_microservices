@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 // use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
 use App\Services\Humas\Traits\NotifikasiWhatsApp;
+use App\Services\Humas\Export\LaporanExport;
+use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class PelaporanHumasController extends Controller {
 
@@ -40,7 +43,7 @@ class PelaporanHumasController extends Controller {
             $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
         });
 
-        $query->filter($request->only(['search', 'status']));
+        $query->filter($request->only(['search', 'status', 'unit_kerja', 'periode', 'tahun', 'bulan', 'triwulan', 'semester']));
 
         // if ($request->filled('status')) {
         //     $query->where('STATUS', $request->status);
@@ -409,4 +412,62 @@ class PelaporanHumasController extends Controller {
             return redirect()->back()->with('error', 'Gagal memperbarui pengaduan: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function rekapExcel(Request $request)
+    {
+        $query = $this->getFilteredQuery($request);
+        $data = $query->orderBy('ID_COMPLAINT', 'asc')->get();
+
+        return Excel::download(new LaporanExport($data), 'rekap-laporan-pengaduan.xlsx');
+    }
+
+    public function rekapPdf(Request $request)
+    {
+        $query = $this->getFilteredQuery($request);
+        $data = $query->orderBy('ID_COMPLAINT', 'asc')->get();
+
+        $pdf = PDF::loadView('Services.Humas.Pelaporan.rekap.pdf', compact('data'));
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('rekap-laporan-pengaduan.pdf');
+    }
+
+    public function rekapDetailPdf(Request $request, $id_complaint)
+    {
+        $laporan = Laporan::findOrFail($id_complaint);
+
+        $klarifikasiList = $laporan->klarifikasi_list;
+        $unitKerjaMap = $laporan->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
+
+        $klarifikasiList = array_map(function ($item) use ($unitKerjaMap) {
+            if (isset($item['id_bagian']) && isset($unitKerjaMap[$item['id_bagian']])) {
+                $item['nama_bagian'] = $unitKerjaMap[$item['id_bagian']];
+            } else {
+                $item['nama_bagian'] = 'Unit Kerja Tidak Dikenal';
+            }
+            return $item;
+        }, $klarifikasiList);
+
+        $laporan->klarifikasi_list_processed = $klarifikasiList;
+
+        $pdf = PDF::loadView('Services.Humas.Pelaporan.rekap.detail-pdf', ['data' => [$laporan]]);
+        $pdf->setPaper('a4', 'portrait');
+
+        $fileName = 'laporan-detail-' . $id_complaint . '.pdf';
+        return $pdf->download($fileName);
+    }
+
+    private function getFilteredQuery(Request $request)
+    {
+        $query = Laporan::with(['jenisMedia', 'unitKerja', 'klasifikasiPengaduan'])
+            ->select('data_complaint.*', DB::raw('TIMESTAMPDIFF(DAY, TGL_PENUGASAN, TGL_EVALUASI) as response_time'))
+            ->whereHas('klasifikasiPengaduan', function ($q) {
+                $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
+            });
+
+        $query->filter($request->only(['search', 'status', 'unit_kerja', 'periode', 'tahun', 'bulan', 'triwulan', 'semester']));
+
+        return $query;
+    }
+
 }

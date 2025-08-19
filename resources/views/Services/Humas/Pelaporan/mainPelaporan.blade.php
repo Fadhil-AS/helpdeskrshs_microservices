@@ -37,13 +37,14 @@
         <!-- Filter & Action -->
         <div class="bg-white p-3 rounded-bottom shadow-sm">
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
-                <div class="d-flex flex-wrap gap-2 grup-tombol">
-                    <button class="btn btn-tambah-pengaduan text-white btn-teal" data-bs-toggle="modal"
-                        data-bs-target="#modalTambahPengaduan">
-                        <i class="bi bi-plus-circle"></i> Tambah Pengaduan Baru
-                    </button>
-                    <form action="{{ route('humas.pelaporan-humas') }}" method="GET" id="filterForm"
-                        class="d-flex flex-wrap gap-2">
+                <form action="{{ route('humas.pelaporan-humas') }}" method="GET" id="filterForm"
+                    class="d-flex flex-wrap gap-2 align-items-center w-100">
+
+                    <div class="d-flex flex-wrap gap-2 grup-tombol">
+                        <button type="button" class="btn btn-tambah-pengaduan text-white btn-teal" data-bs-toggle="modal"
+                            data-bs-target="#modalTambahPengaduan">
+                            <i class="bi bi-plus-circle"></i> Tambah Pengaduan Baru
+                        </button>
 
                         <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
                             <option value="">Semua Status</option>
@@ -57,37 +58,76 @@
                             <option value="Banding" {{ request('status') == 'Banding' ? 'selected' : '' }}>Banding</option>
                         </select>
 
-                        <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
+                        <select class="form-select" name="periode" id="filterPeriode" style="width: 170px;">
                             <option value="">Semua Waktu</option>
-                            <option value="Open">Perbulan</option>
-                            <option value="On Progress">On
-                                Progress</option>
-                            <option value="Menunggu Konfirmasi">Pertriwulan
+                            <option value="bulan" {{ request('periode') == 'bulan' ? 'selected' : '' }}>Per Bulan Ini
                             </option>
-                            <option value="Close">Persemester</option>
+                            <option value="triwulan" {{ request('periode') == 'triwulan' ? 'selected' : '' }}>Per Triwulan
+                                Ini</option>
+                            <option value="semester" {{ request('periode') == 'semester' ? 'selected' : '' }}>Per Semester
+                                Ini</option>
                         </select>
 
-                        <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
-                            <option value="">Semua Waktu</option>
-                            <option value="Open">Perbulan</option>
-                            <option value="On Progress">On
-                                Progress</option>
-                            <option value="Menunggu Konfirmasi">Pertriwulan
-                            </option>
-                            <option value="Close">Persemester</option>
+                        <select class="form-select" name="unit_kerja" id="filterUnitKerja" style="width: 170px;">
+                            <option value="">Semua Unit Kerja</option>
+                            @if (isset($unitKerja) && $unitKerja->count() > 0)
+                                @foreach ($unitKerja as $uK)
+                                    <option value="{{ $uK->ID_BAGIAN }}" {{ $uK->SUPER == 1 ? 'disabled' : '' }}>
+                                        {{ $uK->NAMA_BAGIAN }}</option>
+                                @endforeach
+                            @endif
                         </select>
 
-                        <button type="button" class="btn btn-outline-secondary" id="resetFilter"
-                            data-url="{{ route('humas.pelaporan-humas') }}"><i class="bi bi-arrow-counterclockwise"></i>
-                            Reset</button>
+                        <div id="secondaryFilters" class="d-flex gap-2">
+                            <select class="form-select d-none" name="tahun" id="filterTahun" style="width: 110px;">
+                                @for ($i = date('Y'); $i >= date('Y') - 5; $i--)
+                                    <option value="{{ $i }}"
+                                        {{ request('tahun', date('Y')) == $i ? 'selected' : '' }}>Thn
+                                        {{ $i }}</option>
+                                @endfor
+                            </select>
+                            <select class="form-select d-none" name="bulan" id="filterBulan" style="width: 120px;">
+                                @for ($i = 1; $i <= 12; $i++)
+                                    <option value="{{ $i }}"
+                                        {{ request('bulan', date('m')) == $i ? 'selected' : '' }}>
+                                        {{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}</option>
+                                @endfor
+                            </select>
+                            <select class="form-select d-none" name="triwulan" id="filterTriwulan" style="width: 150px;">
+                                <option value="1" {{ request('triwulan') == 1 ? 'selected' : '' }}>Triwulan 1</option>
+                                <option value="2" {{ request('triwulan') == 2 ? 'selected' : '' }}>Triwulan 2</option>
+                                <option value="3" {{ request('triwulan') == 3 ? 'selected' : '' }}>Triwulan 3</option>
+                                <option value="4" {{ request('triwulan') == 4 ? 'selected' : '' }}>Triwulan 4</option>
+                            </select>
+                            <select class="form-select d-none" name="semester" id="filterSemester" style="width: 150px;">
+                                <option value="1" {{ request('semester') == 1 ? 'selected' : '' }}>Semester 1</option>
+                                <option value="2" {{ request('semester') == 2 ? 'selected' : '' }}>Semester 2</option>
+                            </select>
+                        </div>
 
-                    </form>
-                </div>
-                <form action="{{ url()->current() }}" method="GET" id="searchForm">
-                    <div class="input-group" style="width: 250px;">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-start-0" name="search" id="searchInput"
-                            placeholder="Cari Pengaduan" value="{{ request('search') }}" autocomplete="off">
+                        <a href="{{ route('humas.pelaporan-humas') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        </a>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
+                        <div class="input-group" style="width: 250px;">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control border-start-0" name="search" id="searchInput"
+                                placeholder="Cari Pengaduan" value="{{ request('search') }}" autocomplete="off">
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-success dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-file-earmark-arrow-down"></i> Rekap
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" id="exportPdfBtn"><i
+                                            class="bi bi-file-earmark-pdf me-2"></i> PDF</a></li>
+                                <li><a class="dropdown-item" href="#" id="exportExcelBtn"><i
+                                            class="bi bi-file-earmark-excel me-2"></i> Excel</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -125,11 +165,6 @@
                                         <td>Website Helpdesk</td>
                                     @endif
 
-                                    {{-- @if ($dc->unitKerja && $dc->unitKerja->NAMA_BAGIAN != null)
-                                        <td>{{ $dc->unitKerja->NAMA_BAGIAN }}</td>
-                                    @else
-                                        <td>Belum dipilih unit kerja</td>
-                                    @endif --}}
                                     <td>
                                         @if ($dc->unit_kerja_list->isNotEmpty())
                                             @foreach ($dc->unit_kerja_list as $unit)
@@ -202,7 +237,7 @@
             </div>
 
             <!-- Pagination -->
-            <div class="d-flex justify-content-end mt-3 page-tabel">
+            <div class="d-flex justify-content-end mt-3 page-tabel" id="paginationContainer">
                 <nav aria-label="Page navigation example">
                     @if ($dataComplaint->hasPages())
                         <ul class="pagination mb-0">
@@ -271,5 +306,21 @@
         var detailUrlTemplate = "{{ route('humas.pelaporan-humas.detail', ['id_complaint' => ':id']) }}";
         var storageBaseUrl = "{{ asset('storage') }}";
         var updateUrlTemplate = "{{ route('humas.pelaporan-humas.update', ['id_complaint' => ':id']) }}";
+        var exportDetailPdfUrlTemplate =
+            "{{ route('humas.pelaporan-humas.rekap.detail.pdf', ['id_complaint' => ':id']) }}";
+        window.pageData = {
+            // URL untuk Ekspor
+            pdfExportUrl: "{{ route('humas.pelaporan-humas.rekap.pdf') }}",
+            excelExportUrl: "{{ route('humas.pelaporan-humas.rekap.excel') }}",
+
+            // URL lain yang mungkin dibutuhkan JS Anda
+            detailUrlTemplate: "{{ route('humas.pelaporan-humas.detail', ['id_complaint' => ':id']) }}",
+            updateUrlTemplate: "{{ route('humas.pelaporan-humas.update', ['id_complaint' => ':id']) }}",
+            storageBaseUrl: "{{ asset('storage') }}",
+            exportDetailPdfUrlTemplate: "{{ route('humas.pelaporan-humas.rekap.detail.pdf', ['id_complaint' => ':id']) }}",
+
+            // Data dari server
+            allUnitKerja: @json($unitKerja)
+        };
     </script>
 @endsection

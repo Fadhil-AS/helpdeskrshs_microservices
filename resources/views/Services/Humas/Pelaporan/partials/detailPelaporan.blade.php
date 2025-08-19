@@ -98,6 +98,9 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
+                            <a href="#" id="exportDetailPdfBtn" target="_blank" class="btn btn-danger">
+                                <i class="bi bi-file-earmark-pdf"></i> Rekap PDF
+                            </a>
                             <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
                             <!-- <button class="btn btn-edit">Edit</button> -->
                         </div>
@@ -155,6 +158,9 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
+                            <a href="#" id="exportDetailPdfBtn" target="_blank" class="btn btn-danger">
+                                <i class="bi bi-file-earmark-pdf"></i> Rekap PDF
+                            </a>
                             <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
                             <!-- <button class="btn btn-edit">Edit</button> -->
                         </div>

@@ -121,6 +121,63 @@ class Laporan extends Model {
         $query->when($filters['status'] ?? false, function ($query, $status) {
             return $query->where('STATUS', $status);
         });
+
+        $query->when($filters['unit_kerja'] ?? false, function ($query, $unitKerjaId) {
+            return $query->where(function ($q) use ($unitKerjaId) {
+                $q->where('ID_BAGIAN', $unitKerjaId)
+                  ->orWhereJsonContains('ID_BAGIAN_LAINNYA', $unitKerjaId);
+            });
+        });
+
+        // $query->when($filters['periode'] ?? false, function ($query, $periode) {
+        //     $now = now();
+
+        //     switch ($periode) {
+        //         case 'bulan':
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)->whereMonth('TGL_COMPLAINT', $now->month);
+        //             break;
+
+        //         case 'triwulan':
+        //             $startMonth = $now->firstOfQuarter()->month;
+        //             $endMonth = $now->lastOfQuarter()->month;
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)
+        //                   ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+        //             break;
+
+        //         case 'semester':
+        //             $startMonth = $now->month <= 6 ? 1 : 7;
+        //             $endMonth = $now->month <= 6 ? 6 : 12;
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)
+        //                   ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+        //             break;
+        //     }
+        // });
+
+        $query->when($filters['periode'] ?? false, function ($query, $periode) use ($filters) {
+            // Gunakan tahun dari filter, jika tidak ada, gunakan tahun ini
+            $tahun = $filters['tahun'] ?? date('Y');
+
+            switch ($periode) {
+                case 'bulan':
+                    $bulan = $filters['bulan'] ?? date('m');
+                    $query->whereYear('TGL_COMPLAINT', $tahun)->whereMonth('TGL_COMPLAINT', $bulan);
+                    break;
+                case 'triwulan':
+                    $triwulan = $filters['triwulan'] ?? 1;
+                    $startMonth = ($triwulan - 1) * 3 + 1;
+                    $endMonth = $startMonth + 2;
+                    $query->whereYear('TGL_COMPLAINT', $tahun)
+                          ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+                    break;
+                case 'semester':
+                    $semester = $filters['semester'] ?? 1;
+                    $startMonth = ($semester - 1) * 6 + 1;
+                    $endMonth = $startMonth + 5;
+                    $query->whereYear('TGL_COMPLAINT', $tahun)
+                          ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+                    break;
+            }
+        });
     }
 
     private function processFiles(string $fileData = null): array

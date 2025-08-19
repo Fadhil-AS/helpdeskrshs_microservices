@@ -65,6 +65,15 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::post('/pelaporanHumas', [PelaporanHumasController::class, 'storePelaporanHumas'])->name('pelaporan-humas.store');
     Route::get('/pelaporanHumas/{id_complaint}/detail', [PelaporanHumasController::class, 'showPelaporanDetail'])->name('pelaporan-humas.detail');
     Route::put('/pelaporanHumas/{id_complaint}', [PelaporanHumasController::class, 'updatePelaporanHumas'])->name('pelaporan-humas.update');
+    // Route::get('/pelaporanHumas/rekap/pdf', [PelaporanHumasController::class, 'rekapPdf'])->name('pelaporan-humas.rekap.pdf');
+    // Route::get('/pelaporanHumas/rekap/excel', [PelaporanHumasController::class, 'rekapExcel'])->name('pelaporan-humas.rekap.excel');
+    // Route::get('/pelaporan-humas', [PelaporanHumasController::class, 'getPelaporanHumas'])->name('pelaporan-humas');
+    // Route::post('/pelaporan-humas', [PelaporanHumasController::class, 'storePelaporanHumas'])->name('pelaporan-humas.store');
+    // Route::get('/pelaporan-humas/{id_complaint}/detail', [PelaporanHumasController::class, 'showPelaporanDetail'])->name('pelaporan-humas.detail');
+    // Route::put('/pelaporan-humas/{id_complaint}', [PelaporanHumasController::class, 'updatePelaporanHumas'])->name('pelaporan-humas.update');
+    Route::get('/pelaporan-humas/rekap/pdf', [PelaporanHumasController::class, 'rekapPdf'])->name('pelaporan-humas.rekap.pdf');
+    Route::get('/pelaporan-humas/rekap/excel', [PelaporanHumasController::class, 'rekapExcel'])->name('pelaporan-humas.rekap.excel');
+    Route::get('/pelaporan-humas/{id_complaint}/rekap/pdf', [PelaporanHumasController::class, 'rekapDetailPdf'])->name('pelaporan-humas.rekap.detail.pdf');
 
 
     // unit kerja humas
