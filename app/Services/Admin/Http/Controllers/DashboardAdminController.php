@@ -83,17 +83,18 @@ class DashboardAdminController extends Controller
         return $unitsQuery->orderBy('NAMA_BAGIAN')->get();
     }
 
-    public function getDashboard()
+    public function getDashboard(Request $request)
     {
         $role = session('role');
         $userBagian = session('user')->ID_BAGIAN ?? null;
 
         $unitKerjaList = $this->getScopedSuperZeroUnits($role, $userBagian);
+        $statusCounts = $this->getStatusCounts($request);
 
-        return view('Services.Admin.Dashboard.mainAdmin', [
+        return view('Services.Admin.Dashboard.mainAdmin', array_merge($statusCounts, [
             'unitKerjaList' => $unitKerjaList,
             'userRole'      => $role,
-        ]);
+        ]));
 
 
     }
@@ -231,12 +232,24 @@ class DashboardAdminController extends Controller
             $this->applyUnitKerjaFilter($baseQuery, $unitKerjaId);
         }
 
+        $relevantMediaIds = (clone $baseQuery)->pluck('ID_JENIS_MEDIA')->unique()->toArray();
+        $sumberMediaLabels = JenisMedia::whereIn('ID_JENIS_MEDIA', $relevantMediaIds)
+                                 ->where('STATUS', '1')
+                                 ->pluck('JENIS_MEDIA')
+                                 ->toArray();
+
+        $relevantKlasifikasiIds = (clone $baseQuery)->pluck('ID_KLASIFIKASI')->unique()->toArray();
+        $klasifikasiLabels = KlasifikasiPengaduan::whereIn('ID_KLASIFIKASI', $relevantKlasifikasiIds)
+                                                   ->where('STATUS', '1')
+                                                   ->pluck('KLASIFIKASI_PENGADUAN')
+                                                   ->toArray();
+
         $definedLabels = [
             'grading'               => ['Hijau', 'Kuning', 'Merah'],
-            'sumberMedia'           => JenisMedia::where('STATUS', '1')->pluck('JENIS_MEDIA')->toArray(),
-            'statusPengaduan'       => ['Open', 'On Progress', 'Menunggu Konfirmasi', 'Banding', 'Close'],
+            'sumberMedia'           => $sumberMediaLabels,
+            'statusPengaduan'       => ['Open', 'On Progress', 'Menunggu Konfirmasi', 'Close', 'Banding'],
             'jenisLaporan'          => JenisLaporan::where('STATUS', '1')->pluck('JENIS_LAPORAN')->toArray(),
-            'klasifikasiPengaduan'  => KlasifikasiPengaduan::where('STATUS', '1')->pluck('KLASIFIKASI_PENGADUAN')->toArray(),
+            'klasifikasiPengaduan'  => $klasifikasiLabels,
             'penyelesaianPengaduan' => PenyelesaianPengaduan::where('STATUS', '1')->pluck('PENYELESAIAN_PENGADUAN')->toArray(),
         ];
 
@@ -250,7 +263,7 @@ class DashboardAdminController extends Controller
         $baseConfigs = [
             'grading' => [ 'title' => 'Grading (Hijau, Kuning, Merah)', 'subtitle' => 'Distribusi pengaduan berdasarkan tingkat waktu penanganan komplain', 'type' => 'bar', 'backgroundColor' => ['#347433', '#FFD600', '#D50000'] ],
             'sumberMedia' => [ 'title' => 'Sumber Media', 'subtitle' => 'Distribusi pengaduan berdasarkan sumber media pelaporan', 'type' => 'bar', 'backgroundColor' => '#e65100' ],
-            'statusPengaduan' => [ 'title' => 'Status Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan status penanganan', 'type' => 'pie', 'backgroundColor' => ['#28a745', '#ffc107', '#17a2b8', '#6f42c1', '#dc3545'] ],
+            'statusPengaduan' => [ 'title' => 'Status Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan status penanganan', 'type' => 'pie', 'backgroundColor' => ['#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6f42c1'] ],
             'unitKerja' => [ 'title' => 'Unit Kerja', 'subtitle' => 'Distribusi pengaduan berdasarkan unit kerja tujuan', 'type' => 'bar', 'backgroundColor' => '#E0440E' ],
             'jenisLaporan' => [ 'title' => 'Jenis Laporan', 'subtitle' => 'Distribusi pengaduan berdasarkan jenis laporan', 'type' => 'pie', 'backgroundColor' => ['#2962FF', '#D84315', '#FF9800', '#2E7D32'] ],
             'klasifikasiPengaduan' => [ 'title' => 'Klasifikasi Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan klasifikasi pengaduan', 'type' => 'pie', 'backgroundColor' => ['#2962FF', '#D84315', '#FF9800'] ],
@@ -297,4 +310,47 @@ class DashboardAdminController extends Controller
 
         return response()->json($chartData);
     }
+
+    private function getStatusCounts(Request $request)
+    {
+        $role = session('role');
+        $userBagian = optional(session('user'))->ID_BAGIAN;
+
+        $baseQuery = Laporan::query()->whereHas('klasifikasiPengaduan', function ($q) {
+            $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
+        });
+
+        $this->applyTimeFilter($baseQuery, $request->input('time_filter'));
+
+        $statusCounts = (clone $baseQuery)
+            ->select('STATUS', DB::raw('count(*) as total'))
+            ->groupBy('STATUS')
+            ->pluck('total', 'STATUS');
+
+        $onProgressQuery = (clone $baseQuery)->where('STATUS', 'On Progress');
+
+        $allOnProgressReports = $onProgressQuery->get();
+
+        $countKlarifikasiSudah = 0;
+        $countKlarifikasiBelum = 0;
+
+        foreach ($allOnProgressReports as $laporan) {
+            if ($laporan->status_klarifikasi === 'Sudah') {
+                $countKlarifikasiSudah++;
+            } else {
+                $countKlarifikasiBelum++;
+            }
+        }
+
+        return [
+            'countOpen' => $statusCounts['Open'] ?? 0,
+            'countMenunggu' => $statusCounts['Menunggu Konfirmasi'] ?? 0,
+            'countClose' => $statusCounts['Close'] ?? 0,
+            'countBanding' => $statusCounts['Banding'] ?? 0,
+            'countKlarifikasiSudah' => $countKlarifikasiSudah,
+            'countKlarifikasiBelum' => $countKlarifikasiBelum,
+        ];
+    }
+
+
 }

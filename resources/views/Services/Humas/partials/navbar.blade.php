@@ -66,6 +66,10 @@
                             href="{{ route('admin.dashboard') }}">Dashboard</a>
                     </li>
                 @elseif (session('role') === 'spi')
+                    {{-- <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
+                            href="{{ route('admin.dashboard') }}">Dashboard</a>
+                    </li> --}}
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('spi.pelaporan-SPI*') ? 'active' : '' }}"
                             href="{{ route('spi.pelaporan-SPI') }}">Daftar Pelaporan</a>
@@ -145,12 +149,10 @@
                         href="{{ route('humas.data-nomor-humas-rshs') }}">Data Nomor WA</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link"
-                        href="">Pengaturan Chatbot</a>
+                    <a class="nav-link" href="">Pengaturan Chatbot</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link"
-                        href="">Pengaturan SSD</a>
+                    <a class="nav-link" href="">Pengaturan SSD</a>
                 </li>
             @elseif (session('role') === 'unit_kerja')
                 {{-- <li class="nav-item">
