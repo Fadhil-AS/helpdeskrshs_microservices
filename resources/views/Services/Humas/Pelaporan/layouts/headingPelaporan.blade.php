@@ -38,6 +38,7 @@
 
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiTabel.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/filteringPelapor.JS') }}"></script>
+    <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiCari.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalTambah.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalDetail.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Pelaporan/fungsiModalEdit.js') }}"></script>

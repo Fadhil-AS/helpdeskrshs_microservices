@@ -57,16 +57,39 @@
                             <option value="Banding" {{ request('status') == 'Banding' ? 'selected' : '' }}>Banding</option>
                         </select>
 
+                        <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
+                            <option value="">Semua Waktu</option>
+                            <option value="Open">Perbulan</option>
+                            <option value="On Progress">On
+                                Progress</option>
+                            <option value="Menunggu Konfirmasi">Pertriwulan
+                            </option>
+                            <option value="Close">Persemester</option>
+                        </select>
+
+                        <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
+                            <option value="">Semua Waktu</option>
+                            <option value="Open">Perbulan</option>
+                            <option value="On Progress">On
+                                Progress</option>
+                            <option value="Menunggu Konfirmasi">Pertriwulan
+                            </option>
+                            <option value="Close">Persemester</option>
+                        </select>
+
                         <button type="button" class="btn btn-outline-secondary" id="resetFilter"
                             data-url="{{ route('humas.pelaporan-humas') }}"><i class="bi bi-arrow-counterclockwise"></i>
                             Reset</button>
 
                     </form>
                 </div>
-                <div class="input-group" style="width: 250px;">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" class="form-control border-start-0" placeholder="Cari Pengaduan...">
-                </div>
+                <form action="{{ url()->current() }}" method="GET" id="searchForm">
+                    <div class="input-group" style="width: 250px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control border-start-0" name="search" id="searchInput"
+                            placeholder="Cari Pengaduan" value="{{ request('search') }}" autocomplete="off">
+                    </div>
+                </form>
             </div>
 
             <!-- Table -->
@@ -85,7 +108,7 @@
                             <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="complaintTableBody">
                         @if (isset($dataComplaint) && $dataComplaint != null)
                             @foreach ($dataComplaint as $dc)
                                 <tr>

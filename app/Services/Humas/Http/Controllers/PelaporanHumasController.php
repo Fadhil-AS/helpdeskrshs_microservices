@@ -40,9 +40,11 @@ class PelaporanHumasController extends Controller {
             $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
         });
 
-        if ($request->filled('status')) {
-            $query->where('STATUS', $request->status);
-        }
+        $query->filter($request->only(['search', 'status']));
+
+        // if ($request->filled('status')) {
+        //     $query->where('STATUS', $request->status);
+        // }
 
         $dataComplaint = $query->orderBy('ID_COMPLAINT', 'desc')
                                 ->paginate(10)
