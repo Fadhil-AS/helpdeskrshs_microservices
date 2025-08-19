@@ -102,11 +102,22 @@
                                         <td>Website Helpdesk</td>
                                     @endif
 
-                                    @if ($dc->unitKerja && $dc->unitKerja->NAMA_BAGIAN != null)
+                                    {{-- @if ($dc->unitKerja && $dc->unitKerja->NAMA_BAGIAN != null)
                                         <td>{{ $dc->unitKerja->NAMA_BAGIAN }}</td>
                                     @else
                                         <td>Belum dipilih unit kerja</td>
-                                    @endif
+                                    @endif --}}
+                                    <td>
+                                        @if ($dc->unit_kerja_list->isNotEmpty())
+                                            @foreach ($dc->unit_kerja_list as $unit)
+                                                <ul>
+                                                    <li>{{ $unit->NAMA_BAGIAN }}</li>
+                                                </ul>
+                                            @endforeach
+                                        @else
+                                            Belum dipilih unit kerja
+                                        @endif
+                                    </td>
 
                                     <td class="text-center">
                                         @if (!is_null($dc->response_time))
@@ -137,7 +148,7 @@
                                     @elseif ($dc->status_klarifikasi == 'Belum')
                                         <td><span class="badge bg-danger text-light">Belum</span></td>
                                     @else
-                                        <td><span class="badge bg-secondary">-</span></td>
+                                        <td><span class="badge bg-danger text-light">Belum</span></td>
                                     @endif
 
                                     @if ($dc->GRANDING == 'Merah')

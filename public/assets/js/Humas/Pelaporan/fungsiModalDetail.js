@@ -48,7 +48,7 @@ $(document).ready(function () {
                 } else if (data.status_klarifikasi === 'Belum') {
                     klarifikasiStatusBadge.text('Belum').addClass('bg-danger text-light');
                 } else {
-                    klarifikasiStatusBadge.text('-').addClass('bg-secondary');
+                    klarifikasiStatusBadge.text('Belum').addClass('bg-danger text-light');
                 }
 
                 $('#detailNamaPelapor').text(data.NAME || '-');

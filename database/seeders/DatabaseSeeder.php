@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
             UnitKerjaSeeder::class,
             UserComplaintSeeder::class,
             ComplaintDireksiSeeder::class,
-            DataComplaintSeeder::class,
+            // DataComplaintSeeder::class,
             HumasSeeder::class,
             KategoriSSdSeeder::class,
             SSdSeeder::class,
