@@ -16,9 +16,9 @@
             <table class="table align-middle">
                 <thead class="border-bottom">
                     <tr class="text-nowrap">
-                        <th style="width: 40%;">Data</th>
-                        <th style="width: 40%;">Nomor HP</th>
-                        <th style="width: 20%;">Aksi</th>
+                        <th style="width: 45%;">Data</th>
+                        <th style="width: 45%;">Nomor HP</th>
+                        <th style="width: 10%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>

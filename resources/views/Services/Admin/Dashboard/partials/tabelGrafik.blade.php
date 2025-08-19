@@ -1,4 +1,4 @@
-<div class="container container-tabel rounded my-5 pt-2">
+<div class="container container-tabel rounded my-4 pt-2">
     <!-- Header Box -->
     <div class="p-4 rounded-top" style="background-color: #00B9AD; color: white;">
         <h5 class="mb-1">Dashboard Pelaporan RSHS Bandung</h5>
