@@ -124,6 +124,24 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::post('/jenis-laporan', [JenisLaporanController::class, 'store'])->name('jenis-laporan.store');
     Route::put('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'update'])->name('jenis-laporan.update');
     Route::delete('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'destroy'])->name('jenis-laporan.destroy');
+
+    // chatbot
+    //Upload File Excel
+    Route::post('/upload', [ChatbotController::class, 'uploadData'])->name('upload.post');
+
+    //Menampilkan data di tabel
+    Route::get('/upload', function () {
+        $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+        return view('Services.Chatbot.uploadData', compact('files'));
+    })->name('upload');
+
+    //Hapus File
+    Route::delete('/file/{id}', function ($id) {
+        $file = Chatbot::findOrFail($id);
+        $file->delete();
+
+        return redirect()->route('humas.upload')->with('status', 'File berhasil dihapus.');
+    })->name('delete.file');
 });
 
 
@@ -146,6 +164,32 @@ Route::prefix('spi')->name('spi.')->middleware('spi')->group(function(){
     Route::get('/pelaporanSPI/{id_complaint}/detail', [SPIController::class, 'showPelaporanDetail'])->name('pelaporan-SPI.detail');
 });
 
+//View Chatbot
+Route::get('/chat', function () {
+    return view('Services.Chatbot.mainChatbot');
+});
+
+// data chatbot
+Route::post('/chatbot', [ChatbotController::class, 'handleChat']);
+
+// //Upload File Excel
+// Route::post('/upload', [ChatbotController::class, 'uploadData']);
+
+// //Menampilkan data di tabel
+// Route::get('/upload', function () {
+//     $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+//     return view('Services.Chatbot.uploadData', compact('files'));
+// });
+
+// //Hapus File
+// Route::delete('/file/{id}', function ($id) {
+//     $file = Chatbot::findOrFail($id);
+//     $file->delete();
+
+//     return redirect('/upload')->with('status', 'File berhasil dihapus.');
+// })->name('delete.file');
+
+
 
 // Route::prefix('chatbot')->name('chatbot.')->group(function(){
 //     Route::get('/chat', action: [ChatbotController::class, 'getChatbot'])->name('chat');
@@ -157,28 +201,5 @@ Route::prefix('spi')->name('spi.')->middleware('spi')->group(function(){
 //     Route::post('/upload', [ChatbotController::class, 'uploadData'])->name('handle');
 // });
 
-Route::post('/chatbot', [ChatbotController::class, 'handleChat']);
 
-//Upload File Excel
-Route::post('/upload', [ChatbotController::class, 'uploadData']);
-
-//View Chatbot
-Route::get('/chat', function () {
-    return view('Services.Chatbot.mainChatbot');
-});
-
-
-//Menampilkan data di tabel
-Route::get('/upload', function () {
-    $files = Chatbot::all(); // Ambil semua kolom, termasuk id
-    return view('Services.Chatbot.uploadData', compact('files'));
-});
-
-//Hapus File
-Route::delete('/file/{id}', function ($id) {
-    $file = Chatbot::findOrFail($id);
-    $file->delete();
-
-    return redirect('/upload')->with('status', 'File berhasil dihapus.');
-})->name('delete.file');
 

@@ -5,8 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Data</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+    <style>
+
+    </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/modalEdit.css') }}">
 
     <style>
         .custom-upload-btn {
@@ -26,6 +33,7 @@
 </head>
 
 <body>
+    @include('Services.Humas.partials.navbar')
     <div class="container rounded container-tabel my-5 pt-2">
         <!-- Header Box -->
         <div class="p-4 rounded-top" style="background-color: #00B9AD; color: white;">
@@ -37,7 +45,7 @@
         <div class="bg-white p-3 rounded-bottom shadow-sm">
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
                 <div class="d-flex flex-wrap gap-2 grup-tombol">
-                    <form method="POST" action="/upload" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('humas.upload') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label fw-bold" for="file_input">Tambahkan File (.xlsx)</label>
@@ -75,7 +83,7 @@
                                     <td><strong>{{ $index + 1 }}</strong></td>
                                     <td>{{ $file->nama_file }}</td>
                                     <td>
-                                        <form action="{{ route('delete.file', $file->id) }}" method="POST"
+                                        <form action="{{ route('humas.delete.file', $file->id) }}" method="POST"
                                             onsubmit="return confirm('Yakin ingin menghapus file ini?')">
                                             @csrf
                                             @method('DELETE')
@@ -101,6 +109,11 @@
     </div>
 
     @include('Services.Chatbot.mainChatbot')
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>

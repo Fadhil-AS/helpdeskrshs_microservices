@@ -148,7 +148,18 @@
         function addMessage(message, type) {
             const div = document.createElement('div');
             div.className = 'chat-message ' + (type === 'user' ? 'user-message' : 'bot-message');
-            div.innerText = message;
+            // div.innerText = message;
+            if (type === 'bot') {
+                // Proses pesan bot untuk mengubah format Markdown sederhana menjadi HTML
+                let formattedMessage = message
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Mengubah **teks** menjadi <b>teks</b>
+                    .replace(/\*(.*?)\*/g, '<i>$1</i>'); // Mengubah *teks* menjadi <i>teks</i> (opsional)
+
+                div.innerHTML = formattedMessage.replace(/\n/g, '<br>'); // Mengubah baris baru menjadi <br>
+            } else {
+                // Untuk pesan pengguna, tetap gunakan innerText agar aman
+                div.innerText = message;
+            }
             chatContainer.appendChild(div);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }

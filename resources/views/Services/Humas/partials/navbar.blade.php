@@ -46,7 +46,8 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item {{ request()->routeIs('humas.data-nomor-humas-rshs*') ? 'active' : '' }}"
                                     href="{{ route('humas.data-nomor-humas-rshs') }}">Data Nomor WA</a></li>
-                            <li><a class="dropdown-item" href="#">Pengaturan Chatbot</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('humas.upload*') ? 'active' : '' }}"
+                                    href="{{ route('humas.upload') }}">Pengaturan Chatbot</a></li>
                             <li><a class="dropdown-item {{ request()->routeIs('humas.pengaturan-ssd-humas*') ? 'active' : '' }}"
                                     href="{{ route('humas.pengaturan-ssd-humas') }}">Pengaturan SSD</a></li>
                         </ul>
