@@ -288,28 +288,21 @@
         <strong>File Bukti Klarifikasi</strong>
         <div class="content-box">
             @if ($laporan->klarifikasi_files && count(array_filter($laporan->klarifikasi_files)) > 0)
-                <table class="image-table">
-                    <tr>
-                        <div class="image-gallery">
-                            @foreach ($laporan->klarifikasi_files as $file)
-                                <td>
-                                    @php
-                                        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                                        $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
-                                    @endphp
-                                    @if ($isImage)
-                                        <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
-                                            alt="{{ basename($file) }}">
-                                    @else
-                                        <ul class="file-list">
-                                            <li>{{ basename($file) }}</li>
-                                        </ul>
-                                    @endif
-                                </td>
-                            @endforeach
-                        </div>
-                    </tr>
-                </table>
+                <div class="image-gallery">
+                    @foreach ($laporan->klarifikasi_files as $file)
+                        @php
+                            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
+                        @endphp
+                        @if ($isImage)
+                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview" alt="{{ basename($file) }}">
+                        @else
+                            <ul class="file-list">
+                                <li>{{ basename($file) }}</li>
+                            </ul>
+                        @endif
+                    @endforeach
+                </div>
             @else
                 Tidak ada file.
             @endif
@@ -321,28 +314,21 @@
         <strong>File Tindak Lanjut Humas</strong>
         <div class="content-box">
             @if ($laporan->tindak_lanjut_files && count(array_filter($laporan->tindak_lanjut_files)) > 0)
-                <table class="image-table">
-                    <tr>
-                        <div class="image-gallery">
-                            @foreach ($laporan->tindak_lanjut_files as $file)
-                                <td>
-                                    @php
-                                        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                                        $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
-                                    @endphp
-                                    @if ($isImage)
-                                        <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
-                                            alt="{{ basename($file) }}">
-                                    @else
-                                        <ul class="file-list">
-                                            <li>{{ basename($file) }}</li>
-                                        </ul>
-                                    @endif
-                                </td>
-                            @endforeach
-                        </div>
-                    </tr>
-                </table>
+                <div class="image-gallery">
+                    @foreach ($laporan->tindak_lanjut_files as $file)
+                        @php
+                            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
+                        @endphp
+                        @if ($isImage)
+                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview" alt="{{ basename($file) }}">
+                        @else
+                            <ul class="file-list">
+                                <li>{{ basename($file) }}</li>
+                            </ul>
+                        @endif
+                    @endforeach
+                </div>
             @else
                 Tidak ada file.
             @endif
