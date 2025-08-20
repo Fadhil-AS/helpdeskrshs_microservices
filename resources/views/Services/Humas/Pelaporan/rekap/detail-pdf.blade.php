@@ -104,28 +104,23 @@
             background-color: #dc3545;
         }
 
-        .image-table {
-            width: 100%;
-            border-spacing: 0;
-        }
-
-        .image-table td {
-            border: none;
-            padding: 0 0 0 0;
-            vertical-align: top;
-            text-align: left;
-        }
-
         .image-table td:last-child {
             padding-right: 0;
         }
 
+        .image-gallery::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
         .image-preview {
+            float: left;
             width: 75px;
             height: 75px;
             object-fit: cover;
-            border-radius: 0;
-            display: block;
+            margin-right: 5px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -222,8 +217,8 @@
             @if ($laporan->pengaduan_files && count(array_filter($laporan->pengaduan_files)) > 0)
                 <table class="image-table">
                     <tr>
-                        @foreach ($laporan->pengaduan_files as $file)
-                            <td>
+                        <div class="image-gallery">
+                            @foreach ($laporan->pengaduan_files as $file)
                                 @php
                                     $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                                     $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
@@ -236,8 +231,8 @@
                                         <li>{{ basename($file) }}</li>
                                     </ul>
                                 @endif
-                            </td>
-                        @endforeach
+                            @endforeach
+                        </div>
                     </tr>
                 </table>
             @else
@@ -295,22 +290,24 @@
             @if ($laporan->klarifikasi_files && count(array_filter($laporan->klarifikasi_files)) > 0)
                 <table class="image-table">
                     <tr>
-                        @foreach ($laporan->klarifikasi_files as $file)
-                            <td>
-                                @php
-                                    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                                    $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
-                                @endphp
-                                @if ($isImage)
-                                    <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
-                                        alt="{{ basename($file) }}">
-                                @else
-                                    <ul class="file-list">
-                                        <li>{{ basename($file) }}</li>
-                                    </ul>
-                                @endif
-                            </td>
-                        @endforeach
+                        <div class="image-gallery">
+                            @foreach ($laporan->klarifikasi_files as $file)
+                                <td>
+                                    @php
+                                        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                        $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
+                                    @endphp
+                                    @if ($isImage)
+                                        <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
+                                            alt="{{ basename($file) }}">
+                                    @else
+                                        <ul class="file-list">
+                                            <li>{{ basename($file) }}</li>
+                                        </ul>
+                                    @endif
+                                </td>
+                            @endforeach
+                        </div>
                     </tr>
                 </table>
             @else
@@ -326,22 +323,24 @@
             @if ($laporan->tindak_lanjut_files && count(array_filter($laporan->tindak_lanjut_files)) > 0)
                 <table class="image-table">
                     <tr>
-                        @foreach ($laporan->tindak_lanjut_files as $file)
-                            <td>
-                                @php
-                                    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                                    $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
-                                @endphp
-                                @if ($isImage)
-                                    <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
-                                        alt="{{ basename($file) }}">
-                                @else
-                                    <ul class="file-list">
-                                        <li>{{ basename($file) }}</li>
-                                    </ul>
-                                @endif
-                            </td>
-                        @endforeach
+                        <div class="image-gallery">
+                            @foreach ($laporan->tindak_lanjut_files as $file)
+                                <td>
+                                    @php
+                                        $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                        $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
+                                    @endphp
+                                    @if ($isImage)
+                                        <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
+                                            alt="{{ basename($file) }}">
+                                    @else
+                                        <ul class="file-list">
+                                            <li>{{ basename($file) }}</li>
+                                        </ul>
+                                    @endif
+                                </td>
+                            @endforeach
+                        </div>
                     </tr>
                 </table>
             @else
