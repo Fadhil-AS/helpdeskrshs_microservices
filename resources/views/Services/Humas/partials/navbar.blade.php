@@ -39,7 +39,7 @@
 
                     {{-- Dropdown Pengaturan Sistem --}}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->routeIs('humas.data-nomor-humas-rshs*') ? 'active' : '' }}"
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('humas.data-nomor-humas-rshs*', 'humas.upload*', 'humas.pengaturan-ssd-humas*') ? 'active' : '' }}"
                             href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Pengaturan Sistem
                         </a>
