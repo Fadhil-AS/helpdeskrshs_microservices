@@ -9,12 +9,9 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Chatbot</title>
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/modalEdit.css') }}">
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
         /* Floating button */
         .chatbot-toggle {
             position: fixed;

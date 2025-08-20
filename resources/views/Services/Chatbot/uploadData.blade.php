@@ -9,27 +9,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-    <style>
-
-    </style>
     <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/modalEdit.css') }}">
-
-    <style>
-        .custom-upload-btn {
-            background-color: #60C0D0;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-        }
-
-        .custom-upload-btn:hover {
-            background-color: #4EAEBF;
-            /* warna lebih gelap sedikit dari #60C0D0 */
-            color: white;
-        }
-    </style>
 </head>
 
 <body>
@@ -37,8 +18,8 @@
     <div class="container rounded container-tabel my-5 pt-2">
         <!-- Header Box -->
         <div class="p-4 rounded-top" style="background-color: #00B9AD; color: white;">
-            <h3 class="mb-1">Sistem Informasi Pengaduan RSHS Bandung</h3>
-            <h5 class="mb-0">Manajemen Data Chatbot</h5>
+            <h5 class="mb-1">Sistem Informasi Pengaduan RSHS Bandung</h5>
+            <p class="mb-0">Manajemen Data Chatbot</p>
         </div>
 
         <!-- Filter & Action -->
@@ -47,21 +28,21 @@
                 <div class="d-flex flex-wrap gap-2 grup-tombol">
                     <form method="POST" action="{{ route('humas.upload') }}" enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-3">
-                            <label class="form-label fw-bold" for="file_input">Tambahkan File (.xlsx)</label>
-                            <div class="d-flex align-items-center gap-2">
+                        <div class="">
+                            <label class="form-label fw-bold" for="file_input">Tambahkan File Chatbot</label>
+                            <div class="input-group">
                                 <input type="file" class="form-control @error('file') is-invalid @enderror"
                                     id="file_input" name="file" accept=".xlsx" required>
-                                <button type="submit" class="btn custom-upload-btn">
+                                <button type="submit" class="btn btn-tambah-pengaduan text-white">
                                     <i class="bi bi-plus-circle"></i> Upload
                                 </button>
-
                             </div>
                             @error('file')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
-                        </div>
 
+                            <small class="text-muted">File chatbot berupa excel atau .xlsx</small>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -71,36 +52,39 @@
                 <table class="table align-middle">
                     <thead class="border-bottom">
                         <tr class="text-nowrap">
-                            <th>No</th>
-                            <th>Nama File</th>
-                            <th>Aksi</th>
+                            <th style="width: 20%">No</th>
+                            <th style="width: 60%">Nama File</th>
+                            <th style="width: 20%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if ($files->count())
+                        @if ($files->count() > 0)
                             @foreach ($files as $index => $file)
                                 <tr>
                                     <td><strong>{{ $index + 1 }}</strong></td>
-                                    <td>{{ $file->nama_file }}</td>
+                                    <td><i class="bi bi-file-earmark-excel me-2"></i>{{ $file->nama_file }}</td>
                                     <td>
                                         <form action="{{ route('humas.delete.file', $file->id) }}" method="POST"
                                             onsubmit="return confirm('Yakin ingin menghapus file ini?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">Hapus</button>
+                                            <button type="submit" class="btn btn-link text-danger p-0" title="Hapus">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
                             @endforeach
                         @else
-                            <p>Belum ada file yang diunggah.</p>
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">
+                                    Belum ada file yang diunggah.
+                                </td>
+                            </tr>
                         @endif
                     </tbody>
                 </table>
             </div>
-
-
-
         </div>
 
         @if (session('status'))
