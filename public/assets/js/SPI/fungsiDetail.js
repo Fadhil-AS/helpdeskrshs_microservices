@@ -57,7 +57,7 @@ $(document).ready(function () {
                 else $('#detailGrading').addClass('bg-secondary text-light');
 
                 $('#detailNoMedrec').text(data.NO_MEDREC || '-');
-                $('#detailUnitKerja').text(data.unit_kerja ? data.unit_kerja.NAMA_BAGIAN : '-');
+                $('#detailUnitKerja').text(data.unit_kerja ? data.unit_kerja.NAMA_BAGIAN : 'SATUAN PENGAWAS INTERNAL');
                 $('#detailMediaPengaduan').text(data.jenis_media ? data.jenis_media.JENIS_MEDIA : '-');
                 $('#detailJenisLaporan').text(data.jenis_laporan ? data.jenis_laporan.JENIS_LAPORAN : '-');
                 $('#detailKlasifikasiPengaduan').text(data.klasifikasi_pengaduan ? data.klasifikasi_pengaduan.KLASIFIKASI_PENGADUAN : '-');

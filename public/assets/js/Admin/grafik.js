@@ -36,8 +36,10 @@ document.addEventListener('DOMContentLoaded', function () {
             colors: Array.isArray(config.backgroundColor) ? config.backgroundColor : []
         };
 
-        const isStatusChart = config.title.toLowerCase().includes('status pengaduan');
-        if (!isStatusChart) {
+        const isFullDisplayChart = config.title.toLowerCase().includes('status pengaduan') ||
+                                   config.title.toLowerCase().includes('grading');
+
+        if (!isFullDisplayChart) {
             const filtered = { labels: [], data: [], colors: [] };
             config.data.forEach((value, index) => {
                 if (value > 0) {
@@ -58,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const finalBackgroundColor = Array.isArray(config.backgroundColor) ? displayData.colors : config.backgroundColor;
 
-        if (loadingState) loadingState.style.display = 'none';
+        if(loadingState) loadingState.style.display = 'none';
         chartCanvas.style.display = 'block';
         chartTitle.textContent = config.title;
         chartSubtitle.textContent = config.subtitle;
@@ -125,7 +127,6 @@ document.addEventListener('DOMContentLoaded', function () {
             plugins: [ChartDataLabels]
         });
     }
-
     async function updateCharts() {
         const category = categoryFilter ? categoryFilter.value : 'grading';
         const time = timeFilter ? timeFilter.value : 'semua';

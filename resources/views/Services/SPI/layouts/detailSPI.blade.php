@@ -19,10 +19,6 @@
                         <button class="nav-link active w-100" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1"
                             type="button" role="tab">Informasi Pengaduan</button>
                     </li>
-                    {{-- <li class="nav-item flex-fill text-center" role="presentation">
-                        <button class="nav-link w-100" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3"
-                            type="button" role="tab">Evaluasi & Penyelesaian</button>
-                    </li> --}}
                 </ul>
 
                 <div class="tab-content" id="tabContent">
@@ -41,8 +37,7 @@
                                 <strong>No. Telepon</strong><br><span id="detailNoTelp">-</span>
                             </div>
                             <div class="col-md-6">
-                                <strong>Klarifikasi</strong><br><span class="badge"
-                                    id="detailKlarifikasiStatus">-</span>
+                                <strong>Unit Kerja Tujuan</strong><br><span id="detailUnitKerja">-</span>
                             </div>
                         </div>
                         <div class="row mb-2">
@@ -50,47 +45,34 @@
                                 <strong>Nama Pelapor</strong><br><span id="detailNamaPelapor">-</span>
                             </div>
                             <div class="col-md-6">
-                                <strong>Grading</strong><br><span class="badge bg-warning text-light"
-                                    id="detailGrading">-</span>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <strong>No. Medrec</strong><br><span id="detailNoMedrec">-</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Unit Kerja Tujuan</strong><br><span id="detailUnitKerja">-</span>
-                            </div>
-
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <strong>Media Pengaduan</strong><br><span id="detailMediaPengaduan">-</span>
-                            </div>
-                            <div class="col-md-6">
                                 <strong>Jenis Laporan</strong><br><span id="detailJenisLaporan">-</span>
                             </div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-12">
+                                <strong>No. Medrec</strong><br><span id="detailNoMedrec">-</span>
+                            </div>
+
+
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <strong>Media Pengaduan</strong><br><span id="detailMediaPengaduan">-</span>
+                            </div>
+
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-12">
                                 <strong>Klasifikasi Pengaduan</strong><br><span id="detailKlasifikasiPengaduan">-</span>
                             </div>
-                            {{-- <div class="col-md-6">
-                                <strong>Petugas Pelapor</strong><br><span id="detailPetugasPelapor">-</span>
-                            </div> --}}
                         </div>
                         <div class="mb-2">
                             <label class="fw-bold pb-2">Deskripsi Pengaduan</label>
                             <textarea class="form-control bg-light" rows="2" id="detailDeskripsiPengaduanContent" readonly>-</textarea>
-                            {{-- <strong>Deskripsi Pengaduan</strong>
-                            <div class="bg-light p-2 rounded" id="detailDeskripsiPengaduanContent">-</div> --}}
                         </div>
                         <div class="mb-2">
                             <label class="fw-bold pb-2">Rangkuman Permasalahan</label>
                             <textarea class="form-control bg-light" rows="2" id="detailRangkumanPermasalahanContent" readonly>-</textarea>
-                            {{-- <strong>Rangkuman Permasalahan</strong>
-                            <div class="bg-light p-2 rounded" id="detailRangkumanPermasalahanContent">-
-                            </div> --}}
                         </div>
                         <div class="mb-4">
                             <label class="fw-bold pb-2">File Pengaduan</label>
@@ -103,63 +85,6 @@
                             <!-- <button class="btn btn-edit">Edit</button> -->
                         </div>
                     </div>
-
-                    <!-- Evaluasi & Penyelesaian -->
-                    {{-- <div class="tab-pane fade" id="tab3" role="tabpanel"> --}}
-                    {{-- <div class="row mb-2"> --}}
-                    {{-- <div class="col-md-4">
-                                <strong>Tanggal Evaluasi</strong><br><span id="detailTanggalEvaluasi">-</span>
-                            </div> --}}
-                    {{-- <div class="col-md-4">
-                                <strong>Tanggal Tindak Lanjut Humas</strong><br><span
-                                    id="detailTanggalTindakLanjut">-</span>
-                            </div> --}}
-                    {{-- <div class="col-md-8">
-                                <strong>Tanggal Selesai</strong><br><span id="detailTanggalSelesai">-</span>
-                            </div> --}}
-                    {{-- </div> --}}
-                    {{-- <div class="row mb-2">
-                            <div class="col-md-4">
-                                <strong>Petugas Evaluasi</strong><br><span id="detailPetugasEvaluasi">-</span>
-                            </div>
-                            <div class="col-md-4">
-                                <strong>Penyelesaian Pengaduan</strong><br><span
-                                    id="detailPenyelesaianPengaduan">-</span>
-                            </div>
-                        </div> --}}
-
-                    <!-- Klarifikasi Unit -->
-                    {{-- <div class="mb-3">
-                            <label class="fw-bold pb-2">Klarifikasi Unit</label>
-                            <textarea class="form-control bg-light" rows="2" id="detailKlarifikasiUnitContent" readonly>-</textarea>
-                        </div> --}}
-
-                    <!-- File Bukti Klarifikasi -->
-                    {{-- <div class="mb-3">
-                            <label class="fw-bold pb-2">File Bukti Klarifikasi</label>
-                            <div class="file-display-container" id="buktiKlarifikasiContainer">
-                                <p class="text-muted">Tidak ada file bukti klarifikasi.</p>
-                            </div>
-                        </div> --}}
-
-                    <!-- Tindak Lanjut Humas -->
-                    {{-- <div class="mb-4">
-                            <label class="fw-bold pb-2">Tindak Lanjut Humas</label>
-                            <textarea class="form-control bg-light" rows="2" id="detailTindakLanjutHumasContent" readonly>Catatan tindak lanjut oleh tim Humas ditampilkan di sini.</textarea>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="fw-bold pb-2">File Tindak Lanjut Humas</label>
-                            <div class="file-display-container" id="fileTindakLanjutContainer">
-                                <p class="text-muted m-0">Tidak ada file tindak lanjut humas.</p>
-                            </div>
-                        </div> --}}
-
-                    {{-- <div class="d-flex justify-content-end gap-2">
-                            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
-                            <!-- <button class="btn btn-edit">Edit</button> -->
-                        </div> --}}
-                    {{-- </div> --}}
                 </div>
             </div>
         </div>
