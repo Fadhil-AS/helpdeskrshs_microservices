@@ -4,11 +4,12 @@
             <div class="modal-header">
                 <h6 class="modal-title">Tambah Kategori Baru</h6>
             </div>
-            <form action="" method="POST">
+            <form action="{{ route('humas.pengaturan-ssd.kategori.store') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <label class="form-label fw-bold">Nama Kategori</label>
-                    <input type="text" class="form-control" name="kategori" placeholder="Masukkan nama kategori" required>
+                    <input type="text" class="form-control" name="nama_kategori" placeholder="Masukkan nama kategori"
+                        required>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline-danger" data-bs-dismiss="modal" type="button">Batal</button>

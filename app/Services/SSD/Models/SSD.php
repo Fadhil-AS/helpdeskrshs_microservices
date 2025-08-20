@@ -12,4 +12,16 @@ class SSD extends Model
     protected $connection = 'ssd';
     protected $table = 'ssd';
     protected $primaryKey = 'ID_SSD';
+
+    protected $fillable = [
+        'ID_KATEGORI_SSD',
+        'PERTANYAAN_SSD',
+        'JAWABAN_SSD',
+        'STATUS',
+    ];
+
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriSSD::class, 'ID_KATEGORI_SSD', 'ID_KATEGORI_SSD');
+    }
 }

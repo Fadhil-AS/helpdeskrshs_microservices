@@ -19,67 +19,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let activeChart = null;
     let dynamicChartData = {};
 
-    // function createChart(config) {
-    //     console.log("LOG 3: Konfigurasi yang diterima oleh fungsi createChart:", config);
-
-    //     if (activeChart) activeChart.destroy();
-    //     if (!config || !config.labels || !config.data || config.data.length === 0) {
-    //         chartTitle.textContent = 'Data Tidak Tersedia';
-    //         chartSubtitle.textContent = 'Tidak ada data untuk filter yang dipilih.';
-    //         if (loadingState) loadingState.style.display = 'block';
-    //         chartCanvas.style.display = 'none';
-    //         return;
-    //     }
-    //     const filtered = { labels: [], data: [], colors: [] };
-    //     config.data.forEach((value, index) => {
-    //         if (value > 0) {
-    //             filtered.labels.push(config.labels[index]);
-    //             filtered.data.push(value);
-    //             if (Array.isArray(config.backgroundColor)) {
-    //                 filtered.colors.push(config.backgroundColor[index % config.backgroundColor.length]);
-    //             }
-    //         }
-    //     });
-
-    //     if (filtered.data.length === 0) {
-    //         createChart(null);
-    //         return;
-    //     }
-    //     const finalBackgroundColor = Array.isArray(config.backgroundColor) ? filtered.colors : config.backgroundColor;
-    //     if(loadingState) loadingState.style.display = 'none';
-    //     chartCanvas.style.display = 'block';
-    //     chartTitle.textContent = config.title;
-    //     chartSubtitle.textContent = config.subtitle;
-    //     activeChart = new Chart(ctx, {
-    //         type: config.type,
-    //         data: {
-    //             labels: filtered.labels,
-    //             datasets: [{ label: 'Jumlah Pengaduan', data: filtered.data, backgroundColor: finalBackgroundColor, maxBarThickness: 100 }]
-    //         },
-    //         options: {
-    //             responsive: true, maintainAspectRatio: false,
-    //             plugins: {
-    //                 legend: { position: 'right', display: config.type !== 'bar' },
-    //                 datalabels: {
-    //                     formatter: (value, context) => {
-    //                         if (value <= 0) return null;
-    //                         if (context.chart.config.type === 'pie') {
-    //                             const label = context.chart.data.labels[context.dataIndex];
-    //                             return `${label}\n${value}`;
-    //                         }
-    //                         return value;
-    //                     },
-    //                     anchor: (context) => context.chart.config.type === 'bar' ? 'end' : 'center',
-    //                     align: (context) => context.chart.config.type === 'bar' ? 'end' : 'center',
-    //                     color: config.type === 'pie' ? '#fff' : '#555',
-    //                     font: { weight: 'bold' }
-    //                 }
-    //             }
-    //         },
-    //         plugins: [ChartDataLabels]
-    //     });
-    // }
-
     function createChart(config) {
         if (activeChart) activeChart.destroy();
 

@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::connection('ssd')->create('KATEGORI_SSD', function (Blueprint $table) {
-            $table->unsignedBigInteger('ID_KATEGORI_SSD')->primary();
-            $table->string('DESKRIPSI', 255);
+            $table->id('ID_KATEGORI_SSD');
+            $table->string('DESKRIPSI', 255)->nullable();
             $table->string('NAMA_KATEGORI', 255);
             $table->timestamps();
         });
 
         Schema::connection('ssd')->create('SSD', function (Blueprint $table) {
-            $table->unsignedBigInteger('ID_SSD')->primary();
+            $table->id('ID_SSD');
             $table->unsignedBigInteger('ID_KATEGORI_SSD');
-            $table->foreign('ID_KATEGORI_SSD')->references('ID_KATEGORI_SSD')->on('KATEGORI_SSD');
+            $table->foreign('ID_KATEGORI_SSD')->references('ID_KATEGORI_SSD')->on('KATEGORI_SSD')->onDelete('cascade');
             $table->string('PERTANYAAN_SSD', 255);
             $table->string('JAWABAN_SSD', 255);
             $table->char('STATUS', 1);

@@ -65,12 +65,6 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::post('/pelaporanHumas', [PelaporanHumasController::class, 'storePelaporanHumas'])->name('pelaporan-humas.store');
     Route::get('/pelaporanHumas/{id_complaint}/detail', [PelaporanHumasController::class, 'showPelaporanDetail'])->name('pelaporan-humas.detail');
     Route::put('/pelaporanHumas/{id_complaint}', [PelaporanHumasController::class, 'updatePelaporanHumas'])->name('pelaporan-humas.update');
-    // Route::get('/pelaporanHumas/rekap/pdf', [PelaporanHumasController::class, 'rekapPdf'])->name('pelaporan-humas.rekap.pdf');
-    // Route::get('/pelaporanHumas/rekap/excel', [PelaporanHumasController::class, 'rekapExcel'])->name('pelaporan-humas.rekap.excel');
-    // Route::get('/pelaporan-humas', [PelaporanHumasController::class, 'getPelaporanHumas'])->name('pelaporan-humas');
-    // Route::post('/pelaporan-humas', [PelaporanHumasController::class, 'storePelaporanHumas'])->name('pelaporan-humas.store');
-    // Route::get('/pelaporan-humas/{id_complaint}/detail', [PelaporanHumasController::class, 'showPelaporanDetail'])->name('pelaporan-humas.detail');
-    // Route::put('/pelaporan-humas/{id_complaint}', [PelaporanHumasController::class, 'updatePelaporanHumas'])->name('pelaporan-humas.update');
     Route::get('/pelaporan-humas/rekap/pdf', [PelaporanHumasController::class, 'rekapPdf'])->name('pelaporan-humas.rekap.pdf');
     Route::get('/pelaporan-humas/rekap/excel', [PelaporanHumasController::class, 'rekapExcel'])->name('pelaporan-humas.rekap.excel');
     Route::get('/pelaporan-humas/{id_complaint}/rekap/pdf', [PelaporanHumasController::class, 'rekapDetailPdf'])->name('pelaporan-humas.rekap.detail.pdf');
@@ -104,6 +98,12 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
 
     // pengaturan SSD humas
     Route::get('/PengaturanSSD', [PengaturanSSDController::class, 'getPengaturanSSD'])->name('pengaturan-ssd-humas');
+    Route::post('/pengaturan-ssd/kategori', [PengaturanSSDController::class, 'storeKategori'])->name('pengaturan-ssd.kategori.store');
+    Route::post('/pengaturan-ssd/ssd', [PengaturanSSDController::class, 'storeSsd'])->name('pengaturan-ssd.ssd.store');
+    Route::put('/pengaturan-ssd/kategori/{kategori}', [PengaturanSSDController::class, 'updateKategori'])->name('pengaturan-ssd.kategori.update');
+    Route::put('/pengaturan-ssd/ssd/{ssd}', [PengaturanSSDController::class, 'updateSsd'])->name('pengaturan-ssd.ssd.update');
+    Route::delete('/pengaturan-ssd/kategori/{kategori}', [PengaturanSSDController::class, 'destroyKategori'])->name('pengaturan-ssd.kategori.destroy');
+    Route::delete('/pengaturan-ssd/ssd/{ssd}', [PengaturanSSDController::class, 'destroySsd'])->name('pengaturan-ssd.ssd.destroy');
 
     // klasifikasi pengaduan
     Route::post('/klasifikasi-pengaduan', [KlasifikasiPengaduanController::class, 'store'])->name('klasifikasi-pengaduan.store');

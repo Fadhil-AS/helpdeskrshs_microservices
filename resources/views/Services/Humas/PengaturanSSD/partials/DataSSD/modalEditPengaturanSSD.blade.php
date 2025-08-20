@@ -19,7 +19,12 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Kategori SSD</label>
-                        <input type="text" class="form-control" id="edit_kategori" name="kategori" required>
+                        <select class="form-select" id="edit_kategori_id" name="id_kategori_ssd" required>
+                            <option value="" disabled>-- Pilih Kategori --</option>
+                            @foreach ($allKategori as $kategori)
+                                <option value="{{ $kategori->ID_KATEGORI_SSD }}">{{ $kategori->NAMA_KATEGORI }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
