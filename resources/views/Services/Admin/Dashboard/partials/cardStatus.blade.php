@@ -26,7 +26,7 @@
                     <h2 class="card-title fw-bold mt-2 mb-1 text-warning">
                         {{ $countKlarifikasiBelum ?? '0' }}
                     </h2>
-                    <p class="mb-0 fw-semibold text-muted">Klarifikasi "Belum"</p>
+                    <p class="mb-0 fw-semibold text-muted">On Progress belum klarifikasi</p>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@
                     <h2 class="card-title fw-bold mt-2 mb-1 text-success">
                         {{ $countKlarifikasiSudah ?? '0' }}
                     </h2>
-                    <p class="mb-0 fw-semibold text-muted">Klarifikasi "Sudah"</p>
+                    <p class="mb-0 fw-semibold text-muted">On Progress sudah klarifikasi</p>
                 </div>
             </div>
         </div>

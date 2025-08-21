@@ -304,9 +304,9 @@ class DashboardAdminController extends Controller
         $countKlarifikasiBelum = 0;
 
         foreach ($allOngoingReports as $laporan) {
-            if ($laporan->status_klarifikasi === 'Sudah') {
+            if ($laporan->status_klarifikasi === 'Sudah' && $laporan->STATUS === 'On Progress') {
                 $countKlarifikasiSudah++;
-            } else {
+            } elseif ($laporan->status_klarifikasi === 'Belum' && $laporan->STATUS === 'On Progress') {
                 $countKlarifikasiBelum++;
             }
         }
