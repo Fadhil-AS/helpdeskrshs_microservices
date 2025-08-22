@@ -78,10 +78,20 @@ class LoginController extends Controller {
                     return redirect()->route('auth.gantiPassword');
                 }
 
-                $role = (preg_match('/[0-9]/', $userComplaint->ID_BAGIAN)) ? 'unit_kerja' : 'direksi';
+                $role = '';
+                if ($userComplaint->ID_BAGIAN === 'A04') {
+                    $role = 'spi';
+                } else {
+                    $role = (preg_match('/[0-9]/', $userComplaint->ID_BAGIAN)) ? 'unit_kerja' : 'direksi';
+                }
+
                 session(['user' => $userComplaint, 'role' => $role]);
                 $request->session()->regenerate();
-                return redirect()->intended(route('admin.dashboard'));
+                if ($role === 'spi') {
+                    return redirect()->intended(route('spi.pelaporan-SPI'));
+                } else {
+                    return redirect()->intended(route('admin.dashboard'));
+                }
             }
         }
 

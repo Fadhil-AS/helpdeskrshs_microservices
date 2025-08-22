@@ -4,6 +4,9 @@
     <!-- Navbar -->
     @include('Services.Humas.partials.navbar')
 
+    {{-- Card --}}
+    @include('Services.Admin.Dashboard.partials.cardStatus')
+
     <!-- Tabel Grafik -->
     @include('Services.Admin.Dashboard.partials.tabelGrafik')
 

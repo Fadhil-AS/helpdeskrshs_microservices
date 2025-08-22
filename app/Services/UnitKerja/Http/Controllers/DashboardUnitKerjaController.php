@@ -14,10 +14,11 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use App\Services\UnitKerja\Traits\UnitKerjaNotifikasi;
-
+// use App\Services\UnitKerja\Traits\UnitKerjaNotifikasi;
+use App\Services\Humas\Traits\NotifikasiWhatsApp;
 class DashboardUnitKerjaController extends Controller {
-    use UnitKerjaNotifikasi;
+    // use UnitKerjaNotifikasi;
+    use NotifikasiWhatsApp;
 
     public function getDashboard (Request $request){
         $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
@@ -29,69 +30,87 @@ class DashboardUnitKerjaController extends Controller {
 
         $query = Laporan::with(['jenisMedia', 'unitKerja'])
             ->whereNotNull('GRANDING')
-            ->where('ID_BAGIAN', $idBagianPengguna);
+            ->where(function ($q) use ($idBagianPengguna) {
+                $q->where('ID_BAGIAN', $idBagianPengguna)
+                  ->orWhereJsonContains('ID_BAGIAN_LAINNYA', $idBagianPengguna);
+            });
 
 
         $dataComplaint = $query->filter($request->only(['search', 'status']))
-            ->orderBy('TGL_COMPLAINT', 'asc')
+            ->orderBy('TGL_COMPLAINT', 'desc')
             ->paginate(10)
             ->withQueryString();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('services.unitKerja.dashboard.partials.tableContent', ['dataComplaint' => $dataComplaint])->render(),
+                'pagination' => $dataComplaint->links()->toHtml(),
+            ]);
+        }
 
         return view ('services.unitKerja.dashboard.mainUnitKerja', ['dataComplaint' => $dataComplaint]);
     }
 
     public function show($id_complaint)
     {
-        $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+        try {
+            $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
 
-        $complaint = Laporan::with([
-            'unitKerja',
-            'jenisMedia',
-            'jenisLaporan',
-            'klasifikasiPengaduan',
-            'penyelesaianPengaduan'
-        ])
-        ->where('ID_COMPLAINT', $id_complaint)
-        ->where('ID_BAGIAN', $idBagianPengguna)
-        ->first();
+            if (!$idBagianPengguna) {
+                return response()->json(['message' => 'Sesi pengguna tidak valid.'], 403);
+            }
 
-        if (!$complaint) {
-            return response()->json(['message' => 'Data pengaduan tidak ditemukan atau Anda tidak memiliki akses.'], 404);
+            $complaint = Laporan::with(['jenisMedia', 'jenisLaporan', 'klasifikasiPengaduan', 'penyelesaianPengaduan'])
+                ->where('ID_COMPLAINT', $id_complaint)
+                ->where(function ($query) use ($idBagianPengguna) {
+                    $query->where('ID_BAGIAN', $idBagianPengguna)
+                          ->orWhereJsonContains('ID_BAGIAN_LAINNYA', $idBagianPengguna);
+                })
+                ->first();
+
+            if (!$complaint) {
+                return response()->json(['message' => 'Data pengaduan tidak ditemukan atau Anda tidak memiliki akses.'], 404);
+            }
+
+            $unitKerjaMap = $complaint->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
+            $klarifikasiList = $complaint->klarifikasi_list;
+            $augmentedKlarifikasi = array_map(function ($item) use ($unitKerjaMap) {
+                $item['nama_bagian'] = $unitKerjaMap[$item['id_bagian']] ?? 'Unit Kerja Tidak Dikenal';
+                return $item;
+            }, $klarifikasiList);
+
+            $dataAsArray = $complaint->toArray();
+            $dataAsArray['klarifikasi_list'] = $augmentedKlarifikasi;
+            $dataAsArray['id_bagian_pengguna'] = $idBagianPengguna;
+
+            array_walk_recursive($dataAsArray, function (&$item, $key) {
+                if (is_string($item)) {
+                    $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                }
+            });
+
+            return response()->json($dataAsArray);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage()], 500);
         }
-
-        $processFiles = function ($fileData) {
-            if (empty($fileData)) {
-                return [];
-            }
-            $decoded = json_decode($fileData, true);
-            if (is_array($decoded)) {
-                return $decoded;
-            }
-            if (str_contains($fileData, ';')) {
-                return explode(';', $fileData);
-            }
-            return [$fileData];
-        };
-
-        $complaint->pengaduan_files = $processFiles($complaint->FILE_PENGADUAN);
-        $complaint->klarifikasi_files = $processFiles($complaint->FILE_BUKTI_KLARIFIKASI);
-        $complaint->tindak_lanjut_files = $processFiles($complaint->FILE_TINDAK_LANJUT_HUMAS);
-
-        return response()->json($complaint);
     }
 
     public function update(Request $request, $id_complaint)
     {
         $idBagianPengguna = session('user')->ID_BAGIAN ?? null;
+
         $complaint = Laporan::where('ID_COMPLAINT', $id_complaint)
-                                    ->where('ID_BAGIAN', $idBagianPengguna)
-                                    ->firstOrFail();
+        ->where(function ($query) use ($idBagianPengguna) {
+            $query->where('ID_BAGIAN', $idBagianPengguna)
+                  ->orWhereJsonContains('ID_BAGIAN_LAINNYA', $idBagianPengguna);
+        })
+        ->firstOrFail();
 
 
         $minEvaluationDate = $complaint->TGL_PENUGASAN ? Carbon::parse($complaint->TGL_PENUGASAN)->format('Y-m-d') : null;
 
         $rules = [
-            'JUDUL_COMPLAINT'    => 'required|string|max:255',
             'klarifikasi_unit'   => 'required|string|max:5000',
             'file_bukti'         => 'nullable|array',
             'file_bukti.*'       => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
@@ -116,26 +135,45 @@ class DashboardUnitKerjaController extends Controller {
         if ($validator->fails()) {
             return redirect()
             ->back()
-            ->
-            withErrors($validator)
+            ->withErrors($validator)
             ->withInput()
             ->with('error_complaint_id', $id_complaint);
-            // ->with('show_modal_on_error', '#editModal');
         }
 
-        try {
-            DB::transaction(function () use ($request, $id_complaint) {
+        $validatedData = $validator->validated();
 
-                $complaint = Laporan::findOrFail($id_complaint);
+        try {
+            DB::transaction(function () use ($request, $complaint, $validatedData, $idBagianPengguna) {
+
+                $klarifikasiList = $complaint->klarifikasi_list;
+
+                $klarifikasiBaru = [
+                    'id_bagian'   => $idBagianPengguna,
+                    'klarifikasi' => $validatedData['klarifikasi_unit'],
+                    'petugas'     => $validatedData['PETUGAS_EVALUASI'],
+                    'tanggal'     => $validatedData['TGL_EVALUASI'],
+                ];
+
+                $index = array_search($idBagianPengguna, array_column($klarifikasiList, 'id_bagian'));
+
+                if ($index !== false) {
+                    $klarifikasiList[$index] = $klarifikasiBaru;
+                } else {
+                    $klarifikasiList[] = $klarifikasiBaru;
+                }
 
                 $updateData = [
-                    'JUDUL_COMPLAINT'    => $request->input('JUDUL_COMPLAINT'),
-                    'EVALUASI_COMPLAINT' => $request->input('klarifikasi_unit'),
-                    'PETUGAS_EVALUASI'   => $request->input('PETUGAS_EVALUASI'),
-                    'TGL_EVALUASI'       => $request->input('TGL_EVALUASI'),
-                    'STATUS'             => 'On Progress',
-                    // 'TGL_SELESAI'        => Carbon::now(),
+                    'EVALUASI_COMPLAINT' => json_encode(array_values($klarifikasiList)),
+                    'TGL_EVALUASI'       => $validatedData['TGL_EVALUASI'],
+                    'PETUGAS_EVALUASI'   => $validatedData['PETUGAS_EVALUASI'],
                 ];
+
+                $semuaSudahKlarifikasi = count($klarifikasiList) >= $complaint->unit_kerja_list->count();
+                if ($semuaSudahKlarifikasi) {
+                    $updateData['STATUS'] = 'On Progress';
+                } else {
+                    $updateData['STATUS'] = 'On Progress';
+                }
 
                 if ($request->hasFile('file_bukti')) {
                     $existingFiles = json_decode($complaint->FILE_BUKTI_KLARIFIKASI, true) ?? [];
@@ -154,20 +192,12 @@ class DashboardUnitKerjaController extends Controller {
                 $complaint->update($updateData);
             });
 
-            $updatedComplaint = Laporan::find($id_complaint);
-            if ($updatedComplaint && $updatedComplaint->NO_TLPN) {
-                $urlLacak = route('ticketing.lacak', ['id_complaint' => $updatedComplaint->ID_COMPLAINT]);
+            $updatedComplaint = Laporan::with('unitKerja')->find($id_complaint);
 
-                $message = "Yth.\nBapak/Ibu {$updatedComplaint->NAME},\n\n" .
-                           "Laporan Anda dengan ID *{$updatedComplaint->ID_COMPLAINT}* telah diperbarui.\n\n" .
-                           "Status saat ini: *{$updatedComplaint->STATUS}*.\n" .
-                           "Klarifikasi dari unit kami: '{$updatedComplaint->EVALUASI_COMPLAINT}'\n\n" .
-                           "Untuk melacak status laporan Anda, silakan kunjungi link berikut:\n" . $urlLacak .
-                           "\n\nTerima kasih atas perhatian Anda.".
-                           "\n\nPengirim\nRumah Sakit Hasan Sadikin Bandung ";
-
-                $this->sendWhatsappNotification($updatedComplaint->NO_TLPN, $message);
-            }
+            $this->kirimNotifikasiKePelapor($updatedComplaint);
+            $unitKerjaPengirim = UnitKerja::find($idBagianPengguna);
+            $namaUnitPengirim = $unitKerjaPengirim ? $unitKerjaPengirim->NAMA_BAGIAN : 'Unit Kerja';
+            $this->kirimNotifikasiKeHumas($updatedComplaint, 'klarifikasi_unit', ['nama_unit' => $namaUnitPengirim]);
 
             return redirect()->route('unitKerja.dashboard')
                              ->with('success', 'Klarifikasi untuk ID ' . $id_complaint . ' berhasil disimpan.');

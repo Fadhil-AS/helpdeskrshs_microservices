@@ -18,9 +18,9 @@
             <table class="table align-middle">
                 <thead class="border-bottom">
                     <tr class="text-nowrap">
-                        <th>Jenis Media</th>
-                        <th class="text-end ps-5">Status</th>
-                        <th class="text-end pe-4">Aksi</th>
+                        <th style="width: 50%;">Jenis Media</th>
+                        <th style="width: 40%;">Status</th>
+                        <th style="width: 10%;">Aksi</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -32,14 +32,14 @@
                                 <input type="text" class="form-control form-control-sm editable-input d-none editable-input"
                                     value="{{ $item->JENIS_MEDIA }}" name="JENIS_MEDIA">
                             </td>
-                            <td class="text-end">
+                            <td>
                                 @if ($item->STATUS == '1')
                                     <span class="badge bg-success">Aktif</span>
                                 @else
                                     <span class="badge bg-danger">Tidak Aktif</span>
                                 @endif
                             </td>
-                            <td class="text-end pe-2">
+                            <td>
                                 <div class="view-mode-actions d-inline-block">
                                     <a href="#" class="btn-inline-edit me-2"><i class="bi bi-pencil-square"></i></a>
                                     <a href="#" class="btn-inline-delete text-danger"

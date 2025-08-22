@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('PASSWORD', 250)->nullable(false);
             $table->integer('NIP')->default(18)->nullable(false);
             $table->string('NAMA', 50);
+            $table->string('no_tlpn_humas', 15);
+            $table->string('no_tlpn_rshs', 15);
             $table->timestamps();
         });
     }

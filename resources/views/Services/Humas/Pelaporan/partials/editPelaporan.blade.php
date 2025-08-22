@@ -98,14 +98,24 @@
                             <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Unit Kerja Tujuan</label>
-                                    <select class="form-select" id="editIdBagian" name="ID_BAGIAN" required>
-                                        <option value="" selected disabled>Pilih unit kerja</option>
-                                        @if (isset($unitKerja) && $unitKerja->count() > 0)
-                                            @foreach ($unitKerja as $uK)
-                                                <option value="{{ $uK->ID_BAGIAN }}">{{ $uK->NAMA_BAGIAN }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
+                                    <div id="unitKerjaContainer">
+                                        <div class="input-group mb-2">
+                                            <select class="form-select" name="ID_BAGIAN[]" required>
+                                                <option value="" selected disabled>Pilih unit kerja</option>
+                                                @if (isset($unitKerja) && $unitKerja->count() > 0)
+                                                    @foreach ($unitKerja as $uK)
+                                                        <option value="{{ $uK->ID_BAGIAN }}"
+                                                            {{ $uK->SUPER == 1 ? 'disabled' : '' }}>
+                                                            {{ $uK->NAMA_BAGIAN }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-md btn-tambah-pengaduan text-white mb-1"
+                                        id="addUnitKerjaBtn">
+                                        <i class="bi bi-plus-circle text-white"></i> Tambah Unit Kerja
+                                    </button>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdJenisMedia">Media Pengaduan</label>
@@ -180,17 +190,26 @@
                         <!-- Evaluasi & Penyelesaian -->
                         <div class="tab-pane fade" id="tab3Edit" role="tabpanel">
                             <div class="row mb-2">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Tanggal Evaluasi</label>
+                                    <input type="text" class="form-control" id="editTanggalEvaluasi" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Tanggal Tindak Lanjut Humas</label>
+                                    <input type="text" class="form-control" id="editTanggalTindakLanjutHumas"
+                                        readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Tanggal Selesai</label>
+                                    <input type="text" class="form-control" id="editTanggalSelesai" readonly>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Petugas Evaluasi</label>
                                     <input type="text" class="form-control " id="editPetugasEvaluasi"
                                         name="PETUGAS_EVALUASI" readonly>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Tanggal Evaluasi</label>
-                                    <input type="text" class="form-control" id="editTanggalEvaluasi" readonly>
-                                </div>
-                            </div>
-                            <div class="row mb-2">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold" for="editIdPenyelesaian">Penyelesaian
                                         Pengaduan</label>
@@ -204,10 +223,6 @@
                                             @endforeach
                                         @endif
                                     </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Tanggal Selesai</label>
-                                    <input type="text" class="form-control" id="editTanggalSelesai" readonly>
                                 </div>
                             </div>
                             <div class="mb-3">

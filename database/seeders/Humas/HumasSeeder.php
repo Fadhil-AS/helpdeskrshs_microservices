@@ -17,7 +17,7 @@ class HumasSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        $plainPassword = 'SuHuTest12345';
+        $plainPassword = 'SuperHumas12345';
         $hashedPassword = md5($plainPassword);
 
         DB::connection('mysql')->table('HUMAS')->insert([
@@ -25,6 +25,8 @@ class HumasSeeder extends Seeder
             'PASSWORD'       => $hashedPassword,
             'NIP'            => '1234567890',
             'NAMA'           => 'RSHS SuHu',
+            'no_tlpn_humas'  => '085778306332',
+            'no_tlpn_rshs'   => '085156634301',
             'created_at'     => now(),
             'updated_at'     => now(),
         ]);

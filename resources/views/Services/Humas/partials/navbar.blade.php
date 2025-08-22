@@ -20,18 +20,37 @@
                         <a class="nav-link {{ request()->routeIs('humas.pelaporan-humas*') ? 'active' : '' }}"
                             href="{{ route('humas.pelaporan-humas') }}">Daftar Pelaporan</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('humas.unit-kerja-humas*') ? 'active' : '' }}"
-                            href="{{ route('humas.unit-kerja-humas') }}">Unit Kerja</a>
+
+                    {{-- Dropdown Manajemen Data --}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs(['humas.unit-kerja-humas*', 'humas.direksi-humas*', 'humas.data-referensi-humas*']) ? 'active' : '' }}"
+                            href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manajemen Data
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item {{ request()->routeIs('humas.unit-kerja-humas*') ? 'active' : '' }}"
+                                    href="{{ route('humas.unit-kerja-humas') }}">Unit Kerja</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('humas.direksi-humas*') ? 'active' : '' }}"
+                                    href="{{ route('humas.direksi-humas') }}">Direksi</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
+                                    href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a></li>
+                        </ul>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('humas.direksi-humas*') ? 'active' : '' }}"
-                            href="{{ route('humas.direksi-humas') }}">Direksi</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
-                            href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a>
+                    {{-- Dropdown Pengaturan Sistem --}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('humas.data-nomor-humas-rshs*', 'humas.upload*', 'humas.pengaturan-ssd-humas*') ? 'active' : '' }}"
+                            href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Pengaturan Sistem
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item {{ request()->routeIs('humas.data-nomor-humas-rshs*') ? 'active' : '' }}"
+                                    href="{{ route('humas.data-nomor-humas-rshs') }}">Data Nomor WA</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('humas.upload*') ? 'active' : '' }}"
+                                    href="{{ route('humas.upload') }}">Pengaturan Chatbot</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('humas.pengaturan-ssd-humas*') ? 'active' : '' }}"
+                                    href="{{ route('humas.pengaturan-ssd-humas') }}">Pengaturan SSD</a></li>
+                        </ul>
                     </li>
                     {{-- <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
@@ -50,6 +69,15 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
                             href="{{ route('admin.dashboard') }}">Dashboard</a>
+                    </li>
+                @elseif (session('role') === 'spi')
+                    {{-- <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
+                            href="{{ route('admin.dashboard') }}">Dashboard</a>
+                    </li> --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('spi.pelaporan-SPI*') ? 'active' : '' }}"
+                            href="{{ route('spi.pelaporan-SPI') }}">Daftar Pelaporan</a>
                     </li>
                 @endif
             </ul>
@@ -90,13 +118,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body d-flex flex-column justify-content-between">
-        <ul class="navbar-nav text-center">
+        <ul class="navbar-nav text-center gap-2">
             {{-- <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Dashboard</a></li>
             <li class="nav-item"><a class="nav-link {{ request()->routeIs('humas.pelaporan-humas') ? 'active' : '' }}" href="{{ route('humas.pelaporan-humas') }}">Daftar Pelaporan</a></li>
             <li class="nav-item"><a class="nav-link {{ request()->routeIs('humas.unit-kerja-humas') ? 'active' : '' }}" href="{{ route('humas.unit-kerja-humas') }}">Unit Kerja</a></li>
             <li class="nav-item"><a class="nav-link {{ request()->routeIs('humas.direksi-humas') ? 'active' : '' }}" href="{{ route('humas.direksi-humas') }}">Direksi</a></li>
             <li class="nav-item"><a class="nav-link {{ request()->routeIs('humas.data-referensi-humas') ? 'active' : '' }}" href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a></li> --}}
             @if (session('role') === 'humas')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
+                        href="{{ route('admin.dashboard') }}">Dashboard</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.pelaporan-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.pelaporan-humas') }}">Daftar Pelaporan</a>
@@ -105,10 +137,10 @@
                     <a class="nav-link {{ request()->routeIs('humas.unit-kerja-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.unit-kerja-humas') }}">Unit Kerja</a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.user-complaint*') ? 'active' : '' }}"
                         href="{{ route('humas.user-complaint.index') }}">Admin Unit Kerja</a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.direksi-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.direksi-humas') }}">Direksi</a>
@@ -116,6 +148,16 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('humas.data-referensi-humas*') ? 'active' : '' }}"
                         href="{{ route('humas.data-referensi-humas') }}">Data Referensi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('humas.data-nomor-humas-rshs*') ? 'active' : '' }}"
+                        href="{{ route('humas.data-nomor-humas-rshs') }}">Data Nomor WA</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="">Pengaturan Chatbot</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="">Pengaturan SSD</a>
                 </li>
             @elseif (session('role') === 'unit_kerja')
                 {{-- <li class="nav-item">
@@ -130,6 +172,11 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}"
                         href="{{ route('admin.dashboard') }}">Dashboard</a>
+                </li>
+            @elseif (session('role') === 'spi')
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('spi.pelaporan-SPI*') ? 'active' : '' }}"
+                        href="{{ route('spi.pelaporan-SPI') }}">Daftar Pelaporan</a>
                 </li>
             @endif
         </ul>

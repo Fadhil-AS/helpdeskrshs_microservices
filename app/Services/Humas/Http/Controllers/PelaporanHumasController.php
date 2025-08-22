@@ -15,54 +15,43 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
+// use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
+use App\Services\Humas\Traits\NotifikasiWhatsApp;
+use App\Services\Humas\Export\LaporanExport;
+use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class PelaporanHumasController extends Controller {
 
-    use NotifikasiWhatsappPelapor;
+    use NotifikasiWhatsApp;
 
     public function getPelaporanHumas(Request $request){
         // dd($request->all());
 
-        $unitKerja = UnitKerja::where('STATUS', '1')
-            ->whereRaw('LENGTH(ID_BAGIAN) > 1')
-            ->orderBy('NAMA_BAGIAN', 'asc')
-            ->get();
+        $unitKerja = UnitKerja::where('STATUS', '1')->get();
         $JenisLaporan = JenisLaporan::where('STATUS', '1')->get();
         $JenisMedia = JenisMedia::where('STATUS', '1')->get();
         $klasifikasiPengaduan = KlasifikasiPengaduan::where('STATUS', '1')->get();
         $penyelesaianPengaduan = PenyelesaianPengaduan::where('STATUS', '1')->get();
 
-        $query = Laporan::with(['unitKerja', 'jenisMedia'])
+        $query = Laporan::with(['unitKerja', 'jenisMedia', 'klasifikasiPengaduan'])
         ->select(
             'data_complaint.*',
             DB::raw('TIMESTAMPDIFF(DAY, TGL_PENUGASAN, TGL_EVALUASI) as response_time')
-        );
+        )
+        ->whereHas('klasifikasiPengaduan', function ($q) {
+            $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
+        });
 
-        if ($request->filled('status')) {
-            $query->where('STATUS', $request->status);
-        }
+        $query->filter($request->only(['search', 'status', 'unit_kerja', 'periode', 'tahun', 'bulan', 'triwulan', 'semester']));
 
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('ID_COMPLAINT', 'like', '%' . $search . '%')
-                  ->orWhere('NAME', 'like', '%' . $search . '%')
-                  ->orWhere('NO_MEDREC', 'like', '%' . $search . '%')
-                  ->orWhere('JUDUL_COMPLAINT', 'like', '%' . $search . '%')
-                  ->orWhere('ISI_COMPLAINT', 'like', '%' . $search . '%')
-                  ->orWhere('PERMASALAHAN', 'like', '%' . $search . '%')
-                  ->orWhere('NO_TLPN', 'like', '%' . $search . '%');
-            });
-        }
+        // if ($request->filled('status')) {
+        //     $query->where('STATUS', $request->status);
+        // }
 
-        $dataComplaint = $query->orderBy('ID_COMPLAINT', 'asc')
+        $dataComplaint = $query->orderBy('ID_COMPLAINT', 'desc')
                                 ->paginate(10)
                                 ->withQueryString();
-
-        if ($request->ajax()) {
-            return view('Services.Humas.Pelaporan.partials.tabelDataComplaint', compact('dataComplaint'))->render();
-        }
 
 
         return view('Services.Humas.Pelaporan.mainPelaporan', compact(
@@ -118,7 +107,7 @@ class PelaporanHumasController extends Controller {
             'ISI_COMPLAINT' => 'required|string',
             'PERMASALAHAN' => 'nullable|string',
             'FILE_PENGADUAN'   => 'nullable|array',
-            'FILE_PENGADUAN.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx',
+            'FILE_PENGADUAN.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ];
 
         $messages = [
@@ -183,6 +172,12 @@ class PelaporanHumasController extends Controller {
             ]);
 
             $selectedKlasifikasiId = $request->input('ID_KLASIFIKASI');
+            $gratifikasiKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Gratifikasi')->first();
+            $sponsorshipKlasifikasi = KlasifikasiPengaduan::where('KLASIFIKASI_PENGADUAN', 'Sponsorship')->first();
+            $excludedIds = array_filter([
+                $gratifikasiKlasifikasi ? $gratifikasiKlasifikasi->ID_KLASIFIKASI : null,
+                $sponsorshipKlasifikasi ? $sponsorshipKlasifikasi->ID_KLASIFIKASI : null
+            ]);
             $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
 
             // $klasifikasiText = KlasifikasiPengaduan::find($selectedKlasifikasiId)->KLASIFIKASI_PENGADUAN ?? 'Pengaduan';
@@ -201,8 +196,10 @@ class PelaporanHumasController extends Controller {
             $laporanBaru = Laporan::create($dataToCreate);
             $isExcluded = in_array($selectedKlasifikasiId, $excludedIds);
             if (!$isExcluded) {
-                $this->kirimNotifikasiStatusKePelapor($laporanBaru);
+                $this->kirimNotifikasiKePelapor($laporanBaru);
             }
+
+            $this->kirimNotifikasiKeHumas($laporanBaru, 'laporan_baru');
 
             DB::commit();
 
@@ -233,24 +230,23 @@ class PelaporanHumasController extends Controller {
                 return response()->json(['error' => 'Data pengaduan tidak ditemukan.'], 404);
             }
 
-            $processFiles = function ($fileData) {
-                if (empty($fileData)) {
-                    return [];
-                }
-                $decoded = json_decode($fileData, true);
-                if (is_array($decoded)) {
-                    return $decoded;
-                }
-                if (str_contains($fileData, ';')) {
-                    return explode(';', $fileData);
-                }
-                return [$fileData];
-            };
-            $complaint->pengaduan_files = $processFiles($complaint->FILE_PENGADUAN);
-            $complaint->klarifikasi_files = $processFiles($complaint->FILE_BUKTI_KLARIFIKASI);
-            $complaint->tindak_lanjut_files = $processFiles($complaint->FILE_TINDAK_LANJUT_HUMAS);
+            $unitKerjaMap = $complaint->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
+            $klarifikasiList = $complaint->klarifikasi_list;
+            $augmentedKlarifikasi = array_map(function ($item) use ($unitKerjaMap) {
+                $item['nama_bagian'] = $unitKerjaMap[$item['id_bagian']] ?? 'Unit Kerja Tidak Dikenal';
+                return $item;
+            }, $klarifikasiList);
 
-            return response()->json($complaint);
+            $dataAsArray = $complaint->toArray();
+            $dataAsArray['klarifikasi_list'] = $augmentedKlarifikasi;
+
+            array_walk_recursive($dataAsArray, function (&$item, $key) {
+                if (is_string($item)) {
+                    $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                }
+            });
+
+            return response()->json($dataAsArray);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage()], 500);
         }
@@ -271,7 +267,8 @@ class PelaporanHumasController extends Controller {
         $rules = [
             'JUDUL_COMPLAINT'       => 'required|string|max:255',
             'PETUGAS_PELAPOR'       => 'nullable|string|max:150',
-            'ID_BAGIAN'             => 'required|string|exists:unit_kerja,ID_BAGIAN',
+            'ID_BAGIAN'             => 'required|array',
+            'ID_BAGIAN.*'           => 'required|string|exists:unit_kerja,ID_BAGIAN',
             'ID_JENIS_LAPORAN'      => 'required|string|exists:jenis_laporan,ID_JENIS_LAPORAN',
             'PERMASALAHAN'          => 'nullable|string',
             'STATUS'                => 'sometimes|in:Open,On Progress,Menunggu Konfirmasi,Close,Banding',
@@ -279,7 +276,7 @@ class PelaporanHumasController extends Controller {
             'ID_PENYELESAIAN'       => 'nullable|string|exists:penyelesaian_pengaduan,ID_PENYELESAIAN',
             'TINDAK_LANJUT_HUMAS'   => 'nullable|string|max:4000',
             'file_tindak_lanjut'    => 'nullable|array',
-            'file_tindak_lanjut.*'  => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx',
+            'file_tindak_lanjut.*'  => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ];
 
         if (!$isFromWebsite) {
@@ -307,16 +304,22 @@ class PelaporanHumasController extends Controller {
                         ->with('showModal', '#editModal');
         }
 
+        $validatedData = $validator->validated();
+
         DB::beginTransaction();
         try {
-            $updateData = $request->except(['_token', '_method', 'new_files', 'deleted_files_input', 'file_tindak_lanjut']);
-            // $penyelesaianDiisi = $request->filled('ID_PENYELESAIAN');
-            // $tindakLanjutDiisi = $request->filled('TINDAK_LANJUT_HUMAS');
-            // $statusSekarang = $complaint->STATUS;
-            $selectedKlasifikasiId = $request->input('ID_KLASIFIKASI', $complaint->ID_KLASIFIKASI);
-            if (in_array($selectedKlasifikasiId, $excludedIds)) {
-                $updateData['NAME'] = empty($request->input('NAME')) ? 'Anonimus' : $request->input('NAME');
+            $complaint = Laporan::findOrFail($id_complaint);
+            $updateData = $validatedData;
+
+            if (isset($updateData['ID_BAGIAN']) && is_array($updateData['ID_BAGIAN'])) {
+                $idBagianArray = $updateData['ID_BAGIAN'];
+                $firstId = array_shift($idBagianArray);
+                $updateData['ID_BAGIAN'] = $firstId;
+                $updateData['ID_BAGIAN_LAINNYA'] = !empty($idBagianArray) ? json_encode(array_values($idBagianArray)) : null;
             }
+
+            $updateData['GRANDING'] = $updateData['gradingOptions'];
+            unset($updateData['gradingOptions']);
 
             if (!$isFromWebsite) {
                 $currentPengaduanFiles = json_decode($complaint->FILE_PENGADUAN, true) ?? [];
@@ -362,12 +365,12 @@ class PelaporanHumasController extends Controller {
             }
 
              if ($request->filled('ID_PENYELESAIAN') && $request->filled('TINDAK_LANJUT_HUMAS')) {
-                if (is_null($complaint->TGL_SELESAI)) {
-                    $updateData['TGL_SELESAI'] = Carbon::now();
+                if (is_null($complaint->TGL_TINDAK_LANJUT_HUMAS)) {
+                    $updateData['TGL_TINDAK_LANJUT_HUMAS'] = Carbon::now();
                 }
             }
 
-            $updateData['GRANDING'] = $request->input('gradingOptions');
+
 
             if ($request->filled('ID_PENYELESAIAN')) {
                 $penyelesaian = DB::table('penyelesaian_pengaduan')
@@ -396,7 +399,8 @@ class PelaporanHumasController extends Controller {
             $complaint->update($updateData);
 
             if ($complaint->wasChanged('STATUS')) {
-                $this->kirimNotifikasiStatusKePelapor($complaint->fresh());
+                $this->kirimNotifikasiKePelapor($complaint->fresh());
+                $this->kirimNotifikasiStatusKeHumas($complaint->fresh());
             }
 
             DB::commit();
@@ -408,4 +412,62 @@ class PelaporanHumasController extends Controller {
             return redirect()->back()->with('error', 'Gagal memperbarui pengaduan: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function rekapExcel(Request $request)
+    {
+        $query = $this->getFilteredQuery($request);
+        $data = $query->orderBy('ID_COMPLAINT', 'asc')->get();
+
+        return Excel::download(new LaporanExport($data), 'rekap-laporan-pengaduan.xlsx');
+    }
+
+    public function rekapPdf(Request $request)
+    {
+        $query = $this->getFilteredQuery($request);
+        $data = $query->orderBy('ID_COMPLAINT', 'asc')->get();
+
+        $pdf = PDF::loadView('Services.Humas.Pelaporan.rekap.pdf', compact('data'));
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('rekap-laporan-pengaduan.pdf');
+    }
+
+    public function rekapDetailPdf(Request $request, $id_complaint)
+    {
+        $laporan = Laporan::findOrFail($id_complaint);
+
+        $klarifikasiList = $laporan->klarifikasi_list;
+        $unitKerjaMap = $laporan->unit_kerja_list->pluck('NAMA_BAGIAN', 'ID_BAGIAN');
+
+        $klarifikasiList = array_map(function ($item) use ($unitKerjaMap) {
+            if (isset($item['id_bagian']) && isset($unitKerjaMap[$item['id_bagian']])) {
+                $item['nama_bagian'] = $unitKerjaMap[$item['id_bagian']];
+            } else {
+                $item['nama_bagian'] = 'Unit Kerja Tidak Dikenal';
+            }
+            return $item;
+        }, $klarifikasiList);
+
+        $laporan->klarifikasi_list_processed = $klarifikasiList;
+
+        $pdf = PDF::loadView('Services.Humas.Pelaporan.rekap.detail-pdf', ['data' => [$laporan]]);
+        $pdf->setPaper('a4', 'portrait');
+
+        $fileName = 'laporan-detail-' . $id_complaint . '.pdf';
+        return $pdf->download($fileName);
+    }
+
+    private function getFilteredQuery(Request $request)
+    {
+        $query = Laporan::with(['jenisMedia', 'unitKerja', 'klasifikasiPengaduan'])
+            ->select('data_complaint.*', DB::raw('TIMESTAMPDIFF(DAY, TGL_PENUGASAN, TGL_EVALUASI) as response_time'))
+            ->whereHas('klasifikasiPengaduan', function ($q) {
+                $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
+            });
+
+        $query->filter($request->only(['search', 'status', 'unit_kerja', 'periode', 'tahun', 'bulan', 'triwulan', 'semester']));
+
+        return $query;
+    }
+
 }

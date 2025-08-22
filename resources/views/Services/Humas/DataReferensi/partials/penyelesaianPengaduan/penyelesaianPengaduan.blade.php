@@ -18,10 +18,10 @@
             <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th>ID Penyelesaian</th>
-                        <th>Penyelesaian Pengaduan</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
+                        <th style="width: 30%;">ID Penyelesaian</th>
+                        <th style="width: 40%;">Penyelesaian Pengaduan</th>
+                        <th style="width: 20%;">Status</th>
+                        <th style="width: 10%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -40,7 +40,7 @@
                         <label class="form-label fw-bold" for="ID_BAGIAN">Unit Kerja</label>
                         <select class="form-select" name="ID_BAGIAN" required>
                             <option selected disabled>--- Pilih unit kerja ---</option>
-                            @foreach ($unitsForDropdown as $unit)
+                            @foreach ($allUnits as $unit)
                                 <option value="{{ $unit->ID_BAGIAN }}">
                                     {{ $unit->ID_BAGIAN }} - {{ $unit->NAMA_BAGIAN }}
                                 </option>
@@ -69,7 +69,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline-danger" data-bs-dismiss="modal" type="button">Batal</button>
-                    <button class="btn text-white btn-simpan" type="submit">Tambah Pengaduan</button>
+                    <button class="btn text-white btn-simpan" type="submit">Tambah Admin</button>
                 </div>
             </form>
         </div>

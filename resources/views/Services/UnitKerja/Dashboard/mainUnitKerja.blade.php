@@ -24,6 +24,7 @@
     <script src="{{ asset('assets/js/UnitKerja/dashboard.js') }}"></script>
     <script src="{{ asset('assets/js/UnitKerja/modalDetail.js') }}"></script>
     <script src="{{ asset('assets/js/UnitKerja/modalEdit.js') }}"></script>
+    <script src="{{ asset('assets/js/UnitKerja/fungsiCari.js') }}"></script>
     @if (session('error_complaint_id'))
         <script>
             document.addEventListener('DOMContentLoaded', function() {

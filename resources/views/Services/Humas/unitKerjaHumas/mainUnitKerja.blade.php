@@ -10,16 +10,21 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+
     {{-- table unit kerja humas --}}
-    <div id="unit-kerja-container">
-        @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas.tabelUKH')
-    </div>
+    @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas.tabelUKH')
 
     <!-- Modal Tambah Data unit kerja humas -->
     @include('Services.Humas.unitKerjaHumas.partials.UnitKerjaHumas.modalTambahUKH')
 
     <!-- Modal Edit Data Direksi -->
     @include('Services.Humas.unitKerjaHumas.partials.UnitKerjaHumas.modalEditUKH')
+
+    {{-- modal delete data unit kerja --}}
+    @include('Services.Humas.unitKerjaHumas.partials.UnitKerjaHumas.modalDelete')
 
     {{-- tabel Admin unit kerja --}}
     @include('Services.Humas.unitKerjaHumas.partials.adminUKH.tabelAUKH')
@@ -34,22 +39,56 @@
     @include('Services.Humas.unitKerjaHumas.partials.adminUKH.modalEditAUKH')
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+
 
     {{-- Unit kerja --}}
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiTabel.js') }}"></script>
+    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiCari.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiTabel.js') }}"></script> --}}
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiModalEdit.js') }}"></script>
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiSearch.js') }}"></script>
 
-    {{-- Admin unit kerja --}}
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalTambah.js') }}"></script>
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalDetail.js') }}"></script>
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalEdit.js') }}"></script>
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiReset.js') }}"></script>
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/filteringAUKH.js') }}"></script>
-    <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiSearchAUKH.js') }}"></script>
+    {{-- fungsi delete unit kerja --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.addEventListener('click', function(event) {
+                const deleteButton = event.target.closest('.hapus-unit-btn');
+                if (!deleteButton) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const unitId = deleteButton.getAttribute('data-id');
+                const unitName = deleteButton.getAttribute('data-nama');
+
+                const adminCount = parseInt(deleteButton.getAttribute('data-admin-count'), 10);
+                const childCount = parseInt(deleteButton.getAttribute('data-child-count'), 10);
+
+                if (childCount > 0) {
+                    alert('Tidak dapat menghapus unit kerja "' + unitName + '" karena memiliki ' +
+                        childCount + ' sub bagian.');
+                    return;
+                }
+                if (adminCount > 0) {
+                    alert('Tidak dapat menghapus unit kerja "' + unitName +
+                        '" karena masih memiliki ' + adminCount + ' akun admin.');
+                    return;
+                }
+
+                const confirmationModalElement = document.getElementById('hapusKategoriModal');
+                if (confirmationModalElement) {
+                    const modal = new bootstrap.Modal(confirmationModalElement);
+                    document.getElementById('kategoriHapusNama').textContent = unitName;
+                    let deleteForm = document.getElementById('deleteKategoriForm');
+                    let actionUrl = "{{ route('humas.unit-kerja-humas.destroy', ':id') }}";
+                    deleteForm.action = actionUrl.replace(':id', unitId);
+                    modal.show();
+                } else {
+                    console.error('Error: Modal dengan ID "hapusKategoriModal" tidak ditemukan.');
+                    alert('Terjadi kesalahan: Komponen modal konfirmasi hapus tidak ditemukan.');
+                }
+            });
+        });
+    </script>
 
     <script src="{{ asset('assets/js/Humas/navbar.js') }}"></script>
 </body>

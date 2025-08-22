@@ -1,9 +1,15 @@
-<tr class="parent-row child-row @if ($unit->ID_PARENT_BAGIAN && !in_array($unit->ID_BAGIAN, $promotedIDs)) group-{{ $unit->ID_PARENT_BAGIAN }} @endif @if ($level > 0) hidden-row @endif"
-    data-child="group-{{ $unit->ID_BAGIAN }}" data-level="{{ $level }}">
+@php
+    $hasChildren = isset($children[$unit->ID_BAGIAN]) && $children[$unit->ID_BAGIAN]->isNotEmpty();
+    $isSearch = !empty($search);
+@endphp
+
+<tr class="parent-row child-row group-{{ $unit->ID_PARENT_BAGIAN }}" data-child="group-{{ $unit->ID_BAGIAN }}"
+    data-level="{{ $level }}" @if ($level > 0 && !$isSearch) style="display: none;" @endif>
     <td style="cursor: pointer;">
         <span style="padding-left: {{ $level * 25 }}px;">
-            @if (!request()->filled('search') && isset($children[$unit->ID_BAGIAN]) && $children[$unit->ID_BAGIAN]->isNotEmpty())
-                <span class="toggle-icon">▸</span>
+            @if ($hasChildren)
+                {{-- <span class="toggle-icon">▸</span> --}}
+                <span class="toggle-icon">{{ $isSearch ? '▾' : '▸' }}</span>
             @else
                 <span class="toggle-icon" style="opacity: 0; cursor: default;">▸</span>
             @endif
@@ -27,24 +33,21 @@
             data-unit='{{ json_encode($unit) }}' onclick="event.stopPropagation()">
             <i class="bi bi-pencil-square me-2"></i>
         </a>
-        <form method="POST" action="{{ route('humas.unit-kerja-humas.destroy', $unit->ID_BAGIAN) }}"
-            style="display: inline;"
-            onsubmit="return confirm('Apakah Anda yakin ingin menghapus unit kerja ini? PERINGATAN: Unit kerja yang memiliki subbagian tidak dapat dihapus.');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-link text-danger p-0" onclick="event.stopPropagation()">
-                <i class="bi bi-trash"></i>
-            </button>
-        </form>
+        <a href="#" class="hapus-unit-btn text-danger" data-id="{{ $unit->ID_BAGIAN }}"
+            data-nama="{{ $unit->NAMA_BAGIAN }}" data-admin-count="{{ $unit->admins_count }}"
+            data-child-count="{{ $unit->children_count }}">
+            <i class="bi bi-trash"></i>
+        </a>
     </td>
 </tr>
 
-@if (!request()->filled('search') && isset($children[$unit->ID_BAGIAN]))
+@if (isset($children[$unit->ID_BAGIAN]))
     @foreach ($children[$unit->ID_BAGIAN] as $child)
         @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaRow', [
             'unit' => $child,
             'children' => $children,
             'level' => $level + 1,
+            'search' => $search,
         ])
     @endforeach
 @endif

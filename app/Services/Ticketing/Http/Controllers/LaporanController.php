@@ -12,11 +12,13 @@ use Carbon\Carbon;
 use App\Services\Ticketing\Models\Laporan;
 use App\Services\Ticketing\Models\KlasifikasiPengaduan;
 use Illuminate\Validation\ValidationException;
-use App\Services\Ticketing\Traits\NotifikasiWhatsappPelapor;
+// use App\Services\Ticketing\Traits\NotifikasiWhatsappPelapor;
+use App\Services\Humas\Traits\NotifikasiWhatsApp;
 
 class LaporanController extends Controller
 {
-    use NotifikasiWhatsappPelapor;
+    // use NotifikasiWhatsappPelapor;
+    use NotifikasiWhatsApp;
 
     public function getBuatLaporan()
     {
@@ -188,7 +190,9 @@ class LaporanController extends Controller
             DB::commit();
             Log::info('Laporan saved successfully:', ['id' => $laporan->ID_COMPLAINT]);
 
-            $this->kirimNotifikasiStatusKePelapor($laporan);
+            // $this->kirimNotifikasiStatusKePelapor($laporan);
+            $this->kirimNotifikasiKePelapor($laporan);
+            $this->kirimNotifikasiKeHumas($laporan, 'laporan_baru');
 
             if ($uploadIdForCleanup) {
                 Storage::disk('local')->deleteDirectory('temp/' . $uploadIdForCleanup);

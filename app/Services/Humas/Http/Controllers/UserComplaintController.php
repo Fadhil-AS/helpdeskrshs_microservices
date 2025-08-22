@@ -4,13 +4,48 @@ namespace App\Services\Humas\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Ticketing\Models\UserComplaint;
+use App\Services\Humas\Traits\NotifikasiWhatsappAkunUnitKerja;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use App\Services\Humas\Traits\NotifikasiWhatsappPelapor;
 
 class UserComplaintController extends Controller{
 
-    use NotifikasiWhatsappPelapor;
+    use NotifikasiWhatsappAkunUnitKerja;
+
+    public function unitKerjaHumas(Request $request)
+    {
+        $query = UserComplaint::with('unitKerja')->latest('TGL_INSROW');
+
+        if ($request->filled('filter_unit')) {
+            $query->where('ID_BAGIAN', $request->filter_unit);
+        }
+
+        if ($request->filled('filter_status')) {
+            $query->where('VALIDASI', $request->filter_status);
+        }
+
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchKeyword = '%' . strtolower($request->search) . '%';
+            $query->where(function ($q) use ($searchKeyword) {
+                $q->whereRaw('LOWER(NAME) LIKE ?', [$searchKeyword])
+                  ->orWhereRaw('LOWER(USERNAME) LIKE ?', [$searchKeyword])
+                  ->orWhereHas('unitKerja', function ($subQuery) use ($searchKeyword) {
+                      $subQuery->whereRaw('LOWER(NAMA_BAGIAN) LIKE ?', [$searchKeyword]);
+                  });
+            });
+        }
+
+        $admins = $query->paginate(10)->appends($request->query());
+        if ($request->ajax()) {
+            $tableHtml = view('Services.Humas.unitKerjaHumas.partials.adminUKH.admin_table_partial', compact('admins'))->render();
+            return response()->json([
+                'table_html' => $tableHtml
+            ]);
+        }
+
+        $parents = UnitKerja::where('IS_PARENT', 'Y')->orderBy('NAMA_BAGIAN', 'asc')->get();
+        return view('Services.Humas.unitKerjaHumas.partials.adminUKH.tabelAUKH', compact('admins', 'parents'));
+    }
 
     public function getUserComplaint()
     {
@@ -19,7 +54,7 @@ class UserComplaintController extends Controller{
 
     public function storeUserComplaint(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'USERNAME' => 'required|string|unique:user_complaint,USERNAME',
             'PASSWORD' => 'required|string|min:6',
             'NAME' => 'required|string|max:255',
@@ -44,27 +79,20 @@ class UserComplaintController extends Controller{
 
         $dataToCreate = [
             'NO_REGISTER' => $newNoRegister,
-            'USERNAME' => $validatedData['USERNAME'],
-            'NAME' => $validatedData['NAME'],
-            'PASSWORD' => sha1($validatedData['PASSWORD']),
-            'PASSWORD_REAL' => $validatedData['PASSWORD'],
-            'ID_BAGIAN' => $validatedData['ID_BAGIAN'],
-            'NIP' => $validatedData['NIP'],
-            'NO_TLPN' => $validatedData['NO_TLPN'],
+            'USERNAME' => $request->USERNAME,
+            'NAME' => $request->NAME,
+            'PASSWORD' => sha1($request->PASSWORD),
+            'PASSWORD_REAL' => $request->PASSWORD,
+            'ID_BAGIAN' => $request->ID_BAGIAN,
+            'NIP' => $request->NIP,
+            'NO_TLPN' => $request->NO_TLPN,
             'VALIDASI' => 'N',
-            'SPESIAL_CODE' => $validatedData['SPESIAL_CODE'] ?? null,
+            'SPESIAL_CODE' => $request->SPESIAL_CODE,
         ];
 
-        UserComplaint::create($dataToCreate);
+        $newUser = UserComplaint::create($dataToCreate);
 
-        $pesan = "Yth. Bapak/Ibu \n" . $validatedData['NAME'] . ",\n\n";
-        $pesan .= "Akun admin unit kerja Anda telah berhasil dibuat dengan detail sebagai berikut:\n\n";
-        $pesan .= "Username: " . $validatedData['USERNAME'] . "\n";
-        $pesan .= "Password: ". $validatedData['PASSWORD'] ."\n\n";
-        $pesan .= "Akun Anda akan aktif setelah melakukan login pertama kali dan mengganti password. Terima kasih.\n\n";
-        $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
-
-        $this->kirimPesanWA($validatedData['NO_TLPN'], $pesan);
+        $this->sendNewUserNotification($newUser);
 
         return response()->json([
             'success' => true,
@@ -86,19 +114,13 @@ class UserComplaintController extends Controller{
 
         $dataToUpdate = $request->except('PASSWORD');
 
-        $pesan = "Yth. Bapak/Ibu \n" . $userComplaint->NAME . ",\n\n";
-        $pesan .= "Data akun admin unit kerja Anda telah berhasil diperbarui. ";
-        $pesan .= "Jika Anda tidak merasa melakukan perubahan ini, harap segera hubungi tim Humas. Terima kasih.\n\n";
-        $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
-
-        $this->kirimPesanWA($userComplaint->NO_TLPN, $pesan);
-
         if ($request->filled('PASSWORD')) {
             $dataToUpdate['PASSWORD'] = sha1($request->PASSWORD);
             $dataToUpdate['PASSWORD_REAL'] = $request->PASSWORD;
         }
 
         $userComplaint->update($dataToUpdate);
+        $this->sendProfileUpdateNotification($userComplaint);
 
         return response()->json(['success' => true, 'message' => 'Data admin unit kerja berhasil diperbarui!']);
     }
@@ -106,7 +128,7 @@ class UserComplaintController extends Controller{
     public function resetUserPassword(UserComplaint $userComplaint)
     {
         try {
-            $defaultPassword = 'rshs_'.date('Y');
+            $defaultPassword = 'rshs_2025';
 
             $userComplaint->update([
                 'PASSWORD'      => sha1($defaultPassword),
@@ -114,13 +136,7 @@ class UserComplaintController extends Controller{
                 'VALIDASI'      => 'N',
             ]);
 
-            $pesan = "Yth. Bapak/Ibu \n" . $userComplaint->NAME . ",\n\n";
-            $pesan .= "Password untuk akun admin unit kerja Anda (" . $userComplaint->USERNAME . ") telah berhasil direset.\n\n";
-            $pesan .= "Password baru Anda adalah: " . $defaultPassword . "\n\n";
-            $pesan .= "Harap segera login dan ganti password Anda. Akun Anda perlu divalidasi kembali oleh tim Humas. Terima kasih.\n\n";
-            $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
-
-            $this->kirimPesanWA($userComplaint->NO_TLPN, $pesan);
+            $this->sendPasswordResetNotification($userComplaint, $defaultPassword);
 
             return response()->json([
                 'success' => true,
@@ -137,14 +153,7 @@ class UserComplaintController extends Controller{
 
     public function destroyUserComplaint(UserComplaint $userComplaint){
         $userName = $userComplaint->NAME;
-
-        $pesan = "Yth. Bapak/Ibu \n" . $userComplaint->NAME . ",\n\n";
-        $pesan .= "Akun admin unit kerja Anda telah dihapus dari sistem. ";
-        $pesan .= "Terima kasih atas kontribusi Anda. Jika ini adalah sebuah kesalahan, harap hubungi tim Humas.\n\n";
-        $pesan .= "Pengirim\nRumah Sakit Hasan Sadikin";
-
-        $this->kirimPesanWA($userComplaint->NO_TLPN, $pesan);
-
+        $this->sendAccountDeletionNotification($userComplaint);
         $userComplaint->delete();
         return redirect()->route('humas.unit-kerja-humas')
                          ->with('success', 'Admin unit kerja"' . $userName . '" berhasil dihapus.');

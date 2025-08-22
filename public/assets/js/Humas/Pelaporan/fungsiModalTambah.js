@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Pasien dipilih
         if (selectedPelapor === 'Pasien' && selectedKlasifikasi === 'sponsorship') {
-             klasifikasiSelect.value = '';
-             selectedKlasifikasi = '';
+            klasifikasiSelect.value = '';
+            selectedKlasifikasi = '';
         }
 
         // Atur status enable/disable dropdown
@@ -63,6 +63,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const isGratifikasi = selectedKlasifikasi === 'gratifikasi';
         const isSponsorship = selectedKlasifikasi === 'sponsorship';
         // const isEtik = selectedKlasifikasiText === 'etik';
+        if (isGratifikasi) {
+            if (namaInput) namaInput.value = '';
+            if (noTlpnInput) noTlpnInput.value = '';
+            if (noMedrecInput) noMedrecInput.value = '';
+        }
 
         if (namaWrapper) namaWrapper.style.display = isGratifikasi ? 'none' : 'block';
         if (noTlpnWrapper) noTlpnWrapper.style.display = isGratifikasi ? 'none' : 'block';
@@ -94,6 +99,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (jenisPelaporSelect) {
         jenisPelaporSelect.addEventListener('change', updateFormState);
+    }
+    if (noTlpnInput) {
+        noTlpnInput.addEventListener('input', function (event) {
+            const sanitizedValue = event.target.value.replace(/[^0-9]/g, '');
+            event.target.value = sanitizedValue;
+        });
     }
 
     modal.addEventListener('show.bs.modal', function () {

@@ -19,10 +19,10 @@
             <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th>ID Klasifikasi</th>
-                        <th>Klasifikasi Pengaduan</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
+                        <th style="width: 30%;">ID Klasifikasi</th>
+                        <th style="width: 30%;">Klasifikasi Pengaduan</th>
+                        <th style="width: 20%;">Status</th>
+                        <th style="width: 10%;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>

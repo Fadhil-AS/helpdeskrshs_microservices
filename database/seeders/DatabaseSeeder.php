@@ -14,6 +14,8 @@ use Database\Seeders\Ticketing\UserComplaintSeeder;
 use Database\Seeders\Ticketing\ComplaintDireksiSeeder;
 use Database\Seeders\Ticketing\DataComplaintSeeder;
 use Database\Seeders\Humas\HumasSeeder;
+use Database\Seeders\SSD\KategoriSsdSeeder;
+use Database\Seeders\SSD\SsdSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -37,8 +39,10 @@ class DatabaseSeeder extends Seeder
             UnitKerjaSeeder::class,
             UserComplaintSeeder::class,
             ComplaintDireksiSeeder::class,
-            DataComplaintSeeder::class,
+            // DataComplaintSeeder::class,
             HumasSeeder::class,
+            KategoriSSdSeeder::class,
+            SSdSeeder::class,
         ]);
     }
 }

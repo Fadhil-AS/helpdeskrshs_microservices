@@ -9,12 +9,9 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Chatbot</title>
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/Humas/Pelaporan/modalEdit.css') }}">
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
         /* Floating button */
         .chatbot-toggle {
             position: fixed;
@@ -148,7 +145,16 @@
         function addMessage(message, type) {
             const div = document.createElement('div');
             div.className = 'chat-message ' + (type === 'user' ? 'user-message' : 'bot-message');
-            div.innerText = message;
+
+            if (type === 'bot') {
+                let formattedMessage = message
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                    .replace(/\*(.*?)\*/g, '<i>$1</i>');
+
+                div.innerHTML = formattedMessage.replace(/\n/g, '<br>');
+            } else {
+                div.innerText = message;
+            }
             chatContainer.appendChild(div);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }

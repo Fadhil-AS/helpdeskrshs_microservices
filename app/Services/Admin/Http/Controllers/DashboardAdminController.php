@@ -83,17 +83,18 @@ class DashboardAdminController extends Controller
         return $unitsQuery->orderBy('NAMA_BAGIAN')->get();
     }
 
-    public function getDashboard()
+    public function getDashboard(Request $request)
     {
         $role = session('role');
         $userBagian = session('user')->ID_BAGIAN ?? null;
 
         $unitKerjaList = $this->getScopedSuperZeroUnits($role, $userBagian);
+        $statusCounts = $this->getStatusCounts($request);
 
-        return view('Services.Admin.Dashboard.mainAdmin', [
+        return view('Services.Admin.Dashboard.mainAdmin', array_merge($statusCounts, [
             'unitKerjaList' => $unitKerjaList,
             'userRole'      => $role,
-        ]);
+        ]));
 
 
     }
@@ -161,10 +162,22 @@ class DashboardAdminController extends Controller
 
         foreach ($unitsToDisplay as $unit) {
             $chartLabels[] = $unit->NAMA_BAGIAN;
-            $idsToCount = $this->getAllDescendantIds($unit->ID_BAGIAN);
-            $idsToCount[] = $unit->ID_BAGIAN;
-            $laporanTable = (new Laporan)->getTable();
-            $count = (clone $baseQuery)->whereIn("{$laporanTable}.ID_BAGIAN", $idsToCount)->count();
+
+            $idsToCount = [$unit->ID_BAGIAN];
+
+            if ($role !== 'unit_kerja') {
+                $descendants = $this->getAllDescendantIds($unit->ID_BAGIAN);
+                $idsToCount = array_merge($idsToCount, $descendants);
+            }
+            $idsToCount = array_unique($idsToCount);
+
+            $count = (clone $baseQuery)->where(function ($query) use ($idsToCount) {
+                $query->whereIn('ID_BAGIAN', $idsToCount);
+                foreach ($idsToCount as $id) {
+                    $query->orWhereJsonContains('ID_BAGIAN_LAINNYA', $id);
+                }
+            })->count();
+
             $chartData[] = $count;
         }
 
@@ -174,6 +187,8 @@ class DashboardAdminController extends Controller
         ];
     }
 
+
+
     private function getAggregatedDataForOwnUnit(Builder $baseQuery, string $unitId): array
     {
         $ownUnit = UnitKerja::find($unitId);
@@ -181,17 +196,14 @@ class DashboardAdminController extends Controller
             return ['labels' => [], 'data' => []];
         }
 
-        $unitsToDisplay = new Collection([$ownUnit]);
+        $chartLabels = [$ownUnit->NAMA_BAGIAN];
 
-        $chartLabels = [];
-        $chartData = [];
-        $laporanTable = (new Laporan)->getTable();
+        $count = (clone $baseQuery)->where(function ($query) use ($unitId) {
+            $query->where('ID_BAGIAN', $unitId)
+                  ->orWhereJsonContains('ID_BAGIAN_LAINNYA', $unitId);
+        })->count();
 
-        foreach ($unitsToDisplay as $unit) {
-            $chartLabels[] = $unit->NAMA_BAGIAN;
-            $count = (clone $baseQuery)->where("{$laporanTable}.ID_BAGIAN", $unit->ID_BAGIAN)->count();
-            $chartData[] = $count;
-        }
+        $chartData = [$count];
 
         return [
             'labels' => $chartLabels,
@@ -203,40 +215,35 @@ class DashboardAdminController extends Controller
     {
         $unitKerjaId = $request->input('unit_kerja_id');
         $timeFilter = $request->input('time_filter');
-        $role = session('role');
-        $userBagian = optional(session('user'))->ID_BAGIAN;
 
-        $baseQuery = Laporan::query();
-        $laporanTable = (new Laporan)->getTable();
-
-        $allowedUnitIds = [];
-        if (in_array($role, ['direksi', 'unit_kerja', 'humas'])) {
-            $scopedUnits = $this->getScopedSuperZeroUnits($role, $userBagian);
-            foreach ($scopedUnits as $unit) {
-                $allowedUnitIds[] = $unit->ID_BAGIAN;
-                if ($role !== 'unit_kerja') {
-                    $descendants = $this->getAllDescendantIds($unit->ID_BAGIAN);
-                    $allowedUnitIds = array_merge($allowedUnitIds, $descendants);
-                }
-            }
-        }if (!empty($allowedUnitIds)) {
-            $baseQuery->whereIn("{$laporanTable}.ID_BAGIAN", array_unique($allowedUnitIds));
-        } elseif (in_array($role, ['direksi', 'unit_kerja', 'humas'])) {
-            $baseQuery->whereRaw('1 = 0');
-        }
+        $baseQuery = $this->getBaseQueryForUser();
 
         $this->applyTimeFilter($baseQuery, $timeFilter);
-
         if (!empty($unitKerjaId)) {
-            $this->applyUnitKerjaFilter($baseQuery, $unitKerjaId);
+            $baseQuery->where(function ($q) use ($unitKerjaId) {
+                $q->where('ID_BAGIAN', $unitKerjaId)
+                  ->orWhereJsonContains('ID_BAGIAN_LAINNYA', $unitKerjaId);
+            });
         }
+
+        $relevantMediaIds = (clone $baseQuery)->pluck('ID_JENIS_MEDIA')->unique()->toArray();
+        $sumberMediaLabels = JenisMedia::whereIn('ID_JENIS_MEDIA', $relevantMediaIds)
+                                         ->where('STATUS', '1')
+                                         ->pluck('JENIS_MEDIA')
+                                         ->toArray();
+
+        $relevantKlasifikasiIds = (clone $baseQuery)->pluck('ID_KLASIFIKASI')->unique()->toArray();
+        $klasifikasiLabels = KlasifikasiPengaduan::whereIn('ID_KLASIFIKASI', $relevantKlasifikasiIds)
+                                                   ->where('STATUS', '1')
+                                                   ->pluck('KLASIFIKASI_PENGADUAN')
+                                                   ->toArray();
 
         $definedLabels = [
             'grading'               => ['Hijau', 'Kuning', 'Merah'],
-            'sumberMedia'           => JenisMedia::where('STATUS', '1')->pluck('JENIS_MEDIA')->toArray(),
-            'statusPengaduan'       => ['Open', 'On Progress', 'Menunggu Konfirmasi', 'Banding', 'Close'],
+            'sumberMedia'           => $sumberMediaLabels,
+            'statusPengaduan'       => ['Open', 'On Progress', 'Menunggu Konfirmasi', 'Close', 'Banding'],
             'jenisLaporan'          => JenisLaporan::where('STATUS', '1')->pluck('JENIS_LAPORAN')->toArray(),
-            'klasifikasiPengaduan'  => KlasifikasiPengaduan::where('STATUS', '1')->pluck('KLASIFIKASI_PENGADUAN')->toArray(),
+            'klasifikasiPengaduan'  => $klasifikasiLabels,
             'penyelesaianPengaduan' => PenyelesaianPengaduan::where('STATUS', '1')->pluck('PENYELESAIAN_PENGADUAN')->toArray(),
         ];
 
@@ -250,7 +257,7 @@ class DashboardAdminController extends Controller
         $baseConfigs = [
             'grading' => [ 'title' => 'Grading (Hijau, Kuning, Merah)', 'subtitle' => 'Distribusi pengaduan berdasarkan tingkat waktu penanganan komplain', 'type' => 'bar', 'backgroundColor' => ['#347433', '#FFD600', '#D50000'] ],
             'sumberMedia' => [ 'title' => 'Sumber Media', 'subtitle' => 'Distribusi pengaduan berdasarkan sumber media pelaporan', 'type' => 'bar', 'backgroundColor' => '#e65100' ],
-            'statusPengaduan' => [ 'title' => 'Status Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan status penanganan', 'type' => 'pie', 'backgroundColor' => ['#28a745', '#ffc107', '#17a2b8', '#6f42c1', '#dc3545'] ],
+            'statusPengaduan' => [ 'title' => 'Status Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan status penanganan', 'type' => 'pie', 'backgroundColor' => ['#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6f42c1'] ],
             'unitKerja' => [ 'title' => 'Unit Kerja', 'subtitle' => 'Distribusi pengaduan berdasarkan unit kerja tujuan', 'type' => 'bar', 'backgroundColor' => '#E0440E' ],
             'jenisLaporan' => [ 'title' => 'Jenis Laporan', 'subtitle' => 'Distribusi pengaduan berdasarkan jenis laporan', 'type' => 'pie', 'backgroundColor' => ['#2962FF', '#D84315', '#FF9800', '#2E7D32'] ],
             'klasifikasiPengaduan' => [ 'title' => 'Klasifikasi Pengaduan', 'subtitle' => 'Distribusi pengaduan berdasarkan klasifikasi pengaduan', 'type' => 'pie', 'backgroundColor' => ['#2962FF', '#D84315', '#FF9800'] ],
@@ -270,31 +277,100 @@ class DashboardAdminController extends Controller
         $chartData = [];
         foreach ($chartMap as $key => $config) {
             if ($key === 'unitKerja' && empty($unitKerjaId)) {
-                $aggregateQuery = Laporan::query();
-                $this->applyTimeFilter($aggregateQuery, $timeFilter);
-
-                if ($role === 'unit_kerja' && !empty($userBagian)) {
-                    $aggregateQuery->where("{$laporanTable}.ID_BAGIAN", $userBagian);
-                    $data = $this->getAggregatedDataForOwnUnit($aggregateQuery, $userBagian);
-                } else{
-                    if ($role === 'direksi' && !empty($userBagian)) {
-                        // $allMyUnitIds = $this->getAllDescendantIds($userBagian);
-                        // $allMyUnitIds[] = $userBagian;
-                        // $aggregateQuery->whereIn('ID_BAGIAN', $allMyUnitIds);
-                        $this->applyDireksiHierarchyFilter($aggregateQuery, $userBagian);
-                    }
-                    $data = $this->getAggregatedUnitKerjaData($aggregateQuery);
-                }
-                // $this->applyTimeFilter($aggregateQuery, $timeFilter);
-                // $data = $this->getAggregatedUnitKerjaData($aggregateQuery);
+                $data = $this->getAggregatedUnitKerjaData(clone $baseQuery);
             } else {
                 $data = $this->generateChartDataWithDefinedLabels(clone $baseQuery, $config['type'], $config['name'], $definedLabels[$key] ?? [], $config['column'] ?? null);
             }
-
             $chartData[$key] = array_merge($baseConfigs[$key], $data);
         }
 
-
         return response()->json($chartData);
     }
+
+    private function getStatusCounts(Request $request)
+    {
+        $baseQuery = $this->getBaseQueryForUser();
+
+        $this->applyTimeFilter($baseQuery, $request->input('time_filter'));
+
+        $statusCounts = (clone $baseQuery)
+            ->select('STATUS', DB::raw('count(*) as total'))
+            ->groupBy('STATUS')
+            ->pluck('total', 'STATUS');
+
+        $allOngoingReports = (clone $baseQuery)->whereIn('STATUS', ['Open', 'On Progress', 'Menunggu Konfirmasi', 'Close', 'Banding'])->get();
+
+        $countKlarifikasiSudah = 0;
+        $countKlarifikasiBelum = 0;
+
+        foreach ($allOngoingReports as $laporan) {
+            if ($laporan->status_klarifikasi === 'Sudah' && $laporan->STATUS === 'On Progress') {
+                $countKlarifikasiSudah++;
+            } elseif ($laporan->status_klarifikasi === 'Belum' && $laporan->STATUS === 'On Progress') {
+                $countKlarifikasiBelum++;
+            }
+        }
+
+        return [
+            'countOpen' => $statusCounts['Open'] ?? 0,
+            'countMenunggu' => $statusCounts['Menunggu Konfirmasi'] ?? 0,
+            'countClose' => $statusCounts['Close'] ?? 0,
+            'countBanding' => $statusCounts['Banding'] ?? 0,
+            'countKlarifikasiSudah' => $countKlarifikasiSudah,
+            'countKlarifikasiBelum' => $countKlarifikasiBelum,
+        ];
+    }
+
+    private function getBaseQueryForUser(): Builder
+    {
+        $role = session('role');
+        $userBagian = optional(session('user'))->ID_BAGIAN;
+
+        $baseQuery = Laporan::query();
+        $laporanTable = (new Laporan)->getTable();
+
+        $allowedUnitIds = [];
+        if (in_array($role, ['direksi', 'unit_kerja', 'humas'])) {
+            $scopedUnits = $this->getScopedSuperZeroUnits($role, $userBagian);
+
+            foreach ($scopedUnits as $unit) {
+                $allowedUnitIds[] = $unit->ID_BAGIAN;
+                if ($role !== 'unit_kerja') {
+                    $descendants = $this->getAllDescendantIds($unit->ID_BAGIAN);
+                    $allowedUnitIds = array_merge($allowedUnitIds, $descendants);
+                }
+            }
+        }
+        if ($role === 'humas') {
+            $baseQuery->where(function ($query) use ($allowedUnitIds, $laporanTable) {
+                $query->whereNull("{$laporanTable}.ID_BAGIAN")
+                      ->orWhere(function ($subQuery) use ($allowedUnitIds, $laporanTable) {
+                          if (!empty($allowedUnitIds)) {
+                              $subQuery->whereIn("{$laporanTable}.ID_BAGIAN", array_unique($allowedUnitIds));
+                              foreach (array_unique($allowedUnitIds) as $unitId) {
+                                  $subQuery->orWhereJsonContains("{$laporanTable}.ID_BAGIAN_LAINNYA", $unitId);
+                              }
+                          }
+                      });
+            });
+        } elseif (!empty($allowedUnitIds)) {
+            $baseQuery->where(function ($query) use ($allowedUnitIds, $laporanTable) {
+                $query->whereIn("{$laporanTable}.ID_BAGIAN", array_unique($allowedUnitIds));
+                foreach (array_unique($allowedUnitIds) as $unitId) {
+                    $query->orWhereJsonContains("{$laporanTable}.ID_BAGIAN_LAINNYA", $unitId);
+                }
+            });
+        } elseif (in_array($role, ['direksi', 'unit_kerja'])) {
+            $baseQuery->whereRaw('1 = 0');
+        }
+
+        if ($role === 'humas') {
+            $baseQuery->whereHas('klasifikasiPengaduan', function ($q) {
+                $q->where('KLASIFIKASI_PENGADUAN', 'Etik');
+            });
+        }
+
+        return $baseQuery;
+    }
+
 }

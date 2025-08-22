@@ -40,14 +40,34 @@
             </div>
             <div class="input-group" style="width: 250px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-start-0" placeholder="Cari Direksi..."
-                    id="search-direksi-input" data-url="{{ route('humas.direksi-humas') }}">
+                <input type="text" class="form-control border-start-0" placeholder="Cari Direksi..." id="searchInput"
+                    data-search-url="{{ route('humas.direksi.search') }}">
             </div>
         </div>
 
         <!-- Table -->
-        <div id="direksi-table-container">
-            @include('Services.Humas.Direksi.partials.contentTabelDireksi', ['allDireksi' => $allDireksi])
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="border-bottom">
+                    <tr class="text-nowrap">
+                        <th>ID</th>
+                        <th>Nama Direksi</th>
+                        <th>Nomor Telepon</th>
+                        <th>Keterangan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="direksiTableBody">
+                    @include('Services.Humas.Direksi.partials.direksi-table-rows', [
+                        'allDireksi' => $allDireksi,
+                    ])
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-end mt-3 page-tabel" id="pagination-container">
+            {{ $allDireksi->links() }}
         </div>
     </div>
 </div>

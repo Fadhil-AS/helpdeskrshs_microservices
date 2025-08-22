@@ -20,58 +20,106 @@ document.addEventListener('DOMContentLoaded', function () {
     let dynamicChartData = {};
 
     function createChart(config) {
-        console.log("LOG 3: Konfigurasi yang diterima oleh fungsi createChart:", config);
-
         if (activeChart) activeChart.destroy();
-        if (!config || !config.labels || !config.data || config.data.length === 0) {
+
+        if (!config || !config.labels || !config.data) {
             chartTitle.textContent = 'Data Tidak Tersedia';
             chartSubtitle.textContent = 'Tidak ada data untuk filter yang dipilih.';
             if (loadingState) loadingState.style.display = 'block';
             chartCanvas.style.display = 'none';
             return;
         }
-        const filtered = { labels: [], data: [], colors: [] };
-        config.data.forEach((value, index) => {
-            if (value > 0) {
-                filtered.labels.push(config.labels[index]);
-                filtered.data.push(value);
-                if (Array.isArray(config.backgroundColor)) {
-                    filtered.colors.push(config.backgroundColor[index % config.backgroundColor.length]);
-                }
-            }
-        });
 
-        if (filtered.data.length === 0) {
-            createChart(null);
-            return;
+        let displayData = {
+            labels: config.labels,
+            data: config.data,
+            colors: Array.isArray(config.backgroundColor) ? config.backgroundColor : []
+        };
+
+        const isFullDisplayChart = config.title.toLowerCase().includes('status pengaduan') ||
+                                   config.title.toLowerCase().includes('grading');
+
+        if (!isFullDisplayChart) {
+            const filtered = { labels: [], data: [], colors: [] };
+            config.data.forEach((value, index) => {
+                if (value > 0) {
+                    filtered.labels.push(config.labels[index]);
+                    filtered.data.push(value);
+                    if (Array.isArray(config.backgroundColor)) {
+                        filtered.colors.push(config.backgroundColor[index % config.backgroundColor.length]);
+                    }
+                }
+            });
+
+            if (filtered.data.length === 0) {
+                createChart(null);
+                return;
+            }
+            displayData = filtered;
         }
-        const finalBackgroundColor = Array.isArray(config.backgroundColor) ? filtered.colors : config.backgroundColor;
+
+        const finalBackgroundColor = Array.isArray(config.backgroundColor) ? displayData.colors : config.backgroundColor;
+
         if(loadingState) loadingState.style.display = 'none';
         chartCanvas.style.display = 'block';
         chartTitle.textContent = config.title;
         chartSubtitle.textContent = config.subtitle;
+
+        const isPieChart = config.type === 'pie';
+        const totalSum = isPieChart ? displayData.data.reduce((acc, value) => acc + value, 0) : 0;
+
         activeChart = new Chart(ctx, {
             type: config.type,
             data: {
-                labels: filtered.labels,
-                datasets: [{ label: 'Jumlah Pengaduan', data: filtered.data, backgroundColor: finalBackgroundColor, maxBarThickness: 100 }]
+                labels: displayData.labels,
+                datasets: [{
+                    label: 'Jumlah Pengaduan',
+                    data: displayData.data,
+                    backgroundColor: finalBackgroundColor,
+                    maxBarThickness: 100
+                }]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'right', display: config.type !== 'bar' },
+                    legend: {
+                        position: 'right',
+                        display: config.type !== 'bar'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    if (isPieChart && totalSum > 0) {
+                                        const percentage = (context.parsed / totalSum * 100).toFixed(1) + '%';
+                                        label += `${context.raw} (${percentage})`;
+                                    } else {
+                                        label += context.raw;
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    },
                     datalabels: {
                         formatter: (value, context) => {
-                            if (value <= 0) return null;
-                            if (context.chart.config.type === 'pie') {
-                                const label = context.chart.data.labels[context.dataIndex];
-                                return `${label}\n${value}`;
+                            if (isPieChart) {
+                                if (totalSum === 0) return '0%';
+                                const percentage = (value / totalSum * 100).toFixed(1) + '%';
+                                if (value === 0 && !isStatusChart) return null;
+                                return percentage;
                             }
+                            if (value <= 0) return null;
                             return value;
                         },
-                        anchor: (context) => context.chart.config.type === 'bar' ? 'end' : 'center',
-                        align: (context) => context.chart.config.type === 'bar' ? 'end' : 'center',
-                        color: config.type === 'pie' ? '#fff' : '#555',
+                        anchor: 'center',
+                        align: 'center',
+                        color: '#fff',
                         font: { weight: 'bold' }
                     }
                 }
@@ -79,7 +127,6 @@ document.addEventListener('DOMContentLoaded', function () {
             plugins: [ChartDataLabels]
         });
     }
-
     async function updateCharts() {
         const category = categoryFilter ? categoryFilter.value : 'grading';
         const time = timeFilter ? timeFilter.value : 'semua';

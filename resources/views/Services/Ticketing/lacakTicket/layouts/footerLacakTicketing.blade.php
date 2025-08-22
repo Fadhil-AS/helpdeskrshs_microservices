@@ -197,6 +197,15 @@
                                 `konfirmasiArea-${tiket.id_complaint}`);
                         }, 100);
                     }
+                } else if (tiket.sudah_memberi_feedback) {
+                    detailTambahanHtml = `
+                    <div class="alert alert-success mt-4 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-star-fill me-2 fs-4"></i>
+                            <strong class="me-auto">Feedback Diterima</strong>
+                        </div>
+                        <p class="mb-0 mt-2">Terima kasih atas penilaian dan masukan yang Anda berikan. Ini sangat membantu kami untuk terus meningkatkan kualitas layanan.</p>
+                    </div>`;
                 }
 
                 let statusBadgeClass = 'bg-success';
@@ -266,7 +275,7 @@
                     const errorData = await response.json();
                     errorText = errorData.message || errorText;
                 } catch (e) {
-                    /* ignore */
+
                 }
                 console.error('Error HTTP dari tanggapiTiket:', errorText);
                 alert(`Gagal memproses tanggapan: ${errorText}`);

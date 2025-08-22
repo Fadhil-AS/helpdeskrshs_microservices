@@ -1,4 +1,4 @@
-<div class="container container-tabel rounded my-5 pt-2">
+<div class="container container-tabel rounded my-4 pt-2">
     <!-- Header Box -->
     <div class="p-4 rounded-top" style="background-color: #00B9AD; color: white;">
         <h5 class="mb-1">Dashboard Pelaporan RSHS Bandung</h5>
@@ -12,7 +12,7 @@
                 <select class="selectpicker select-panjang" data-style="btn-reset" id="categoryFilter">
                     <option value="grading">Grading (Merah, Kuning, Hijau)</option>
                     <option value="sumberMedia">Sumber Media</option>
-                    <option value="statusPengaduan">Status Pengaduan</option>
+                    {{-- <option value="statusPengaduan">Status Pengaduan</option> --}}
                     <option value="unitKerja">Unit Kerja</option>
                     <option value="jenisLaporan">Jenis Laporan</option>
                     <option value="klasifikasiPengaduan">Klasifikasi Pengaduan</option>

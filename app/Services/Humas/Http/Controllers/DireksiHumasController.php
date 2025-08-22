@@ -152,4 +152,22 @@ class DireksiHumasController extends Controller {
             return redirect()->route('humas.direksi-humas')->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
         }
     }
+
+    public function searchDireksi(Request $request)
+    {
+        if ($request->ajax()) {
+            $query = $request->get('query');
+            if ($query != '') {
+                $allDireksi = Direksi::where('NAMA', 'like', '%' . $query . '%')
+                    ->orWhere('NO_TLPN', 'like', '%' . $query . '%')
+                    ->orWhere('KET', 'like', '%' . $query . '%')
+                    ->orderBy('ID_DIREKSI', 'asc')
+                    ->get();
+            } else {
+                $allDireksi = Direksi::orderBy('ID_DIREKSI', 'asc')->paginate(10);
+            }
+
+            return view('Services.Humas.Direksi.partials.direksi-table-rows', compact('allDireksi'))->render();
+        }
+    }
 }

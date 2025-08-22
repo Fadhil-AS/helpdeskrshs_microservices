@@ -37,13 +37,14 @@
         <!-- Filter & Action -->
         <div class="bg-white p-3 rounded-bottom shadow-sm">
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
-                <div class="d-flex flex-wrap gap-2 grup-tombol">
-                    <button class="btn btn-tambah-pengaduan text-white btn-teal" data-bs-toggle="modal"
-                        data-bs-target="#modalTambahPengaduan">
-                        <i class="bi bi-plus-circle"></i> Tambah Pengaduan Baru
-                    </button>
-                    <form action="{{ route('humas.pelaporan-humas') }}" method="GET" id="filterForm"
-                        class="d-flex flex-wrap gap-2">
+                <form action="{{ route('humas.pelaporan-humas') }}" method="GET" id="filterForm"
+                    class="d-flex flex-wrap gap-2 align-items-center w-100">
+
+                    <div class="d-flex flex-wrap gap-2 grup-tombol">
+                        <button type="button" class="btn btn-tambah-pengaduan text-white btn-teal" data-bs-toggle="modal"
+                            data-bs-target="#modalTambahPengaduan">
+                            <i class="bi bi-plus-circle"></i> Tambah Pengaduan Baru
+                        </button>
 
                         <select class="form-select" name="status" id="filterStatus" style="width: 170px;">
                             <option value="">Semua Status</option>
@@ -56,35 +57,270 @@
                             <option value="Close" {{ request('status') == 'Close' ? 'selected' : '' }}>Close</option>
                             <option value="Banding" {{ request('status') == 'Banding' ? 'selected' : '' }}>Banding</option>
                         </select>
-                        <button type="button" class="btn btn-outline-secondary" id="resetFilter"
-                            data-url="{{ route('humas.pelaporan-humas') }}"><i class="bi bi-arrow-counterclockwise"></i>
-                            Reset</button>
 
-                    </form>
-                </div>
-                <form action="{{ route('humas.pelaporan-humas') }}" method="GET">
-                    <div class="input-group" style="width: 250px;">
-                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-start-0" placeholder="Cari Pengaduan..."
-                            name="search" id="search-input" value="{{ request('search') }}">
+                        <select class="form-select" name="periode" id="filterPeriode" style="width: 170px;">
+                            <option value="">Semua Waktu</option>
+                            <option value="bulan" {{ request('periode') == 'bulan' ? 'selected' : '' }}>Per Bulan Ini
+                            </option>
+                            <option value="triwulan" {{ request('periode') == 'triwulan' ? 'selected' : '' }}>Per Triwulan
+                                Ini</option>
+                            <option value="semester" {{ request('periode') == 'semester' ? 'selected' : '' }}>Per Semester
+                                Ini</option>
+                        </select>
+
+                        <select class="form-select" name="unit_kerja" id="filterUnitKerja" style="width: 170px;">
+                            <option value="">Semua Unit Kerja</option>
+                            @if (isset($unitKerja) && $unitKerja->count() > 0)
+                                @foreach ($unitKerja as $uK)
+                                    <option value="{{ $uK->ID_BAGIAN }}" {{ $uK->SUPER == 1 ? 'disabled' : '' }}>
+                                        {{ $uK->NAMA_BAGIAN }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+
+                        <div id="secondaryFilters" class="d-flex gap-2">
+                            <select class="form-select d-none" name="tahun" id="filterTahun" style="width: 110px;">
+                                @for ($i = date('Y'); $i >= date('Y') - 5; $i--)
+                                    <option value="{{ $i }}"
+                                        {{ request('tahun', date('Y')) == $i ? 'selected' : '' }}>Thn
+                                        {{ $i }}</option>
+                                @endfor
+                            </select>
+                            <select class="form-select d-none" name="bulan" id="filterBulan" style="width: 120px;">
+                                @for ($i = 1; $i <= 12; $i++)
+                                    <option value="{{ $i }}"
+                                        {{ request('bulan', date('m')) == $i ? 'selected' : '' }}>
+                                        {{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}</option>
+                                @endfor
+                            </select>
+                            <select class="form-select d-none" name="triwulan" id="filterTriwulan" style="width: 150px;">
+                                <option value="1" {{ request('triwulan') == 1 ? 'selected' : '' }}>Triwulan 1</option>
+                                <option value="2" {{ request('triwulan') == 2 ? 'selected' : '' }}>Triwulan 2</option>
+                                <option value="3" {{ request('triwulan') == 3 ? 'selected' : '' }}>Triwulan 3</option>
+                                <option value="4" {{ request('triwulan') == 4 ? 'selected' : '' }}>Triwulan 4</option>
+                            </select>
+                            <select class="form-select d-none" name="semester" id="filterSemester" style="width: 150px;">
+                                <option value="1" {{ request('semester') == 1 ? 'selected' : '' }}>Semester 1</option>
+                                <option value="2" {{ request('semester') == 2 ? 'selected' : '' }}>Semester 2</option>
+                            </select>
+                        </div>
+
+                        <a href="{{ route('humas.pelaporan-humas') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        </a>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
+                        <div class="input-group" style="width: 250px;">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control border-start-0" name="search" id="searchInput"
+                                placeholder="Cari Pengaduan" value="{{ request('search') }}" autocomplete="off">
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-success dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-file-earmark-arrow-down"></i> Rekap
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" id="exportPdfBtn"><i
+                                            class="bi bi-file-earmark-pdf me-2"></i> PDF</a></li>
+                                <li><a class="dropdown-item" href="#" id="exportExcelBtn"><i
+                                            class="bi bi-file-earmark-excel me-2"></i> Excel</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </form>
             </div>
 
-            <div id="tabel-pengaduan-container">
-                @include('Services.Humas.Pelaporan.partials.tabelDataComplaint', [
-                    'dataComplaint' => $dataComplaint,
-                ])
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="border-bottom">
+                        <tr class="text-nowrap">
+                            <th>ID</th>
+                            <th>Judul</th>
+                            <th>Media</th>
+                            <th>Unit Kerja</th>
+                            <th>Waktu Respon</th>
+                            <th>Status</th>
+                            <th>Klarifikasi</th>
+                            <th>Grading</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintTableBody">
+                        @if (isset($dataComplaint) && $dataComplaint != null)
+                            @foreach ($dataComplaint as $dc)
+                                <tr>
+                                    <td><strong>{{ $dc->ID_COMPLAINT }}</strong></td>
+                                    @if ($dc->JUDUL_COMPLAINT != null)
+                                        <td>{{ $dc->JUDUL_COMPLAINT }}</td>
+                                    @else
+                                        <td>Belum ada judul</td>
+                                    @endif
+
+                                    @if ($dc->JenisMedia && $dc->JenisMedia->JENIS_MEDIA !== null)
+                                        <td>{{ $dc->JenisMedia->JENIS_MEDIA }}</td>
+                                    @else
+                                        <td>Website Helpdesk</td>
+                                    @endif
+
+                                    <td>
+                                        @if ($dc->unit_kerja_list->isNotEmpty())
+                                            @foreach ($dc->unit_kerja_list as $unit)
+                                                <ul>
+                                                    <li>{{ $unit->NAMA_BAGIAN }}</li>
+                                                </ul>
+                                            @endforeach
+                                        @else
+                                            Belum dipilih unit kerja
+                                        @endif
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (!is_null($dc->response_time))
+                                            @if ($dc->response_time == 0)
+                                                1 Hari
+                                            @else
+                                                {{ $dc->response_time }} Hari
+                                            @endif
+                                        @else
+                                            <span class="badge bg-light text-dark">N/A</span>
+                                        @endif
+                                    </td>
+
+                                    @if ($dc->STATUS == 'Open')
+                                        <td><span class="badge bg-success">Open</span></td>
+                                    @elseif ($dc->STATUS == 'On Progress')
+                                        <td><span class="badge bg-info">On Progress</span></td>
+                                    @elseif ($dc->STATUS == 'Menunggu Konfirmasi')
+                                        <td><span class="badge bg-warning">Menunggu Konfirmasi</span></td>
+                                    @elseif ($dc->STATUS == 'Close')
+                                        <td><span class="badge bg-danger text-light">Close</span></td>
+                                    @elseif ($dc->STATUS == 'Banding')
+                                        <td><span class="badge bg-danger text-light">Banding</span></td>
+                                    @endif
+
+                                    @if ($dc->status_klarifikasi == 'Sudah')
+                                        <td><span class="badge bg-info">Sudah</span></td>
+                                    @elseif ($dc->status_klarifikasi == 'Belum')
+                                        <td><span class="badge bg-danger text-light">Belum</span></td>
+                                    @else
+                                        <td><span class="badge bg-danger text-light">Belum</span></td>
+                                    @endif
+
+                                    @if ($dc->GRANDING == 'Merah')
+                                        <td><span class="badge bg-danger text-light">Merah</span></td>
+                                    @elseif ($dc->GRANDING == 'Kuning')
+                                        <td><span class="badge bg-warning text-light">Kuning</span></td>
+                                    @elseif ($dc->GRANDING == 'Hijau')
+                                        <td><span class="badge bg-success text-light">Hijau</span></td>
+                                    @else
+                                        <td><span class="badge bg-warning text-light">Belum dipilih Grading</span></td>
+                                    @endif
+
+                                    <td>
+                                        <a href="javascript:void(0);" class="view-detail-btn" data-bs-toggle="modal"
+                                            data-bs-target="#detailModal" data-id="{{ $dc->ID_COMPLAINT }}">
+                                            <i class="bi bi-eye me-2"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="edit-complaint-btn" data-bs-toggle="modal"
+                                            data-bs-target="#editModal" data-id="{{ $dc->ID_COMPLAINT }}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
             </div>
 
-            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-end mt-3 page-tabel" id="paginationContainer">
+                <nav aria-label="Page navigation example">
+                    @if ($dataComplaint->hasPages())
+                        <ul class="pagination mb-0">
+
+                            {{-- Tombol Previous ('<<') --}}
+                            @if ($dataComplaint->onFirstPage())
+                                <li class="page-item disabled" aria-disabled="true">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $dataComplaint->previousPageUrl() }}"
+                                        aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Elemen Nomor Halaman --}}
+                            @foreach ($dataComplaint->links()->elements as $element)
+                                {{-- "Three Dots" Separator (...) --}}
+                                @if (is_string($element))
+                                    <li class="page-item disabled" aria-disabled="true"><span
+                                            class="page-link">{{ $element }}</span></li>
+                                @endif
+
+                                {{-- Array Link Halaman --}}
+                                @if (is_array($element))
+                                    @foreach ($element as $page => $url)
+                                        @if ($page == $dataComplaint->currentPage())
+                                            <li class="page-item active" aria-current="page"><a class="page-link"
+                                                    href="#">{{ $page }}</a></li>
+                                        @else
+                                            <li class="page-item"><a class="page-link"
+                                                    href="{{ $url }}">{{ $page }}</a></li>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @endforeach
+
+                            {{-- Tombol Next ('>>') --}}
+                            @if ($dataComplaint->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $dataComplaint->nextPageUrl() }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    @endif
+                </nav>
+            </div>
         </div>
     </div>
 
     <script>
+        var allUnitKerja = @json($unitKerja);
         var detailUrlTemplate = "{{ route('humas.pelaporan-humas.detail', ['id_complaint' => ':id']) }}";
         var storageBaseUrl = "{{ asset('storage') }}";
         var updateUrlTemplate = "{{ route('humas.pelaporan-humas.update', ['id_complaint' => ':id']) }}";
-        var searchUrl = "{{ route('humas.pelaporan-humas') }}";
+        var exportDetailPdfUrlTemplate =
+            "{{ route('humas.pelaporan-humas.rekap.detail.pdf', ['id_complaint' => ':id']) }}";
+        window.pageData = {
+            // URL untuk Ekspor
+            pdfExportUrl: "{{ route('humas.pelaporan-humas.rekap.pdf') }}",
+            excelExportUrl: "{{ route('humas.pelaporan-humas.rekap.excel') }}",
+
+            // URL lain yang mungkin dibutuhkan JS Anda
+            detailUrlTemplate: "{{ route('humas.pelaporan-humas.detail', ['id_complaint' => ':id']) }}",
+            updateUrlTemplate: "{{ route('humas.pelaporan-humas.update', ['id_complaint' => ':id']) }}",
+            storageBaseUrl: "{{ asset('storage') }}",
+            exportDetailPdfUrlTemplate: "{{ route('humas.pelaporan-humas.rekap.detail.pdf', ['id_complaint' => ':id']) }}",
+
+            // Data dari server
+            allUnitKerja: @json($unitKerja)
+        };
     </script>
 @endsection

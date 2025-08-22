@@ -15,66 +15,71 @@
             lainnya.</p>
 
         <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="faq-group-card">
-                    <h4 class="faq-group-title">
-                        <i class="bi bi-search me-2"></i>Pelacakan dan Status Laporan
-                    </h4>
-                    <p class="faq-group-description">
-                        Anda dapat memantau perkembangan laporan Anda secara langsung melalui sistem.
-                    </p>
-                    <div class="accordion" id="accordionGroupPelacakan">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingPelacakanSatu">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapsePelacakanSatu" aria-expanded="false">
-                                    Bagaimana cara melacak status laporan saya?
-                                </button>
-                            </h2>
-                            <div id="collapsePelacakanSatu" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                    Anda dapat melacak status laporan dengan memasukkan nomor tiket yang Anda terima
-                                    setelah
-                                    mengirimkan laporan di tab 'Lacak Tiket'.
+            @foreach ($semuaKategori as $kategori)
+                <div class="col-lg-6">
+                    <div class="faq-group-card">
+                        <h4 class="faq-group-title">
+                            <i class="bi bi-search me-2"></i>{{ $kategori->NAMA_KATEGORI }}
+                        </h4>
+                        <p class="faq-group-description">
+                            {{ $kategori->DESKRIPSI }}
+                        </p>
+                        <div class="accordion" id="accordionGroupPelacakan{{ $kategori->ID_KATEGORI_SSD }}">
+                            @foreach ($kategori->ssd as $ssd)
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingPelacakanSatu{{ $ssd->ID_SSD }}">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePelacakanSatu{{ $ssd->ID_SSD }}"
+                                            aria-expanded="false">
+                                            {{ $ssd->PERTANYAAN_SSD }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapsePelacakanSatu{{ $ssd->ID_SSD }}" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            {{ $ssd->JAWABAN_SSD }}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            {{-- <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPelacakanDua">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapsePelacakanDua" aria-expanded="false">
+                                        Apa arti dari setiap status laporan?
+                                    </button>
+                                </h2>
+                                <div id="collapsePelacakanDua" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        Setiap status laporan memiliki arti spesifik, seperti 'Diajukan' (laporan baru
+                                        diterima), 'Diproses' (sedang ditangani), 'Selesai' (tindakan telah selesai), atau
+                                        'Ditutup' (kasus dianggap selesai sepenuhnya). Detail lebih lanjut akan tersedia
+                                        pada informasi tiket Anda.
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingPelacakanDua">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapsePelacakanDua" aria-expanded="false">
-                                    Apa arti dari setiap status laporan?
-                                </button>
-                            </h2>
-                            <div id="collapsePelacakanDua" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                    Setiap status laporan memiliki arti spesifik, seperti 'Diajukan' (laporan baru
-                                    diterima), 'Diproses' (sedang ditangani), 'Selesai' (tindakan telah selesai), atau
-                                    'Ditutup' (kasus dianggap selesai sepenuhnya). Detail lebih lanjut akan tersedia
-                                    pada informasi tiket Anda.
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPelacakanTiga">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapsePelacakanTiga" aria-expanded="false">
+                                        Apakah saya akan mendapat notifikasi saat status laporan berubah?
+                                    </button>
+                                </h2>
+                                <div id="collapsePelacakanTiga" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        Ya, sistem kami akan mengirimkan notifikasi (biasanya melalui email atau SMS jika
+                                        nomor Anda terdaftar) setiap kali ada pembaruan signifikan pada status laporan Anda.
+                                        Pastikan kontak Anda selalu terbarui.
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingPelacakanTiga">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapsePelacakanTiga" aria-expanded="false">
-                                    Apakah saya akan mendapat notifikasi saat status laporan berubah?
-                                </button>
-                            </h2>
-                            <div id="collapsePelacakanTiga" class="accordion-collapse collapse">
-                                <div class="accordion-body">
-                                    Ya, sistem kami akan mengirimkan notifikasi (biasanya melalui email atau SMS jika
-                                    nomor Anda terdaftar) setiap kali ada pembaruan signifikan pada status laporan Anda.
-                                    Pastikan kontak Anda selalu terbarui.
-                                </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
 
-            <div class="col-lg-6">
+
+            {{-- <div class="col-lg-6">
                 <div class="faq-group-card">
                     <h4 class="faq-group-title">
                         <i class="bi bi-clock-history me-2"></i>Proses dan Waktu Penanganan
@@ -131,9 +136,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
-        <div class="row g-4 mt-2">
+        {{-- <div class="row g-4 mt-2">
             <div class="col-lg-6">
                 <div class="faq-group-card">
                     <h4 class="faq-group-title">
@@ -250,6 +255,6 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 @endsection

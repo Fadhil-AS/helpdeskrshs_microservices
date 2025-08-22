@@ -33,6 +33,6 @@ class ChatbotController extends Controller {
             'file', file_get_contents($file->getRealPath()), $file->getClientOriginalName()
         )->post('http://localhost:5678/webhook/upload-data');
 
-        return redirect('/upload')->with('status', 'File berhasil diunggah!');
+        return redirect()->route('humas.upload')->with('status', 'File berhasil diunggah!');
     }
 }

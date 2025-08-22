@@ -9,6 +9,8 @@ use App\Services\Humas\Http\Controllers\PelaporanHumasController;
 use App\Services\Humas\Http\Controllers\UnitKerjaHumasController;
 use App\Services\Humas\Http\Controllers\DireksiHumasController;
 use App\Services\Humas\Http\Controllers\DataReferensiHumasController;
+use App\Services\Humas\Http\Controllers\DataNomorController;
+use App\Services\Humas\Http\Controllers\PengaturanSSDController;
 use App\Services\Humas\Http\Controllers\UserComplaintController;
 use App\Services\Humas\Http\Controllers\KlasifikasiPengaduanController;
 use App\Services\Humas\Http\Controllers\JenisMediaController;
@@ -20,6 +22,7 @@ use App\Services\Chatbot\Http\Controllers\ChatbotController;
 use App\Services\Chatbot\Models\Chatbot;
 use App\Services\Login\Http\Controllers\LoginController;
 use App\Services\GantiPassword\Http\Controllers\GantiPasswordController;
+use App\Services\SPI\Http\Controllers\SPIController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -62,6 +65,9 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::post('/pelaporanHumas', [PelaporanHumasController::class, 'storePelaporanHumas'])->name('pelaporan-humas.store');
     Route::get('/pelaporanHumas/{id_complaint}/detail', [PelaporanHumasController::class, 'showPelaporanDetail'])->name('pelaporan-humas.detail');
     Route::put('/pelaporanHumas/{id_complaint}', [PelaporanHumasController::class, 'updatePelaporanHumas'])->name('pelaporan-humas.update');
+    Route::get('/pelaporan-humas/rekap/pdf', [PelaporanHumasController::class, 'rekapPdf'])->name('pelaporan-humas.rekap.pdf');
+    Route::get('/pelaporan-humas/rekap/excel', [PelaporanHumasController::class, 'rekapExcel'])->name('pelaporan-humas.rekap.excel');
+    Route::get('/pelaporan-humas/{id_complaint}/rekap/pdf', [PelaporanHumasController::class, 'rekapDetailPdf'])->name('pelaporan-humas.rekap.detail.pdf');
 
 
     // unit kerja humas
@@ -76,15 +82,30 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::put('/userComplaint/{userComplaint}', [UserComplaintController::class, 'updateUserComplaint'])->name('user-complaint.update');
     Route::put('/userComplaint/{userComplaint}/reset', [UserComplaintController::class, 'resetUserPassword'])->name('user-complaint.reset');
     Route::delete('/userComplaint/{userComplaint}', [UserComplaintController::class, 'destroyUserComplaint'])->name('user-complaint.destroy');
+    Route::get('/humas/admin/search', [UserComplaintController::class, 'unitKerjaHumas'])->name('admin.search');
 
     // direksi humas
     Route::get('/DireksiHumas', [DireksiHumasController::class, 'getDireksiHumas'])->name('direksi-humas');
     Route::post('/DireksiHumas', [DireksiHumasController::class, 'storeDireksiHumas'])->name('direksi-humas.store');
     Route::put('/DireksiHumas/{direksi}', [DireksiHumasController::class, 'updateDireksiHumas'])->name('direksi-humas.update');
     Route::delete('/DireksiHumas/{direksi}', [DireksiHumasController::class, 'destroyDireksiHumas'])->name('direksi-humas.destroy');
+    Route::get('/direksi/search', [DireksiHumasController::class, 'searchDireksi'])->name('direksi.search');
 
     // data referensi humas
     Route::get('/DataReferensiHumas', [DataReferensiHumasController::class, 'getDataReferensiHumas'])->name('data-referensi-humas');
+
+    // nomor WA humas
+    Route::get('/DataNomorHumas&RSHS', [DataNomorController::class, 'getDataNomor'])->name('data-nomor-humas-rshs');
+    Route::put('/nomor-kontak/{humas}', [DataNomorController::class, 'updateNomor'])->name('nomor.update');
+
+    // pengaturan SSD humas
+    Route::get('/PengaturanSSD', [PengaturanSSDController::class, 'getPengaturanSSD'])->name('pengaturan-ssd-humas');
+    Route::post('/pengaturan-ssd/kategori', [PengaturanSSDController::class, 'storeKategori'])->name('pengaturan-ssd.kategori.store');
+    Route::post('/pengaturan-ssd/ssd', [PengaturanSSDController::class, 'storeSsd'])->name('pengaturan-ssd.ssd.store');
+    Route::put('/pengaturan-ssd/kategori/{kategori}', [PengaturanSSDController::class, 'updateKategori'])->name('pengaturan-ssd.kategori.update');
+    Route::put('/pengaturan-ssd/ssd/{ssd}', [PengaturanSSDController::class, 'updateSsd'])->name('pengaturan-ssd.ssd.update');
+    Route::delete('/pengaturan-ssd/kategori/{kategori}', [PengaturanSSDController::class, 'destroyKategori'])->name('pengaturan-ssd.kategori.destroy');
+    Route::delete('/pengaturan-ssd/ssd/{ssd}', [PengaturanSSDController::class, 'destroySsd'])->name('pengaturan-ssd.ssd.destroy');
 
     // klasifikasi pengaduan
     Route::post('/klasifikasi-pengaduan', [KlasifikasiPengaduanController::class, 'store'])->name('klasifikasi-pengaduan.store');
@@ -105,6 +126,24 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::post('/jenis-laporan', [JenisLaporanController::class, 'store'])->name('jenis-laporan.store');
     Route::put('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'update'])->name('jenis-laporan.update');
     Route::delete('/jenis-laporan/{id_jenis_laporan}', [JenisLaporanController::class, 'destroy'])->name('jenis-laporan.destroy');
+
+    // chatbot
+    //Upload File Excel
+    Route::post('/upload', [ChatbotController::class, 'uploadData'])->name('upload.post');
+
+    //Menampilkan data di tabel
+    Route::get('/upload', function () {
+        $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+        return view('Services.Chatbot.uploadData', compact('files'));
+    })->name('upload');
+
+    //Hapus File
+    Route::delete('/file/{id}', function ($id) {
+        $file = Chatbot::findOrFail($id);
+        $file->delete();
+
+        return redirect()->route('humas.upload')->with('status', 'File berhasil dihapus.');
+    })->name('delete.file');
 });
 
 
@@ -121,6 +160,37 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function(){
     Route::get('/admin/dashboard/chart-data', [DashboardAdminController::class, 'getFilteredChartData'])->name('dashboard.chart-data');
 });
 
+Route::prefix('spi')->name('spi.')->middleware('spi')->group(function(){
+    // pelaporan SPI
+    Route::get('/pelaporanSPI', [SPIController::class, 'getPelaporanSPI'])->name('pelaporan-SPI');
+    Route::get('/pelaporanSPI/{id_complaint}/detail', [SPIController::class, 'showPelaporanDetail'])->name('pelaporan-SPI.detail');
+});
+
+//View Chatbot
+Route::get('/chat', function () {
+    return view('Services.Chatbot.mainChatbot');
+});
+
+// data chatbot
+Route::post('/chatbot', [ChatbotController::class, 'handleChat']);
+
+// //Upload File Excel
+// Route::post('/upload', [ChatbotController::class, 'uploadData']);
+
+// //Menampilkan data di tabel
+// Route::get('/upload', function () {
+//     $files = Chatbot::all(); // Ambil semua kolom, termasuk id
+//     return view('Services.Chatbot.uploadData', compact('files'));
+// });
+
+// //Hapus File
+// Route::delete('/file/{id}', function ($id) {
+//     $file = Chatbot::findOrFail($id);
+//     $file->delete();
+
+//     return redirect('/upload')->with('status', 'File berhasil dihapus.');
+// })->name('delete.file');
+
 
 
 // Route::prefix('chatbot')->name('chatbot.')->group(function(){
@@ -133,28 +203,5 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function(){
 //     Route::post('/upload', [ChatbotController::class, 'uploadData'])->name('handle');
 // });
 
-Route::post('/chatbot', [ChatbotController::class, 'handleChat']);
 
-//Upload File Excel
-Route::post('/upload', [ChatbotController::class, 'uploadData']);
-
-//View Chatbot
-Route::get('/chat', function () {
-    return view('Services.Chatbot.mainChatbot');
-});
-
-
-//Menampilkan data di tabel
-Route::get('/upload', function () {
-    $files = Chatbot::all(); // Ambil semua kolom, termasuk id
-    return view('Services.Chatbot.uploadData', compact('files'));
-});
-
-//Hapus File
-Route::delete('/file/{id}', function ($id) {
-    $file = Chatbot::findOrFail($id);
-    $file->delete();
-
-    return redirect('/upload')->with('status', 'File berhasil dihapus.');
-})->name('delete.file');
 

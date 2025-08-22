@@ -8,6 +8,7 @@ use App\Services\Ticketing\Models\KlasifikasiPengaduan;
 use App\Services\Ticketing\Models\JenisMedia;
 use App\Services\Ticketing\Models\PenyelesaianPengaduan;
 use App\Services\Ticketing\Models\JenisLaporan;
+use Illuminate\Support\Facades\DB;
 
 class Laporan extends Model {
     protected $table = 'data_complaint';
@@ -17,12 +18,20 @@ class Laporan extends Model {
     public $timestamps = true;
     const CREATED_AT = 'TGL_INSROW';
     const UPDATED_AT = 'TGL_INSROW';
-    protected $appends = ['file_list'];
+    protected $appends = [
+        'pengaduan_files',
+        'klarifikasi_files',
+        'tindak_lanjut_files',
+        'unit_kerja_list',
+        'status_klarifikasi',
+        'klarifikasi_list'
+    ];
 
     protected $fillable = [
         'ID_COMPLAINT',
         'ID_COMPLAINT_REFERENSI',
         'ID_BAGIAN',
+        'ID_BAGIAN_LAINNYA',
         'ID_KLASIFIKASI',
         'ID_JENIS_MEDIA',
         'ID_PENYELESAIAN',
@@ -39,35 +48,21 @@ class Laporan extends Model {
         'PETUGAS_EVALUASI',
         'TGL_PENUGASAN',
         'TGL_EVALUASI',
+        'TGL_TINDAK_LANJUT_HUMAS',
         'GRANDING',
         'PETUGAS_PELAPOR',
         'NO_MEDREC',
-        // 'PENANGGUNG_JAWAB',
         'TGL_SELESAI',
-        // 'DATA_PENGADUAN',
         'SMS_DIREKSI',
         'FILE_PENGADUAN',
         'FILE_BUKTI_KLARIFIKASI',
         'FILE_TINDAK_LANJUT_HUMAS',
         'TINDAK_LANJUT_HUMAS',
         'DISPOSISI',
-        // 'INFO_DIREKSI',
         'PERMASALAHAN',
-        // 'KD_PENGADUAN',
         'RATING_LAPORAN',
         'FEEDBACK_PELAPOR',
     ];
-
-    public function getFileListAttribute()
-    {
-        $files = $this->attributes['FILE_PENGADUAN'];
-
-        if ($files) {
-            return explode(';', $files);
-        }
-
-        return [];
-    }
 
     public function previous()
     {
@@ -81,7 +76,14 @@ class Laporan extends Model {
 
     public function unitKerja()
     {
-        return $this->belongsTo(UnitKerja::class, 'ID_BAGIAN', 'ID_BAGIAN');
+        $idBagianData = $this->attributes['ID_BAGIAN'] ?? null;
+        if (!$idBagianData) {
+            return $this->belongsTo(UnitKerja::class, 'ID_BAGIAN', 'ID_BAGIAN')->whereRaw('1 = 0');
+        }
+
+        $ids = explode(',', $idBagianData);
+        $firstId = trim($ids[0]);
+        return $this->belongsTo(UnitKerja::class, 'ID_BAGIAN', 'ID_BAGIAN')->where('ID_BAGIAN', '=', $firstId);
     }
 
     public function klasifikasiPengaduan()
@@ -119,5 +121,136 @@ class Laporan extends Model {
         $query->when($filters['status'] ?? false, function ($query, $status) {
             return $query->where('STATUS', $status);
         });
+
+        $query->when($filters['unit_kerja'] ?? false, function ($query, $unitKerjaId) {
+            return $query->where(function ($q) use ($unitKerjaId) {
+                $q->where('ID_BAGIAN', $unitKerjaId)
+                  ->orWhereJsonContains('ID_BAGIAN_LAINNYA', $unitKerjaId);
+            });
+        });
+
+        // $query->when($filters['periode'] ?? false, function ($query, $periode) {
+        //     $now = now();
+
+        //     switch ($periode) {
+        //         case 'bulan':
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)->whereMonth('TGL_COMPLAINT', $now->month);
+        //             break;
+
+        //         case 'triwulan':
+        //             $startMonth = $now->firstOfQuarter()->month;
+        //             $endMonth = $now->lastOfQuarter()->month;
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)
+        //                   ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+        //             break;
+
+        //         case 'semester':
+        //             $startMonth = $now->month <= 6 ? 1 : 7;
+        //             $endMonth = $now->month <= 6 ? 6 : 12;
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)
+        //                   ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+        //             break;
+        //     }
+        // });
+
+        $query->when($filters['periode'] ?? false, function ($query, $periode) use ($filters) {
+            // Gunakan tahun dari filter, jika tidak ada, gunakan tahun ini
+            $tahun = $filters['tahun'] ?? date('Y');
+
+            switch ($periode) {
+                case 'bulan':
+                    $bulan = $filters['bulan'] ?? date('m');
+                    $query->whereYear('TGL_COMPLAINT', $tahun)->whereMonth('TGL_COMPLAINT', $bulan);
+                    break;
+                case 'triwulan':
+                    $triwulan = $filters['triwulan'] ?? 1;
+                    $startMonth = ($triwulan - 1) * 3 + 1;
+                    $endMonth = $startMonth + 2;
+                    $query->whereYear('TGL_COMPLAINT', $tahun)
+                          ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+                    break;
+                case 'semester':
+                    $semester = $filters['semester'] ?? 1;
+                    $startMonth = ($semester - 1) * 6 + 1;
+                    $endMonth = $startMonth + 5;
+                    $query->whereYear('TGL_COMPLAINT', $tahun)
+                          ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+                    break;
+            }
+        });
+    }
+
+    private function processFiles(string $fileData = null): array
+    {
+        if (empty($fileData)) {
+            return [];
+        }
+
+        $decoded = json_decode($fileData, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        if (str_contains($fileData, ';')) {
+            return explode(';', $fileData);
+        }
+
+        return [$fileData];
+    }
+
+    public function getPengaduanFilesAttribute(): array
+    {
+        return $this->processFiles($this->attributes['FILE_PENGADUAN'] ?? null);
+    }
+
+    public function getKlarifikasiFilesAttribute(): array
+    {
+        return $this->processFiles($this->attributes['FILE_BUKTI_KLARIFIKASI'] ?? null);
+    }
+
+    public function getTindakLanjutFilesAttribute(): array
+    {
+        return $this->processFiles($this->attributes['FILE_TINDAK_LANJUT_HUMAS'] ?? null);
+    }
+
+    public function getUnitKerjaListAttribute()
+    {
+        $firstId = $this->attributes['ID_BAGIAN'] ?? null;
+        $otherIdsJson = $this->attributes['ID_BAGIAN_LAINNYA'] ?? null;
+
+        $otherIds = $otherIdsJson ? json_decode($otherIdsJson, true) : [];
+        if (!is_array($otherIds)) {
+            $otherIds = [];
+        }
+
+        $allIds = array_merge([$firstId], $otherIds);
+        $validIds = array_unique(array_filter($allIds));
+
+        if (empty($validIds)) {
+            return collect();
+        }
+
+        return UnitKerja::whereIn('ID_BAGIAN', $validIds)->get();
+    }
+
+    public function getKlarifikasiListAttribute()
+    {
+        $evaluasi = $this->attributes['EVALUASI_COMPLAINT'] ?? '[]';
+        return json_decode($evaluasi, true) ?: [];
+    }
+
+    public function getStatusKlarifikasiAttribute()
+    {
+        $unitKerjaTujuan = $this->unit_kerja_list;
+        $klarifikasiTersimpan = $this->klarifikasi_list;
+
+        if ($unitKerjaTujuan->isEmpty()) {
+            return '-';
+        }
+
+        $jumlahUnitKerja = $unitKerjaTujuan->count();
+        $jumlahKlarifikasi = count($klarifikasiTersimpan);
+
+        return ($jumlahKlarifikasi >= $jumlahUnitKerja) ? 'Sudah' : 'Belum';
     }
 }
