@@ -119,14 +119,12 @@ class LacakTicketingController extends Controller
                 $flatKlarifikasiFiles = [];
                 $klarifikasiData = json_decode($laporan->FILE_BUKTI_KLARIFIKASI, true);
                 if (is_array($klarifikasiData)) {
-                    // Cek apakah ini struktur data baru (berisi 'id_bagian' atau 'files')
                     if (isset($klarifikasiData[0]['files'])) {
                         $filesPerUnit = array_column($klarifikasiData, 'files');
                         if (!empty($filesPerUnit)) {
                             $flatKlarifikasiFiles = array_merge(...$filesPerUnit);
                         }
                     } else {
-                        // Jika ini struktur lama (array string biasa), gunakan langsung
                         $flatKlarifikasiFiles = $klarifikasiData;
                     }
                 }

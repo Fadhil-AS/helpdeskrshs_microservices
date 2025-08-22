@@ -85,14 +85,11 @@ class DashboardUnitKerjaController extends Controller {
 
             $flatKlarifikasiFiles = [];
             if (isset($dataAsArray['klarifikasi_files']) && is_array($dataAsArray['klarifikasi_files'])) {
-                // Ambil semua array 'files' dari setiap objek unit kerja
                 $filesPerUnit = array_column($dataAsArray['klarifikasi_files'], 'files');
-                // Gabungkan semua array tersebut menjadi satu array tunggal
                 if (!empty($filesPerUnit)) {
                      $flatKlarifikasiFiles = array_merge(...$filesPerUnit);
                 }
             }
-            // Ganti data file klarifikasi dengan array yang sudah diratakan
             $dataAsArray['klarifikasi_files'] = $flatKlarifikasiFiles;
             array_walk_recursive($dataAsArray, function (&$item, $key) {
                 if (is_string($item)) {
@@ -187,34 +184,26 @@ class DashboardUnitKerjaController extends Controller {
                 }
 
                 if ($request->hasFile('file_bukti')) {
-                    // ID unit kerja pengguna saat ini
                     $idBagianPengguna = session('user')->ID_BAGIAN;
-
-                    // 1. Ambil semua data file yang ada dari database
                     $allFilesData = json_decode($complaint->FILE_BUKTI_KLARIFIKASI, true) ?? [];
 
-                    // 2. Cari dan hapus file lama HANYA milik unit kerja saat ini
                     $otherUnitsFilesData = [];
                     foreach ($allFilesData as $unitData) {
                         if (isset($unitData['id_bagian']) && $unitData['id_bagian'] == $idBagianPengguna) {
-                            // Jika ketemu, hapus file-filenya dari storage
                             foreach ($unitData['files'] as $oldFile) {
                                 Storage::disk('public')->delete($oldFile);
                             }
                         } else {
-                            // Simpan data file dari unit kerja lain
                             $otherUnitsFilesData[] = $unitData;
                         }
                     }
 
-                    // 3. Proses dan simpan file-file yang BARU diunggah
                     $newUploadedPaths = [];
                     foreach ($request->file('file_bukti') as $file) {
                         $path = $file->store('bukti_klarifikasi', 'public');
                         $newUploadedPaths[] = $path;
                     }
 
-                    // 4. Buat entri baru untuk file dari unit kerja saat ini
                     if (!empty($newUploadedPaths)) {
                         $otherUnitsFilesData[] = [
                             'id_bagian' => $idBagianPengguna,
@@ -222,7 +211,6 @@ class DashboardUnitKerjaController extends Controller {
                         ];
                     }
 
-                    // 5. Simpan kembali gabungan data file dari unit lain dan file baru dari unit saat ini
                     $updateData['FILE_BUKTI_KLARIFIKASI'] = json_encode(array_values($otherUnitsFilesData));
                 }
 
