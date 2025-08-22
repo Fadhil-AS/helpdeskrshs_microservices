@@ -3,6 +3,7 @@
 namespace App\Services\Ticketing\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\Ticketing\Models\UnitKerja;
 
 class UnitKerja extends Model {
     protected $table = 'unit_kerja';
@@ -20,4 +21,14 @@ class UnitKerja extends Model {
         'STATUS',
         'TGL_INSROW',
     ];
+
+    public function admins()
+    {
+        return $this->hasMany(UserComplaint::class, 'ID_BAGIAN', 'ID_BAGIAN');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(UnitKerja::class, 'ID_PARENT_BAGIAN', 'ID_BAGIAN');
+    }
 }

@@ -127,11 +127,11 @@ class UnitKerjaSeeder extends Seeder
                 'TGL_INSROW' => Carbon::createFromFormat('d/m/Y', '21/1/2016'),
             ],
             [
-                'ID_BAGIAN' => 'E01',
+                'ID_BAGIAN' => 'A04',
                 'NAMA_BAGIAN' => 'SATUAN PENGAWAS INTERNAL',
                 'NAMA_BAGIAN_SINGULAR' => 'SATUAN PENGAWAS INTERNAL',
                 'NAMA_ALTERNATIF' => 'SPI',
-                'ID_PARENT_BAGIAN' => 'E',
+                'ID_PARENT_BAGIAN' => 'A',
                 'SUPER' => 0,
                 'STATUS' => 1,
                 'TGL_INSROW' => Carbon::createFromFormat('d/m/Y', '21/1/2016'),

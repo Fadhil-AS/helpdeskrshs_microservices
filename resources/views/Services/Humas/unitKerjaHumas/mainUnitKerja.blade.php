@@ -19,6 +19,9 @@
     <!-- Modal Edit Data Direksi -->
     @include('Services.Humas.unitKerjaHumas.partials.UnitKerjaHumas.modalEditUKH')
 
+    {{-- modal delete data unit kerja --}}
+    @include('Services.Humas.unitKerjaHumas.partials.UnitKerjaHumas.modalDelete')
+
     {{-- tabel Admin unit kerja --}}
     @include('Services.Humas.unitKerjaHumas.partials.adminUKH.tabelAUKH')
 
@@ -39,6 +42,50 @@
     {{-- Unit kerja --}}
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiTabel.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/fungsiModalEdit.js') }}"></script>
+
+    {{-- fungsi delete unit kerja --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.addEventListener('click', function(event) {
+                const deleteButton = event.target.closest('.hapus-unit-btn');
+                if (!deleteButton) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const unitId = deleteButton.getAttribute('data-id');
+                const unitName = deleteButton.getAttribute('data-nama');
+
+                const adminCount = parseInt(deleteButton.getAttribute('data-admin-count'), 10);
+                const childCount = parseInt(deleteButton.getAttribute('data-child-count'), 10);
+
+                if (childCount > 0) {
+                    alert('Tidak dapat menghapus unit kerja "' + unitName + '" karena memiliki ' +
+                        childCount + ' sub bagian.');
+                    return;
+                }
+                if (adminCount > 0) {
+                    alert('Tidak dapat menghapus unit kerja "' + unitName +
+                        '" karena masih memiliki ' + adminCount + ' akun admin.');
+                    return;
+                }
+
+                const confirmationModalElement = document.getElementById('hapusKategoriModal');
+                if (confirmationModalElement) {
+                    const modal = new bootstrap.Modal(confirmationModalElement);
+                    document.getElementById('kategoriHapusNama').textContent = unitName;
+                    let deleteForm = document.getElementById('deleteKategoriForm');
+                    let actionUrl = "{{ route('humas.unit-kerja-humas.destroy', ':id') }}";
+                    deleteForm.action = actionUrl.replace(':id', unitId);
+                    modal.show();
+                } else {
+                    console.error('Error: Modal dengan ID "hapusKategoriModal" tidak ditemukan.');
+                    alert('Terjadi kesalahan: Komponen modal konfirmasi hapus tidak ditemukan.');
+                }
+            });
+        });
+    </script>
 
     {{-- Admin unit kerja --}}
     <script src="{{ asset('assets/js/Humas/UnitKerjaHumas/AUKH/fungsiModalTambah.js') }}"></script>

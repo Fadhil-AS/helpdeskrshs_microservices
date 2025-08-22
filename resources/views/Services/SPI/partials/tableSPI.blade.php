@@ -38,7 +38,7 @@
             <form action="{{ route('spi.pelaporan-SPI') }}" method="GET" id="filterForm"
                 class="d-flex flex-wrap gap-2">
                 <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
-                    <select class="form-select" name="status" id="filterStatus" style="width: 180px;">
+                    {{-- <select class="form-select" name="status" id="filterStatus" style="width: 180px;">
                         <option value="">Semua Status</option>
                         <option value="Open" {{ request('status') == 'Open' ? 'selected' : '' }}>Open</option>
                         <option value="On Progress" {{ request('status') == 'On Progress' ? 'selected' : '' }}>On
@@ -48,17 +48,16 @@
                         </option>
                         <option value="Close" {{ request('status') == 'Close' ? 'selected' : '' }}>Close</option>
                         <option value="Banding" {{ request('status') == 'Banding' ? 'selected' : '' }}>Banding</option>
-                    </select>
-
-                    <a href="{{ route('spi.pelaporan-SPI') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-counterclockwise"></i> Reset
-                    </a>
+                    </select> --}}
 
                     <div class="input-group" style="width: 250px;">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                         <input type="text" class="form-control border-start-0" name="search" id="searchInput"
                             placeholder="Cari Pengaduan" value="{{ request('search') }}">
                     </div>
+                    <a href="{{ route('spi.pelaporan-SPI') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset Pencarian
+                    </a>
 
                 </div>
             </form>

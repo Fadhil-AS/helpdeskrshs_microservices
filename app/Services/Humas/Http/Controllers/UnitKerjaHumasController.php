@@ -12,7 +12,8 @@ use Illuminate\Support\Collection;
 
 class UnitKerjaHumasController extends Controller {
     public function getUnitKerjaHumas(Request $request){
-        $allUnitKerja = UnitKerja::orderBy('ID_BAGIAN')->get();
+        // $allUnitKerja = UnitKerja::orderBy('ID_BAGIAN')->get();
+        $allUnitKerja = UnitKerja::withCount(['admins', 'children'])->orderBy('ID_BAGIAN')->get();
         $topLevelIDs = ['A', 'B', 'C', 'D', 'E'];
 
         $topLevelParentsCollection = $allUnitKerja->whereIn('ID_BAGIAN', $topLevelIDs);
@@ -69,9 +70,10 @@ class UnitKerjaHumasController extends Controller {
         ]);
         $parentId = $request->input('id_parent_bagian');
 
-        $lastChild = UnitKerja::where('ID_PARENT_BAGIAN', $parentId)
-                               ->orderBy('ID_BAGIAN', 'desc')
-                               ->first();
+        $lastChild = UnitKerja::where('ID_BAGIAN', 'like', $parentId . '%')
+                       ->whereRaw('LENGTH(ID_BAGIAN) = ?', [strlen($parentId) + 2])
+                       ->orderBy('ID_BAGIAN', 'desc')
+                       ->first();
 
         $newIdBagian = '';
         if ($lastChild) {
@@ -122,6 +124,13 @@ class UnitKerjaHumasController extends Controller {
 
     public function destroyUnitKerja(UnitKerja $unitKerja)
     {
+        $adminCount = UserComplaint::where('ID_BAGIAN', $unitKerja->ID_BAGIAN)->count();
+
+        if ($adminCount > 0) {
+            return redirect()->route('humas.unit-kerja-humas')
+                             ->with('error', 'Gagal! Unit kerja "' . $unitKerja->NAMA_BAGIAN . '" tidak dapat dihapus karena masih memiliki ' . $adminCount . ' akun admin. Harap hapus atau pindahkan akun admin terkait terlebih dahulu.');
+        }
+
         $childCount = UnitKerja::where('ID_PARENT_BAGIAN', $unitKerja->ID_BAGIAN)->count();
 
         if ($childCount > 0) {

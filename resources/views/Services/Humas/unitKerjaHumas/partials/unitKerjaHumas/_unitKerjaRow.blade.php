@@ -27,15 +27,11 @@
             data-unit='{{ json_encode($unit) }}' onclick="event.stopPropagation()">
             <i class="bi bi-pencil-square me-2"></i>
         </a>
-        <form method="POST" action="{{ route('humas.unit-kerja-humas.destroy', $unit->ID_BAGIAN) }}"
-            style="display: inline;"
-            onsubmit="return confirm('Apakah Anda yakin ingin menghapus unit kerja ini? PERINGATAN: Unit kerja yang memiliki subbagian tidak dapat dihapus.');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-link text-danger p-0" onclick="event.stopPropagation()">
-                <i class="bi bi-trash"></i>
-            </button>
-        </form>
+        <a href="#" class="hapus-unit-btn text-danger" data-id="{{ $unit->ID_BAGIAN }}"
+            data-nama="{{ $unit->NAMA_BAGIAN }}" data-admin-count="{{ $unit->admins_count }}"
+            data-child-count="{{ $unit->children_count }}">
+            <i class="bi bi-trash"></i>
+        </a>
     </td>
 </tr>
 
