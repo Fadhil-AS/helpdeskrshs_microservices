@@ -1,9 +1,15 @@
+@php
+    $hasChildren = isset($children[$unit->ID_BAGIAN]) && $children[$unit->ID_BAGIAN]->isNotEmpty();
+    $isSearch = !empty($search);
+@endphp
+
 <tr class="parent-row child-row group-{{ $unit->ID_PARENT_BAGIAN }}" data-child="group-{{ $unit->ID_BAGIAN }}"
-    data-level="{{ $level }}" @if ($level > 0) style="display: none;" @endif>
+    data-level="{{ $level }}" @if ($level > 0 && !$isSearch) style="display: none;" @endif>
     <td style="cursor: pointer;">
         <span style="padding-left: {{ $level * 25 }}px;">
-            @if (isset($children[$unit->ID_BAGIAN]) && $children[$unit->ID_BAGIAN]->isNotEmpty())
-                <span class="toggle-icon">▸</span>
+            @if ($hasChildren)
+                {{-- <span class="toggle-icon">▸</span> --}}
+                <span class="toggle-icon">{{ $isSearch ? '▾' : '▸' }}</span>
             @else
                 <span class="toggle-icon" style="opacity: 0; cursor: default;">▸</span>
             @endif
@@ -41,6 +47,7 @@
             'unit' => $child,
             'children' => $children,
             'level' => $level + 1,
+            'search' => $search,
         ])
     @endforeach
 @endif

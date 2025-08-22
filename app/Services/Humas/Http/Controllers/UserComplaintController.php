@@ -12,6 +12,41 @@ class UserComplaintController extends Controller{
 
     use NotifikasiWhatsappAkunUnitKerja;
 
+    public function unitKerjaHumas(Request $request)
+    {
+        $query = UserComplaint::with('unitKerja')->latest('TGL_INSROW');
+
+        if ($request->filled('filter_unit')) {
+            $query->where('ID_BAGIAN', $request->filter_unit);
+        }
+
+        if ($request->filled('filter_status')) {
+            $query->where('VALIDASI', $request->filter_status);
+        }
+
+        if ($request->has('search') && $request->input('search') != '') {
+            $searchKeyword = '%' . strtolower($request->search) . '%';
+            $query->where(function ($q) use ($searchKeyword) {
+                $q->whereRaw('LOWER(NAME) LIKE ?', [$searchKeyword])
+                  ->orWhereRaw('LOWER(USERNAME) LIKE ?', [$searchKeyword])
+                  ->orWhereHas('unitKerja', function ($subQuery) use ($searchKeyword) {
+                      $subQuery->whereRaw('LOWER(NAMA_BAGIAN) LIKE ?', [$searchKeyword]);
+                  });
+            });
+        }
+
+        $admins = $query->paginate(10)->appends($request->query());
+        if ($request->ajax()) {
+            $tableHtml = view('Services.Humas.unitKerjaHumas.partials.adminUKH.admin_table_partial', compact('admins'))->render();
+            return response()->json([
+                'table_html' => $tableHtml
+            ]);
+        }
+
+        $parents = UnitKerja::where('IS_PARENT', 'Y')->orderBy('NAMA_BAGIAN', 'asc')->get();
+        return view('Services.Humas.unitKerjaHumas.partials.adminUKH.tabelAUKH', compact('admins', 'parents'));
+    }
+
     public function getUserComplaint()
     {
         return redirect()->route('humas.unit-kerja-humas');

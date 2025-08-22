@@ -7,7 +7,7 @@
 
     <!-- Filter & Action -->
     <div class="bg-white p-3 rounded-bottom shadow-sm">
-        <form action="{{ route('unitKerja.dashboard') }}" method="GET" class="mb-3">
+        <form id="filter-form" action="{{ route('unitKerja.dashboard') }}" method="GET" class="mb-3">
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3 tombol-cari">
                 <div class="d-flex flex-wrap gap-2 grup-tombol">
                     <select class="selectpicker" data-style="btn-reset" onchange="this.form.submit()" name="status">
@@ -22,13 +22,13 @@
                         <option value="Banding" {{ request('status') == 'Banding' ? 'selected' : '' }}>Banding</option>
                     </select>
                     <a href="{{ route('unitKerja.dashboard') }}" class="btn btn-reset">
-                        <i class="bi bi-filter"></i>Reset
+                        <i class="bi bi-arrow-counterclockwise"></i>Reset
                     </a>
                 </div>
                 <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                     <input type="text" name="search" class="form-control border-start-0"
-                        placeholder="Cari Pengaduan..." value="{{ request('search') }}">
+                        placeholder="Cari Pengaduan..." value="{{ request('search') }}" id="search-input">
                 </div>
         </form>
     </div>
@@ -47,17 +47,12 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                @forelse ($dataComplaint as $complaint)
+            <tbody id="complaint-table-body">
+                {{-- @forelse ($dataComplaint as $complaint)
                     <tr>
                         <td><strong>{{ $complaint->ID_COMPLAINT }}</strong></td>
                         <td>{{ $complaint->JUDUL_COMPLAINT ?? 'Belum ada judul' }}</td>
                         <td>{{ $complaint->jenisMedia?->JENIS_MEDIA ?? '-' }}</td>
-                        {{-- @if (!empty($complaint->EVALUASI_COMPLAINT))
-                            <td><span class="badge bg-info">Sudah</span></td>
-                        @else
-                            <td><span class="badge bg-danger text-light">Belum</span></td>
-                        @endif --}}
                         @if ($complaint->status_klarifikasi == 'Sudah')
                             <td><span class="badge bg-info">Sudah</span></td>
                         @elseif ($complaint->status_klarifikasi == 'Belum')
@@ -110,13 +105,14 @@
                             <p class="mb-0">Data pengaduan tidak ditemukan.</p>
                         </td>
                     </tr>
-                @endforelse
+                @endforelse --}}
+                @include('services.unitKerja.dashboard.partials.tableContent')
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
-    <div class="d-flex justify-content-end mt-3 page-tabel">
+    <div class="d-flex justify-content-end mt-3 page-tabel" id="pagination-links">
         {{-- <nav aria-label="Page navigation example">
             <ul class="pagination mb-0">
                 <li class="page-item">

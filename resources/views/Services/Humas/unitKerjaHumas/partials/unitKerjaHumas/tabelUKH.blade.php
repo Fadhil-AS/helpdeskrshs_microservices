@@ -13,10 +13,19 @@
                     <i class="bi bi-plus-circle"></i> Tambah Unit Kerja
                 </button>
             </div>
-            <div class="input-group" style="width: 250px;">
+            {{-- <div class="input-group" style="width: 250px;">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                 <input type="text" class="form-control border-start-0" placeholder="Cari Unit Kerja...">
-            </div>
+            </div> --}}
+            <form action="{{ route('humas.unit-kerja-humas') }}" method="GET" class="mb-3" id="search-form"
+                data-search-url="{{ route('humas.unit-kerja-humas') }}">
+                <div class="input-group" style="width: 250px;">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0" id="search-input"
+                        placeholder="Cari Unit Kerja..." value="{{ $search ?? '' }}">
+
+                </div>
+            </form>
         </div>
         <!-- Table -->
         <div class="table-responsive">
@@ -32,7 +41,7 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="unit-kerja-table-body">
                     @foreach ($parents as $parent)
                         @include('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaRow', [
                             'unit' => $parent,
@@ -44,7 +53,7 @@
             </table>
         </div>
         <!-- Pagination -->
-        <div class="d-flex justify-content-end mt-3 page-tabel">
+        <div class="d-flex justify-content-end mt-3 page-tabel" id="pagination-links">
             {{ $parents->appends(request()->except('admin_page'))->links() }}
         </div>
     </div>

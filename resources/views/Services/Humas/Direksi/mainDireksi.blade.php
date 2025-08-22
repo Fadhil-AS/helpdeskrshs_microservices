@@ -23,6 +23,8 @@
 
     <script src="{{ asset('assets/js/Humas/Direksi/modalEdit.js') }}"></script>
     <script src="{{ asset('assets/js/Humas/Direksi/modalHapus.js') }}"></script>
+    <script src="{{ asset('assets/js/Humas/Direksi/fungsiCari.js') }}"></script>
+
 </body>
 
 </html>

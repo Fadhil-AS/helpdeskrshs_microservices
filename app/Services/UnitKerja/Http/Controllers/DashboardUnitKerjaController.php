@@ -41,6 +41,13 @@ class DashboardUnitKerjaController extends Controller {
             ->paginate(10)
             ->withQueryString();
 
+        if ($request->ajax()) {
+            return response()->json([
+                'table' => view('services.unitKerja.dashboard.partials.tableContent', ['dataComplaint' => $dataComplaint])->render(),
+                'pagination' => $dataComplaint->links()->toHtml(),
+            ]);
+        }
+
         return view ('services.unitKerja.dashboard.mainUnitKerja', ['dataComplaint' => $dataComplaint]);
     }
 

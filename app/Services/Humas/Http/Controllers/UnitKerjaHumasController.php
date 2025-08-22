@@ -13,7 +13,33 @@ use Illuminate\Support\Collection;
 class UnitKerjaHumasController extends Controller {
     public function getUnitKerjaHumas(Request $request){
         // $allUnitKerja = UnitKerja::orderBy('ID_BAGIAN')->get();
-        $allUnitKerja = UnitKerja::withCount(['admins', 'children'])->orderBy('ID_BAGIAN')->get();
+        $search = $request->input('search');
+        // $query = UnitKerja::withCount(['admins', 'children'])->orderBy('ID_BAGIAN')->get();
+        $query = UnitKerja::withCount(['admins', 'children'])->orderBy('ID_BAGIAN');
+
+        if ($search) {
+            $matchingIds = UnitKerja::where('NAMA_BAGIAN', 'like', "%{$search}%")
+            ->orWhere('NAMA_BAGIAN_SINGULAR', 'like', "%{$search}%")
+            ->orWhere('NAMA_ALTERNATIF', 'like', "%{$search}%")
+            ->pluck('ID_BAGIAN');
+
+            $parentIds = collect();
+            foreach ($matchingIds as $id) {
+                // Langkah 2: Dapatkan semua ID induk dari setiap hasil yang cocok
+                // Contoh: jika A0101 cocok, maka A01 dan A juga akan diambil
+                for ($i = strlen($id) - 2; $i >= 1; $i -= 2) {
+                    $parentIds->push(substr($id, 0, $i));
+                }
+            }
+
+            // Langkah 3: Gabungkan semua ID (hasil pencarian + induknya) dan hilangkan duplikat
+            $allRequiredIds = $matchingIds->merge($parentIds)->unique();
+
+            // Terapkan ke query utama
+            $query->whereIn('ID_BAGIAN', $allRequiredIds);
+        }
+
+        $allUnitKerja = $query->get();
         $topLevelIDs = ['A', 'B', 'C', 'D', 'E'];
 
         $topLevelParentsCollection = $allUnitKerja->whereIn('ID_BAGIAN', $topLevelIDs);
@@ -24,12 +50,19 @@ class UnitKerjaHumasController extends Controller {
 
         $perPage = 10;
         $currentPage = $request->input('page', 1);
-        $currentPageItems = $topLevelParentsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        // $currentPageItems = $topLevelParentsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        if ($search) {
+            $currentPageItems = $topLevelParentsCollection->values();
+        } else {
+            $currentPageItems = $topLevelParentsCollection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        }
 
+        $totalCount = $topLevelParentsCollection->count();
+        $perPageResult = $search && $totalCount > 0 ? $totalCount : $perPage;
         $paginatedParents = new LengthAwarePaginator(
             $currentPageItems,
             $topLevelParentsCollection->count(),
-            $perPage,
+            $perPageResult,
             $currentPage,
             ['path' => $request->url(), 'query' => $request->query()]
         );
@@ -39,6 +72,22 @@ class UnitKerjaHumasController extends Controller {
         $promotedIDs = ['B', 'C', 'D', 'E'];
         if (isset($groupedChildren['A'])) {
             $groupedChildren['A'] = $groupedChildren['A']->whereNotIn('ID_BAGIAN', $promotedIDs);
+        }
+
+        if ($request->ajax()) {
+            $tableView = view('Services.Humas.unitKerjaHumas.partials.unitKerjaHumas._unitKerjaTableBody', [
+                'parents' => $paginatedParents,
+                'children' => $groupedChildren,
+                'search' => $search
+            ])->render();
+
+            $paginationView = $paginatedParents->appends(request()->except('admin_page'))->links()->toHtml();
+
+
+            return response()->json([
+                'table_html' => $tableView,
+                'pagination_html' => $paginationView
+            ]);
         }
 
         $adminQuery = UserComplaint::with('unitKerja');
@@ -55,7 +104,8 @@ class UnitKerjaHumasController extends Controller {
             'children' => $groupedChildren,
             'allUnits' => $allUnitKerja,
             'unitsForDropdown' => $unitsForDropdown,
-            'admins' => $admins
+            'admins' => $admins,
+            'search' => $search
         ]);
     }
 

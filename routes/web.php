@@ -82,12 +82,14 @@ Route::prefix('humas')->name('humas.')->middleware('humas')->group(function(){
     Route::put('/userComplaint/{userComplaint}', [UserComplaintController::class, 'updateUserComplaint'])->name('user-complaint.update');
     Route::put('/userComplaint/{userComplaint}/reset', [UserComplaintController::class, 'resetUserPassword'])->name('user-complaint.reset');
     Route::delete('/userComplaint/{userComplaint}', [UserComplaintController::class, 'destroyUserComplaint'])->name('user-complaint.destroy');
+    Route::get('/humas/admin/search', [UserComplaintController::class, 'unitKerjaHumas'])->name('admin.search');
 
     // direksi humas
     Route::get('/DireksiHumas', [DireksiHumasController::class, 'getDireksiHumas'])->name('direksi-humas');
     Route::post('/DireksiHumas', [DireksiHumasController::class, 'storeDireksiHumas'])->name('direksi-humas.store');
     Route::put('/DireksiHumas/{direksi}', [DireksiHumasController::class, 'updateDireksiHumas'])->name('direksi-humas.update');
     Route::delete('/DireksiHumas/{direksi}', [DireksiHumasController::class, 'destroyDireksiHumas'])->name('direksi-humas.destroy');
+    Route::get('/direksi/search', [DireksiHumasController::class, 'searchDireksi'])->name('direksi.search');
 
     // data referensi humas
     Route::get('/DataReferensiHumas', [DataReferensiHumasController::class, 'getDataReferensiHumas'])->name('data-referensi-humas');
