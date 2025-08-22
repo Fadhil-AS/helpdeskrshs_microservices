@@ -240,6 +240,18 @@ class PelaporanHumasController extends Controller {
             $dataAsArray = $complaint->toArray();
             $dataAsArray['klarifikasi_list'] = $augmentedKlarifikasi;
 
+            $flatKlarifikasiFiles = [];
+            // Pastikan 'klarifikasi_files' ada dan merupakan array sebelum diproses
+            if (isset($dataAsArray['klarifikasi_files']) && is_array($dataAsArray['klarifikasi_files'])) {
+                // Ambil semua array 'files' dari setiap objek unit kerja
+                $filesPerUnit = array_column($dataAsArray['klarifikasi_files'], 'files');
+                // Gabungkan semua array file menjadi satu array tunggal
+                if (!empty($filesPerUnit)) {
+                     $flatKlarifikasiFiles = array_merge(...$filesPerUnit);
+                }
+            }
+            // Ganti data file klarifikasi dengan array yang sudah diratakan
+        $dataAsArray['klarifikasi_files'] = $flatKlarifikasiFiles;
             array_walk_recursive($dataAsArray, function (&$item, $key) {
                 if (is_string($item)) {
                     $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
@@ -385,15 +397,21 @@ class PelaporanHumasController extends Controller {
             if ($request->hasFile('file_tindak_lanjut')) {
                 $existingFiles = json_decode($complaint->FILE_TINDAK_LANJUT_HUMAS, true) ?? [];
 
+                // 2. HAPUS semua file lama dari storage.
+                foreach ($existingFiles as $oldFile) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+
+                // 3. Proses dan simpan file yang BARU diunggah.
                 $newUploadedPaths = [];
                 foreach ($request->file('file_tindak_lanjut') as $file) {
                     $path = $file->store('tindak_lanjut_humas', 'public');
                     $newUploadedPaths[] = $path;
                 }
 
-                $allFiles = array_merge($existingFiles, $newUploadedPaths);
-
-                $updateData['FILE_TINDAK_LANJUT_HUMAS'] = json_encode($allFiles);
+                // 4. Simpan HANYA daftar file baru ke database, menimpa yang lama.
+                // Kita tidak lagi menggunakan array_merge.
+                $updateData['FILE_TINDAK_LANJUT_HUMAS'] = json_encode($newUploadedPaths);
             }
 
             $complaint->update($updateData);

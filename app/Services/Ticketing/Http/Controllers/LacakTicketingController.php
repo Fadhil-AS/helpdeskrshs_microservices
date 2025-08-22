@@ -116,6 +116,20 @@ class LacakTicketingController extends Controller
                     if (str_contains((string)$fileData, ';')) return explode(';', (string)$fileData);
                     return [$fileData];
                 };
+                $flatKlarifikasiFiles = [];
+                $klarifikasiData = json_decode($laporan->FILE_BUKTI_KLARIFIKASI, true);
+                if (is_array($klarifikasiData)) {
+                    // Cek apakah ini struktur data baru (berisi 'id_bagian' atau 'files')
+                    if (isset($klarifikasiData[0]['files'])) {
+                        $filesPerUnit = array_column($klarifikasiData, 'files');
+                        if (!empty($filesPerUnit)) {
+                            $flatKlarifikasiFiles = array_merge(...$filesPerUnit);
+                        }
+                    } else {
+                        // Jika ini struktur lama (array string biasa), gunakan langsung
+                        $flatKlarifikasiFiles = $klarifikasiData;
+                    }
+                }
                 $riwayatPenanganan = [];
 
                 // History: Tiket Diterima (oleh Humas)
@@ -320,7 +334,7 @@ class LacakTicketingController extends Controller
                     'riwayat_penanganan' => $riwayatPenanganan,
                     'files' => [
                         'pengaduan' => $processFiles($laporan->FILE_PENGADUAN),
-                        'klarifikasi' => $processFiles($laporan->FILE_BUKTI_KLARIFIKASI),
+                        'klarifikasi' => $flatKlarifikasiFiles,
                         'tindak_lanjut' => $processFiles($laporan->FILE_TINDAK_LANJUT_HUMAS),
                     ]
                 ];

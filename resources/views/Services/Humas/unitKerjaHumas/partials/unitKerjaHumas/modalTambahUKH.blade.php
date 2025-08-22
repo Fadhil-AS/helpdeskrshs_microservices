@@ -15,7 +15,7 @@
                         <select id="parentUnitKerja" name="id_parent_bagian" class="form-select" name="ID_BAGIAN"
                             required>
                             <option value="" disabled selected>-- Pilih induk unit kerja --</option>
-                            @foreach ($paginatedParents as $parentUnit)
+                            @foreach ($parents as $parentUnit)
                                 <option value="{{ $parentUnit->ID_BAGIAN }}">
                                     {{ $parentUnit->ID_BAGIAN }} - {{ $parentUnit->NAMA_BAGIAN }}
                                 </option>
