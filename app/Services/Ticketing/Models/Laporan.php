@@ -64,68 +64,6 @@ class Laporan extends Model {
         'FEEDBACK_PELAPOR',
     ];
 
-    protected $casts = [
-        'FILE_PENGADUAN'           => 'array',
-        'FILE_BUKTI_KLARIFIKASI'   => 'array',
-        'FILE_TINDAK_LANJUT_HUMAS' => 'array',
-        'ID_BAGIAN_LAINNYA'        => 'array',
-        'EVALUASI_COMPLAINT'       => 'array',
-    ];
-
-    public function getPengaduanFilesAttribute(): array
-    {
-        $value = $this->attributes['FILE_PENGADUAN'] ?? null;
-
-        if (is_array($value)) {
-            return $value;
-        }
-
-        if (is_string($value) && !empty($value)) {
-            return [$value];
-        }
-
-        return [];
-    }
-
-    public function getKlarifikasiFilesAttribute(): array
-    {
-        $value = $this->attributes['FILE_BUKTI_KLARIFIKASI'] ?? null;
-        $klarifikasiData = [];
-
-        if (is_array($value)) {
-            $klarifikasiData = $value;
-        } elseif (is_string($value)) {
-            $klarifikasiData = json_decode($value, true) ?: [];
-        }
-
-        $flattenedFiles = [];
-        if (is_array($klarifikasiData)) {
-            foreach ($klarifikasiData as $item) {
-                if (!empty($item['files']) && is_array($item['files'])) {
-                    $flattenedFiles = array_merge($flattenedFiles, $item['files']);
-                }
-            }
-        }
-        return $flattenedFiles;
-
-    }
-
-    public function getTindakLanjutFilesAttribute(): array
-    {
-        $value = $this->attributes['FILE_TINDAK_LANJUT_HUMAS'] ?? null;
-
-        if (is_array($value)) {
-            return $value;
-        }
-
-        if (is_string($value)) {
-            $decoded = json_decode($value, true);
-            return is_array($decoded) ? $decoded : [];
-        }
-
-        return [];
-    }
-
     public function previous()
     {
         return $this->belongsTo(self::class, 'ID_COMPLAINT_REFERENSI', 'ID_COMPLAINT');
@@ -173,7 +111,10 @@ class Laporan extends Model {
         $query->when($filters['search'] ?? false, function ($query, $search) {
             return $query->where(function ($q) use ($search) {
                 $q->where('ID_COMPLAINT', 'like', '%' . $search . '%')
-                  ->orWhere('JUDUL_COMPLAINT', 'like', '%' . $search . '%');
+                  ->orWhere('JUDUL_COMPLAINT', 'like', '%' . $search . '%')
+                  ->orWhereHas('jenisMedia', function ($subQuery) use ($search) {
+                    $subQuery->where('JENIS_MEDIA', 'like', '%' . $search . '%');
+                });
             });
         });
 
@@ -188,7 +129,32 @@ class Laporan extends Model {
             });
         });
 
+        // $query->when($filters['periode'] ?? false, function ($query, $periode) {
+        //     $now = now();
+
+        //     switch ($periode) {
+        //         case 'bulan':
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)->whereMonth('TGL_COMPLAINT', $now->month);
+        //             break;
+
+        //         case 'triwulan':
+        //             $startMonth = $now->firstOfQuarter()->month;
+        //             $endMonth = $now->lastOfQuarter()->month;
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)
+        //                   ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+        //             break;
+
+        //         case 'semester':
+        //             $startMonth = $now->month <= 6 ? 1 : 7;
+        //             $endMonth = $now->month <= 6 ? 6 : 12;
+        //             $query->whereYear('TGL_COMPLAINT', $now->year)
+        //                   ->whereBetween(DB::raw('MONTH(TGL_COMPLAINT)'), [$startMonth, $endMonth]);
+        //             break;
+        //     }
+        // });
+
         $query->when($filters['periode'] ?? false, function ($query, $periode) use ($filters) {
+            // Gunakan tahun dari filter, jika tidak ada, gunakan tahun ini
             $tahun = $filters['tahun'] ?? date('Y');
 
             switch ($periode) {
@@ -232,10 +198,25 @@ class Laporan extends Model {
         return [$fileData];
     }
 
+    public function getPengaduanFilesAttribute(): array
+    {
+        return $this->processFiles($this->attributes['FILE_PENGADUAN'] ?? null);
+    }
+
+    public function getKlarifikasiFilesAttribute(): array
+    {
+        return $this->processFiles($this->attributes['FILE_BUKTI_KLARIFIKASI'] ?? null);
+    }
+
+    public function getTindakLanjutFilesAttribute(): array
+    {
+        return $this->processFiles($this->attributes['FILE_TINDAK_LANJUT_HUMAS'] ?? null);
+    }
+
     public function getUnitKerjaListAttribute()
     {
         $firstId = $this->attributes['ID_BAGIAN'] ?? null;
-        $otherIdsJson = $this->attributes['ID_BAGIAN_LAINNYA'] ?? [];
+        $otherIdsJson = $this->attributes['ID_BAGIAN_LAINNYA'] ?? null;
 
         $otherIds = $otherIdsJson ? json_decode($otherIdsJson, true) : [];
         if (!is_array($otherIds)) {

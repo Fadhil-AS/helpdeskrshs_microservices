@@ -295,8 +295,7 @@
                             $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
                         @endphp
                         @if ($isImage)
-                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
-                                alt="{{ basename($file) }}">
+                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview" alt="{{ basename($file) }}">
                         @else
                             <ul class="file-list">
                                 <li>{{ basename($file) }}</li>
@@ -322,8 +321,7 @@
                             $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
                         @endphp
                         @if ($isImage)
-                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
-                                alt="{{ basename($file) }}">
+                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview" alt="{{ basename($file) }}">
                         @else
                             <ul class="file-list">
                                 <li>{{ basename($file) }}</li>
