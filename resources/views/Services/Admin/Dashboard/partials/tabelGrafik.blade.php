@@ -15,7 +15,10 @@
                     {{-- <option value="statusPengaduan">Status Pengaduan</option> --}}
                     <option value="unitKerja">Unit Kerja</option>
                     <option value="jenisLaporan">Jenis Laporan</option>
-                    <option value="klasifikasiPengaduan">Klasifikasi Pengaduan</option>
+                    @if (!isset($userRole) || (isset($userRole) && $userRole !== 'humas'))
+                        <option value="klasifikasiPengaduan">Klasifikasi Pengaduan</option>
+                    @endif
+
                     <option value="penyelesaianPengaduan">Penyelesaian Pengaduan</option>
                 </select>
                 <select class="selectpicker" data-style="btn-reset" id="timeFilter" name="time_filter">
