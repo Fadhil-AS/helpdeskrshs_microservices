@@ -468,6 +468,16 @@ class PelaporanHumasController extends Controller {
 
         $laporan->klarifikasi_list_processed = $klarifikasiList;
 
+        $flatKlarifikasiFiles = [];
+        if (!empty($laporan->klarifikasi_files) && is_array($laporan->klarifikasi_files)) {
+            $filesPerUnit = array_column($laporan->klarifikasi_files, 'files');
+            if (!empty($filesPerUnit)) {
+                $flatKlarifikasiFiles = array_merge(...$filesPerUnit);
+            }
+        }
+
+        $laporan->klarifikasi_files_processed = $flatKlarifikasiFiles;
+
         $pdf = PDF::loadView('Services.Humas.Pelaporan.rekap.detail-pdf', ['data' => [$laporan]]);
         $pdf->setPaper('a4', 'portrait');
 

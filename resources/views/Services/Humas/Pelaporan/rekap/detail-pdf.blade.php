@@ -287,15 +287,16 @@
 
         <strong>File Bukti Klarifikasi</strong>
         <div class="content-box">
-            @if ($laporan->klarifikasi_files && count(array_filter($laporan->klarifikasi_files)) > 0)
+            @if ($laporan->klarifikasi_files_processed && count(array_filter($laporan->klarifikasi_files_processed)) > 0)
                 <div class="image-gallery">
-                    @foreach ($laporan->klarifikasi_files as $file)
+                    @foreach ($laporan->klarifikasi_files_processed as $file)
                         @php
                             $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
                             $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
                         @endphp
                         @if ($isImage)
-                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview" alt="{{ basename($file) }}">
+                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
+                                alt="{{ basename($file) }}">
                         @else
                             <ul class="file-list">
                                 <li>{{ basename($file) }}</li>
@@ -321,7 +322,8 @@
                             $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
                         @endphp
                         @if ($isImage)
-                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview" alt="{{ basename($file) }}">
+                            <img src="{{ public_path('storage/' . $file) }}" class="image-preview"
+                                alt="{{ basename($file) }}">
                         @else
                             <ul class="file-list">
                                 <li>{{ basename($file) }}</li>

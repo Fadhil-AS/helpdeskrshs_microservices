@@ -54,12 +54,9 @@ class LacakTicketingController extends Controller
                     $laporan->save();
                     $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
 
-                    // Cek apakah tiket ini adalah tiket lanjutan (banding)
                     if (!empty($laporan->ID_COMPLAINT_REFERENSI)) {
-                        // Cari tiket lama yang berstatus 'Banding'
                         $laporanReferensi = Laporan::find($laporan->ID_COMPLAINT_REFERENSI);
 
-                        // Jika tiket lama ditemukan, tutup juga
                         if ($laporanReferensi) {
                             $laporanReferensi->STATUS = 'Close';
                             $laporanReferensi->TGL_SELESAI = Carbon::now()->toDateString();
@@ -119,14 +116,12 @@ class LacakTicketingController extends Controller
                 $flatKlarifikasiFiles = [];
                 $klarifikasiData = json_decode($laporan->FILE_BUKTI_KLARIFIKASI, true);
                 if (is_array($klarifikasiData)) {
-                    // Cek apakah ini struktur data baru (berisi 'id_bagian' atau 'files')
                     if (isset($klarifikasiData[0]['files'])) {
                         $filesPerUnit = array_column($klarifikasiData, 'files');
                         if (!empty($filesPerUnit)) {
                             $flatKlarifikasiFiles = array_merge(...$filesPerUnit);
                         }
                     } else {
-                        // Jika ini struktur lama (array string biasa), gunakan langsung
                         $flatKlarifikasiFiles = $klarifikasiData;
                     }
                 }
