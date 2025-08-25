@@ -64,6 +64,7 @@ class DashboardAdminController extends Controller
     private function getScopedSuperZeroUnits(string $role, ?string $userBagian): Collection
     {
         $unitsQuery = UnitKerja::query();
+        $unitsQuery->where('NAMA_BAGIAN', '!=', 'SATUAN PENGAWAS INTERNAL');
 
         if ($role === 'direksi' && !empty($userBagian)) {
             $unitsQuery->where(DB::raw("TRIM(ID_PARENT_BAGIAN)"), $userBagian)->where('SUPER', '0');
@@ -276,8 +277,15 @@ class DashboardAdminController extends Controller
 
         $chartData = [];
         foreach ($chartMap as $key => $config) {
-            if ($key === 'unitKerja' && empty($unitKerjaId)) {
-                $data = $this->getAggregatedUnitKerjaData(clone $baseQuery);
+            if ($key === 'unitKerja') {
+                if (empty($unitKerjaId)) {
+                    $data = $this->getAggregatedUnitKerjaData(clone $baseQuery);
+                } else {
+                    $count = (clone $baseQuery)->count();
+                    $unit = UnitKerja::find($unitKerjaId);
+                    $labels = $unit ? [$unit->NAMA_BAGIAN] : [];
+                    $data = ['labels' => $labels, 'data' => [$count]];
+                }
             } else {
                 $data = $this->generateChartDataWithDefinedLabels(clone $baseQuery, $config['type'], $config['name'], $definedLabels[$key] ?? [], $config['column'] ?? null);
             }
