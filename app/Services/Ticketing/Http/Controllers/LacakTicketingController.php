@@ -15,6 +15,16 @@ class LacakTicketingController extends Controller
 {
     use NotifikasiWhatsappPelapor;
 
+    public function getModalNoTelp(Request $request)
+    {
+        return view(view: 'Services.Ticketing.lacakTicket.partials.modalNoTelp');
+    }
+
+    public function getModalListTiket(Request $request)
+    {
+        return view('Services.Ticketing.lacakTicket.partials.modalListTiket');
+    }
+
     public function getLacakTicketing(Request $request)
     {
         $idComplaint = $request->query('id_complaint');

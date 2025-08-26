@@ -20,7 +20,7 @@
         <div class="input-group mb-4 mt-5">
             <input id="inputTiket" type="text" class="form-control"
                 placeholder="Masukkan no tiket/no telepon/nama/no medrec" value="{{ $idComplaint ?? '' }}">
-            <button class="btn btn-simpan text-white" onclick="cariTiket()">
+            <button class="btn btn-simpan" onclick="cariTiket()">
                 <i class="bi bi-search"></i> Lacak
             </button>
         </div>
