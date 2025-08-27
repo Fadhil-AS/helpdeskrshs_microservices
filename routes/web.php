@@ -39,7 +39,10 @@ Route::prefix('ticketing')->name('ticketing.')->group(function() {
 
     // lacak ticketing
     Route::get('/lacak-ticketing', [LacakTicketingController::class, 'getLacakTicketing'])->name('lacak');
+    // Route::get('/lacak-ticketing/nama', [LacakTicketingController::class, 'getModalNoTelp'])->name('lacak.nama');
+    // Route::get('/lacak-ticketing/nama/list', [LacakTicketingController::class, 'getModalListTiket'])->name('lacak.list');
     Route::post('/lacak/search', [LacakTicketingController::class, 'searchTicket'])->name('lacak.search');
+    Route::post('/lacak-ticketing/by-name', [LacakTicketingController::class, 'searchByNameAndPhone'])->name('lacak.by-name');
     Route::post('/simpan-feedback', [LacakTicketingController::class, 'simpanFeedback'])->name('simpan-feedback');
     Route::post('/lacak-ticketing/tanggapi/{id_complaint}', [LacakTicketingController::class, 'tanggapiPenyelesaian'])->name('lacak.tanggapi');
 });

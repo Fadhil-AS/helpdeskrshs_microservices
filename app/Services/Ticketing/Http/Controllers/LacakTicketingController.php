@@ -21,10 +21,11 @@ class LacakTicketingController extends Controller
         return view('Services.Ticketing.lacakTicket.mainLacakTicketing', compact('idComplaint'));
     }
 
-    public function tanggapiPenyelesaian(Request $request, $id_complaint)
+    public function searchByNameAndPhone(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tanggapan' => 'required|string|in:selesai,belum_selesai',
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|regex:/^[0-9]{9,15}$/',
         ]);
 
         if ($validator->fails()) {
@@ -32,63 +33,28 @@ class LacakTicketingController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($request, $id_complaint, &$pesanSukses, &$redirectUrl, &$laporan) {
-                $laporan = Laporan::find($id_complaint);
-                if (!$laporan) {
-                    return response()->json(['success' => false, 'message' => 'Laporan tidak ditemukan.'], 404);
-                }
+            $laporan = Laporan::where(DB::raw('LOWER(NAME)'), 'like', '%' . strtolower($request->name) . '%')
+                ->where('NO_TLPN', $request->phone)
+                ->orderBy('TGL_COMPLAINT', 'desc')
+                ->paginate(5, ['ID_COMPLAINT', 'STATUS', 'TGL_COMPLAINT', 'JUDUL_COMPLAINT']);
 
-                $statusMenunggu = ['Menunggu Konfirmasi', 'Menunggu Konfirmasi Pelapor'];
-                if (!in_array($laporan->STATUS, $statusMenunggu)) {
-                    throw new \Exception('Tiket tidak dalam status menunggu konfirmasi. Status saat ini: ' . $laporan->STATUS, 400);
-                }
-
-                $tanggapan = $request->tanggapan;
-                $pesanSukses = '';
-                $redirectUrl = null;
-
-                if ($tanggapan === 'selesai') {
-                    $laporan->STATUS = 'Close';
-                    $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
-                    $laporan->TGL_SELESAI = Carbon::now()->toDateString();
-                    $laporan->save();
-                    $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
-
-                    if (!empty($laporan->ID_COMPLAINT_REFERENSI)) {
-                        $laporanReferensi = Laporan::find($laporan->ID_COMPLAINT_REFERENSI);
-
-                        if ($laporanReferensi) {
-                            $laporanReferensi->STATUS = 'Close';
-                            $laporanReferensi->TGL_SELESAI = Carbon::now()->toDateString();
-                            $laporanReferensi->FEEDBACK_PELAPOR = 'Ditutup karena banding terselesaikan melalui tiket ' . $laporan->ID_COMPLAINT;
-                            $laporanReferensi->save();
-                            $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
-
-                            Log::info('Tiket referensi ' . $laporanReferensi->ID_COMPLAINT . ' juga telah ditutup karena tiket lanjutan ' . $laporan->ID_COMPLAINT . ' selesai.');
-                        }
-                    }
-                } elseif ($tanggapan === 'belum_selesai') {
-                    $laporan->STATUS = 'Banding';
-                    $laporan->RATING_LAPORAN = null;
-                    $pesanSukses = 'Terima kasih atas informasinya. Laporan Anda telah diajukan untuk peninjauan kembali (banding).';
-                    $redirectUrl = route('ticketing.buat-laporan', ['ref' => $laporan->ID_COMPLAINT]);
-                    $laporan->TGL_SELESAI = Carbon::now()->toDateString();
-                    $laporan->save();
-                }
-
-                if ($tanggapan === 'selesai') {
-                    $this->kirimNotifikasiStatusKePelapor($laporan);
-                }
+            $formattedLaporan = $laporan->through(function ($item) {
+                return [
+                    'id' => $item->ID_COMPLAINT,
+                    'status' => $item->STATUS,
+                    'tgl' => Carbon::parse($item->TGL_COMPLAINT)->format('d/m/Y'), // format waktu "3 hari lalu"
+                    'judul' => $item->JUDUL_COMPLAINT ?: 'Tidak ada judul.',
+                ];
             });
 
-            $laporanTerbaru = Laporan::find($id_complaint);
+            if ($formattedLaporan->total() === 0) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada laporan yang ditemukan dengan nama dan nomor telepon tersebut.'], 404);
+            }
 
-            return response()->json(['success' => true, 'message' => $pesanSukses, 'new_status' => $laporanTerbaru->STATUS, 'redirect_url' => $redirectUrl]);
-
+            return response()->json(['success' => true, 'laporan' => $formattedLaporan]);
         } catch (\Exception $e) {
-            $statusCode = ($e->getCode() >= 400 && $e->getCode() < 500) ? $e->getCode() : 500;
-            Log::error("Error di tanggapiPenyelesaian untuk ID {$id_complaint}: " . $e->getMessage() . "\nStack trace: " . $e->getTraceAsString());
-            return response()->json(['success' => false, 'message' => $statusCode === 400 ? $e->getMessage() : 'Terjadi kesalahan server internal.'], $statusCode);
+            Log::error("Error di searchByNameAndPhone: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan pada server.'], 500);
         }
     }
 
@@ -98,6 +64,16 @@ class LacakTicketingController extends Controller
 
         if (empty($searchInput)) {
             return response()->json(['success' => false, 'message' => 'Input pencarian tidak boleh kosong.'], 400);
+        }
+
+        $isLikelyName = preg_match('/^[a-zA-Z\s]+$/', $searchInput);
+
+        if ($isLikelyName) {
+            return response()->json([
+                'success' => true,
+                'action' => 'request_phone',
+                'name' => $searchInput
+            ]);
         }
 
         try {
@@ -310,14 +286,21 @@ class LacakTicketingController extends Controller
                     $tanggalDiperbaruiFormatted = Carbon::parse($laporan->TGL_EVALUASI)->format('d/m/Y');
                 }
 
+                $unitKerjaList = $laporan->unit_kerja_list; // Panggil accessor yang sudah kita perbaiki
+                $namaUnitKerja = $unitKerjaList->pluck('NAMA_BAGIAN')->toArray();
+                $ditanganiOleh = !empty($namaUnitKerja) ? implode(', ', $namaUnitKerja) : 'Belum Ditentukan';
+
                 $data = [
                     'success' => true,
+                    'action' => 'show_details',
                     'tiket' => [
                         'id_complaint' => $laporan->ID_COMPLAINT,
+                        'isi_complaint' => $laporan->ISI_COMPLAINT,
                         'status' => $displayStatus,
                         'tanggal_dibuat' => Carbon::parse($laporan->TGL_COMPLAINT)->format('d/m/Y'),
                         'tanggal_diperbarui' => $tanggalDiperbaruiFormatted,
-                        'ditangani_oleh' => $laporan->unitKerja ? $laporan->unitKerja->NAMA_BAGIAN : 'Belum Ditentukan',
+                        // 'ditangani_oleh' => $laporan->unitKerja ? $laporan->unitKerja->NAMA_BAGIAN : 'Belum Ditentukan',
+                        'ditangani_oleh' => $ditanganiOleh,
                         'deskripsi_status_terkini' => $deskripsiStatusTerkini,
                         'tgl_selesai_internal' => $tglSelesaiInternalISO,
                         'is_menunggu_konfirmasi' => $isMenungguKonfirmasi,
@@ -343,6 +326,80 @@ class LacakTicketingController extends Controller
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan server internal saat mencari tiket.'], 500);
         }
     }
+
+
+    public function tanggapiPenyelesaian(Request $request, $id_complaint)
+    {
+        $validator = Validator::make($request->all(), [
+            'tanggapan' => 'required|string|in:selesai,belum_selesai',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => 'Input tidak valid.', 'errors' => $validator->errors()], 422);
+        }
+
+        try {
+            DB::transaction(function () use ($request, $id_complaint, &$pesanSukses, &$redirectUrl, &$laporan) {
+                $laporan = Laporan::find($id_complaint);
+                if (!$laporan) {
+                    return response()->json(['success' => false, 'message' => 'Laporan tidak ditemukan.'], 404);
+                }
+
+                $statusMenunggu = ['Menunggu Konfirmasi', 'Menunggu Konfirmasi Pelapor'];
+                if (!in_array($laporan->STATUS, $statusMenunggu)) {
+                    throw new \Exception('Tiket tidak dalam status menunggu konfirmasi. Status saat ini: ' . $laporan->STATUS, 400);
+                }
+
+                $tanggapan = $request->tanggapan;
+                $pesanSukses = '';
+                $redirectUrl = null;
+
+                if ($tanggapan === 'selesai') {
+                    $laporan->STATUS = 'Close';
+                    $laporan->RATING_LAPORAN = 'Masalah terselesaikan';
+                    $laporan->TGL_SELESAI = Carbon::now()->toDateString();
+                    $laporan->save();
+                    $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
+
+                    if (!empty($laporan->ID_COMPLAINT_REFERENSI)) {
+                        $laporanReferensi = Laporan::find($laporan->ID_COMPLAINT_REFERENSI);
+
+                        if ($laporanReferensi) {
+                            $laporanReferensi->STATUS = 'Close';
+                            $laporanReferensi->TGL_SELESAI = Carbon::now()->toDateString();
+                            $laporanReferensi->FEEDBACK_PELAPOR = 'Ditutup karena banding terselesaikan melalui tiket ' . $laporan->ID_COMPLAINT;
+                            $laporanReferensi->save();
+                            $pesanSukses = 'Terima kasih atas konfirmasi Anda. Tiket telah ditutup.';
+
+                            Log::info('Tiket referensi ' . $laporanReferensi->ID_COMPLAINT . ' juga telah ditutup karena tiket lanjutan ' . $laporan->ID_COMPLAINT . ' selesai.');
+                        }
+                    }
+                } elseif ($tanggapan === 'belum_selesai') {
+                    $laporan->STATUS = 'Banding';
+                    $laporan->RATING_LAPORAN = null;
+                    $pesanSukses = 'Terima kasih atas informasinya. Laporan Anda telah diajukan untuk peninjauan kembali (banding).';
+                    $redirectUrl = route('ticketing.buat-laporan', ['ref' => $laporan->ID_COMPLAINT]);
+                    $laporan->TGL_SELESAI = Carbon::now()->toDateString();
+                    $laporan->save();
+                }
+
+                if ($tanggapan === 'selesai') {
+                    $this->kirimNotifikasiStatusKePelapor($laporan);
+                }
+            });
+
+            $laporanTerbaru = Laporan::find($id_complaint);
+
+            return response()->json(['success' => true, 'message' => $pesanSukses, 'new_status' => $laporanTerbaru->STATUS, 'redirect_url' => $redirectUrl]);
+
+        } catch (\Exception $e) {
+            $statusCode = ($e->getCode() >= 400 && $e->getCode() < 500) ? $e->getCode() : 500;
+            Log::error("Error di tanggapiPenyelesaian untuk ID {$id_complaint}: " . $e->getMessage() . "\nStack trace: " . $e->getTraceAsString());
+            return response()->json(['success' => false, 'message' => $statusCode === 400 ? $e->getMessage() : 'Terjadi kesalahan server internal.'], $statusCode);
+        }
+    }
+
+
 
     public function simpanFeedback(Request $request){
         $validator = Validator::make($request->all(), [
