@@ -222,14 +222,24 @@ $(document).ready(function () {
                     }
 
                     const uniqueOptions = Array.from(new Map(combinedOptions.map(item => [item.ID_BAGIAN, item])).values());
+                    uniqueOptions.sort((a, b) => a.ID_BAGIAN.localeCompare(b.ID_BAGIAN, undefined, { numeric: true, sensitivity: 'base' }));
 
                     uniqueOptions.forEach(function(uK) {
                         const isInactive = uK.STATUS == '0';
                         let displayText = `${uK.NAMA_BAGIAN} (${uK.ID_BAGIAN})`;
+                        let disabledAttribute = '';
+
+                        if (uK.SUPER == 1) {
+                            disabledAttribute = 'disabled';
+                        }
+
                         if (isInactive) {
                             displayText += ' (Tidak Aktif)';
+                            if (!assignedUnit || uK.ID_BAGIAN != assignedUnit.ID_BAGIAN) {
+                                disabledAttribute = 'disabled';
+                            }
                         }
-                        const disabledAttribute = uK.SUPER == 1 ? 'disabled' : '';
+
                         optionsHtml += `<option value="${uK.ID_BAGIAN}" ${disabledAttribute}>${displayText}</option>`;
                     });
 
