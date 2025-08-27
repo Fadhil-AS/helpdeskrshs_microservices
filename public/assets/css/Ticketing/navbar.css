@@ -129,7 +129,7 @@ select.form-select:focus {
     outline: none;
 }
 
-.pagination .page-link {
+/* .pagination .page-link {
     color: black;
     transition: all 0.2s ease-in-out;
     margin: 0 8px;
@@ -169,7 +169,7 @@ select.form-select:focus {
 .pagination .page-item:last-child .page-link:hover {
     background-color: transparent;
     color: #60C0D0;
-}
+} */
 
 .bi-eye {
     color: black;

@@ -1,8 +1,3 @@
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f8f9fa;
-}
-
 .modal-content {
     border-radius: 1rem;
     border: none;
@@ -107,4 +102,42 @@ body {
 
 .pagination .page-link:focus {
     box-shadow: 0 0 0 0.2rem rgba(0, 185, 173, 0.25);
+}
+
+.status-badge {
+    font-size: 0.75em;
+    font-weight: 600;
+    padding: 0.4em 0.8em;
+    border-radius: 1em;
+}
+
+.status-open {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
+
+.status-on-progress {
+    background-color: #cff4fc !important;
+    color: #055160 !important;
+}
+
+.status-menunggu-konfirmasi {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+/* .status-on-progress {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
+} */
+
+.status-close {
+    background-color: #f8d7da !important;
+    color: #58151c !important;
+}
+
+.status-banding {
+
+    background-color: #ffedd5 !important;
+    color: #9a3412 !important;
 }

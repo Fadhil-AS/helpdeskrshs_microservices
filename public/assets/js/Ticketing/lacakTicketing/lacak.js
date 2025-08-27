@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('inputTiket');
     const searchContainer = document.getElementById('search-container');
     const btnCariTiket = document.getElementById('btnCariTiket');
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!response.ok) {
                 throw new Error(result.message || `Error ${response.status}: Terjadi kesalahan.`);
-           }
+            }
 
             if (!result.success) {
                 throw new Error(result.message || 'Tiket tidak ditemukan.');
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
         hasilArea.innerHTML = '';
     }
 
-     async function fetchAndDisplayTickets(pageUrl) {
+    async function fetchAndDisplayTickets(pageUrl) {
         const submitBtn = phoneModalEl?.querySelector('#btnVerifyPhone');
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (!result.success) {
-                if(response.status === 404) {
+                if (response.status === 404) {
                     const phoneModal = bootstrap.Modal.getInstance(phoneModalEl);
                     if (phoneModal) phoneModal.hide();
                     showError(result.message);
@@ -107,7 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             renderTicketList(result.laporan.data);
-            renderPagination(result.laporan.links);
+            // --- Mengirim seluruh objek paginasi, bukan hanya links ---
+            renderPagination(result.laporan);
 
             const phoneModal = bootstrap.Modal.getInstance(phoneModalEl);
             if (phoneModal) phoneModal.hide();
@@ -152,17 +153,61 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function renderPagination(links) {
+    function renderPagination(paginationData) {
         paginationContainer.innerHTML = '';
+        const links = paginationData.links;
         if (!links || links.length <= 3) return;
 
+        const currentPage = paginationData.current_page;
+        const lastPage = paginationData.last_page;
+        const firstPageUrl = paginationData.first_page_url;
+        const lastPageUrl = paginationData.last_page_url;
+        const prevPageUrl = paginationData.prev_page_url;
+        const nextPageUrl = paginationData.next_page_url;
+
+        // Tombol "Pertama" (<<)
+        paginationContainer.innerHTML += `
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-url="${firstPageUrl}" aria-label="First">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>`;
+
+        // Tombol "Sebelumnya" (<)
+        paginationContainer.innerHTML += `
+            <li class="page-item ${!prevPageUrl ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-url="${prevPageUrl}" aria-label="Previous">
+                    <span aria-hidden="true">&lsaquo;</span>
+                </a>
+            </li>`;
+
+        // Tombol Halaman Angka
         links.forEach(link => {
-            const li = document.createElement('li');
-            li.className = `page-item ${link.active ? 'active' : ''} ${!link.url ? 'disabled' : ''}`;
-            li.innerHTML = `<a class="page-link" href="#" data-url="${link.url}">${link.label}</a>`;
-            paginationContainer.appendChild(li);
+            if (!isNaN(link.label)) {
+                const li = document.createElement('li');
+                li.className = `page-item ${link.active ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#" data-url="${link.url}">${link.label}</a>`;
+                paginationContainer.appendChild(li);
+            }
         });
+
+        // Tombol "Berikutnya" (>)
+        paginationContainer.innerHTML += `
+            <li class="page-item ${!nextPageUrl ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-url="${nextPageUrl}" aria-label="Next">
+                    <span aria-hidden="true">&rsaquo;</span>
+                </a>
+            </li>`;
+
+        // Tombol "Terakhir" (>>)
+        paginationContainer.innerHTML += `
+            <li class="page-item ${currentPage === lastPage ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-url="${lastPageUrl}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>`;
     }
+
 
     async function handlePhoneSubmit() {
         const name = phoneModalEl.dataset.searchName;
@@ -273,11 +318,13 @@ document.addEventListener('DOMContentLoaded', function() {
             detailTambahanHtml = `<div class="alert alert-success mt-4 mb-4"><div class="d-flex align-items-center"><i class="bi bi-star-fill me-2 fs-4"></i><strong class="me-auto">Feedback Diterima</strong></div><p class="mb-0 mt-2">Terima kasih atas penilaian dan masukan yang Anda berikan.</p></div>`;
         }
 
-        let statusBadgeClass = 'bg-secondary';
-        if (['On Progress', 'Dalam Proses'].includes(tiket.status)) statusBadgeClass = 'bg-primary';
-        else if (['Menunggu Konfirmasi Pelapor', 'Menunggu Konfirmasi'].includes(tiket.status)) statusBadgeClass = 'bg-warning text-dark';
-        else if (['Close', 'Selesai'].includes(tiket.status)) statusBadgeClass = 'bg-success';
-        else if (['Open', 'Baru', 'Banding'].includes(tiket.status)) statusBadgeClass = 'btn-simpan text-white';
+        const statusBadgeClass = getStatusClass(tiket.status);
+
+        // let statusBadgeClass = 'bg-secondary';
+        // if (['On Progress', 'Dalam Proses'].includes(tiket.status)) statusBadgeClass = 'bg-primary';
+        // else if (['Menunggu Konfirmasi Pelapor', 'Menunggu Konfirmasi'].includes(tiket.status)) statusBadgeClass = 'bg-warning text-dark';
+        // else if (['Close', 'Selesai'].includes(tiket.status)) statusBadgeClass = 'bg-success';
+        // else if (['Open', 'Baru', 'Banding'].includes(tiket.status)) statusBadgeClass = 'btn-simpan text-white';
 
         hasilArea.innerHTML = `<div class="container border rounded p-3 p-md-4 mt-4 shadow-sm">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -323,16 +370,27 @@ document.addEventListener('DOMContentLoaded', function() {
         hasilArea.innerHTML = `<div class="no-data"><i class="bi bi-wifi-off"></i><div class="text-bold mt-2">Gagal Memuat Data</div><div>${message}. Silakan coba lagi.</div></div>`;
     }
     function displayGlobalMessage(message, type = 'info') {
-        if(globalMessages) {
+        if (globalMessages) {
             globalMessages.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show">${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
         }
     }
     function getStatusClass(status) {
-        if (!status) return 'status-baru';
-        const s = status.toLowerCase();
-        if (s.includes('selesai') || s.includes('close')) return 'status-selesai';
-        if (s.includes('proses')) return 'status-proses';
-        return 'status-baru';
+        if (!status) return 'status-open';
+        const s = status.toLowerCase().trim();
+
+        if (s.includes('open') || s.includes('baru')) {
+            return 'status-open';
+        } else if (s.includes('progress') || s.includes('proses')) {
+            return 'status-on-progress';
+        } else if (s.includes('menunggu konfirmasi')) {
+            return 'status-menunggu-konfirmasi';
+        } else if (s.includes('close') || s.includes('selesai')) {
+            return 'status-close';
+        } else if (s.includes('banding')) {
+            return 'status-banding';
+        }
+
+        return 'status-open';
     }
 
     if (btnCariTiket) {
@@ -340,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (searchInput) {
-        searchInput.addEventListener('keypress', function(event) {
+        searchInput.addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 cariTiket();
@@ -349,8 +407,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 
+    const inputNomorHp = document.getElementById('inputNomorHp');
+    if (inputNomorHp) {
+        inputNomorHp.addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+    }
+
     document.getElementById('btnVerifyPhone')?.addEventListener('click', handlePhoneSubmit);
-    document.getElementById('laporanListContainer')?.addEventListener('click', function(event) {
+    document.getElementById('laporanListContainer')?.addEventListener('click', function (event) {
         const target = event.target.closest('.list-group-item-action');
         if (target) {
             event.preventDefault();
@@ -358,7 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    paginationContainer?.addEventListener('click', function(event) {
+    paginationContainer?.addEventListener('click', function (event) {
         event.preventDefault();
         const target = event.target.closest('a.page-link');
         const url = target?.dataset.url;
@@ -373,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const btnBuatTiketBaru = document.getElementById('btnBuatTiketBaruDariModal');
     if (btnBuatTiketBaru) {
-        btnBuatTiketBaru.addEventListener('click', async function() {
+        btnBuatTiketBaru.addEventListener('click', async function () {
             const idComplaint = this.dataset.id;
             this.disabled = true;
             this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Memproses...';
@@ -419,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const feedbackModal = document.getElementById('feedbackModal');
     if (feedbackModal) {
-        feedbackModal.addEventListener('show.bs.modal', function(event) {
+        feedbackModal.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             const ticketId = button.getAttribute('data-id');
             this.querySelector('#btnSubmitFeedback').setAttribute('data-id', ticketId);
@@ -427,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displayGlobalMessage(message, type = 'info') {
-        if(globalMessages) {
+        if (globalMessages) {
             globalMessages.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
             setTimeout(() => { globalMessages.innerHTML = ''; }, 4000);
         }

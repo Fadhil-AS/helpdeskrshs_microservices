@@ -76,7 +76,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Batal</button>
                         <nav aria-label="Page navigation">
-                            <ul class="pagination page-tabel mb-0" id="paginationContainer">
+                            <ul class="pagination mb-0" id="paginationContainer">
                             </ul>
                         </nav>
                     </div>
