@@ -202,20 +202,43 @@ $(document).ready(function () {
                 var unitKerjaContainer = $('#unitKerjaContainer');
                 unitKerjaContainer.html('');
 
-                function createUnitKerjaDropdown() {
-                    var optionsHtml = '<option value="" selected disabled>Pilih unit kerja</option>';
+                function createUnitKerjaDropdown(assignedUnit = null) {
+                    let optionsHtml = '<option value="" selected disabled>Pilih unit kerja</option>';
+                    let combinedOptions = [];
+
                     if (typeof allUnitKerja !== 'undefined' && allUnitKerja.length > 0) {
-                        allUnitKerja.forEach(function(uK) {
-                            var disabledAttribute = uK.SUPER == 1 ? 'disabled' : '';
-                            optionsHtml += `<option value="${uK.ID_BAGIAN}" ${disabledAttribute}>${uK.NAMA_BAGIAN}</option>`;
-                        });
+                        combinedOptions = [...allUnitKerja];
                     }
+
+                    if (assignedUnit) {
+                        const isAssignedUnitInList = combinedOptions.some(uk => uk.ID_BAGIAN == assignedUnit.ID_BAGIAN);
+                        if (!isAssignedUnitInList) {
+                            combinedOptions.push({
+                                ID_BAGIAN: assignedUnit.ID_BAGIAN,
+                                NAMA_BAGIAN: assignedUnit.NAMA_BAGIAN,
+                                STATUS: '0'
+                            });
+                        }
+                    }
+
+                    const uniqueOptions = Array.from(new Map(combinedOptions.map(item => [item.ID_BAGIAN, item])).values());
+
+                    uniqueOptions.forEach(function(uK) {
+                        const isInactive = uK.STATUS == '0';
+                        let displayText = `${uK.NAMA_BAGIAN} (${uK.ID_BAGIAN})`;
+                        if (isInactive) {
+                            displayText += ' (Tidak Aktif)';
+                        }
+                        const disabledAttribute = uK.SUPER == 1 ? 'disabled' : '';
+                        optionsHtml += `<option value="${uK.ID_BAGIAN}" ${disabledAttribute}>${displayText}</option>`;
+                    });
+
                     return `<select class="form-select" name="ID_BAGIAN[]" required>${optionsHtml}</select>`;
                 }
 
                 if (data.unit_kerja_list && data.unit_kerja_list.length > 0) {
                     data.unit_kerja_list.forEach(function(unit, index) {
-                        var dropdownHtml = createUnitKerjaDropdown();
+                        var dropdownHtml = createUnitKerjaDropdown(unit);
                         var removeButtonHtml = index > 0 ? `
                             <button class="btn btn-outline-danger remove-unit-kerja-btn" type="button" title="Hapus">
                                 <i class="bi bi-trash"></i>
@@ -226,7 +249,6 @@ $(document).ready(function () {
                         unitKerjaContainer.append(newGroup);
                     });
                 } else {
-                    // Jika tidak ada data, tampilkan satu dropdown kosong
                     unitKerjaContainer.html(`<div class="input-group mb-2">${createUnitKerjaDropdown()}</div>`);
                 }
 
