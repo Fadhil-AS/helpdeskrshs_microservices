@@ -1,4 +1,36 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // FUNGSI UNTUK MENYIMPAN POSISI TAB
+    const ACTIVE_TAB_KEY = 'activeReferensiTab';
+
+    const tabTriggers = document.querySelectorAll('a[data-bs-toggle="tab"]');
+
+    function saveActiveTab(tabId) {
+        if (tabId) {
+            localStorage.setItem(ACTIVE_TAB_KEY, tabId);
+        }
+    }
+
+    function loadActiveTab() {
+        const savedTabId = localStorage.getItem(ACTIVE_TAB_KEY);
+        if (savedTabId) {
+            const tabToActivate = document.querySelector(`a[data-bs-toggle="tab"][href="${savedTabId}"]`);
+            if (tabToActivate) {
+                const tab = new bootstrap.Tab(tabToActivate);
+                tab.show();
+            }
+        }
+    }
+
+    tabTriggers.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            const activeTabId = event.target.getAttribute('href');
+            saveActiveTab(activeTabId);
+        });
+    });
+
+    loadActiveTab();
+
+    // FUNGSI EDIT/SIMPAN/BATAL PADA TABEL
     const tables = document.querySelectorAll('.table');
     function switchToEditMode(row) {
         const text = row.querySelector('.editable-text');
