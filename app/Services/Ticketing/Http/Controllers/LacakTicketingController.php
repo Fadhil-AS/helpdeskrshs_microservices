@@ -77,11 +77,13 @@ class LacakTicketingController extends Controller
         }
 
         try {
-            $laporan = Laporan::with(['unitKerja', 'penyelesaianPengaduan'])
+            $laporan = Laporan::with(['unitKerja', 'penyelesaianPengaduan', 'klasifikasiPengaduan'])
                 ->where('ID_COMPLAINT', $searchInput)
                 ->first();
 
             if ($laporan) {
+                $klasifikasiNama = $laporan->klasifikasiPengaduan?->KLASIFIKASI_PENGADUAN;
+                $isSpiCase = in_array($klasifikasiNama, ['Sponsorship', 'Gratifikasi']);
                 $processFiles = function ($fileData) {
                     if (empty($fileData)) return [];
                     $decoded = json_decode($fileData, true);
@@ -103,7 +105,7 @@ class LacakTicketingController extends Controller
                 }
                 $riwayatPenanganan = [];
 
-                // History: Tiket Diterima (oleh Humas)
+                // History: Tiket Diterima (oleh Humas dan SPI)
                 // Tanggal diambil dari TGL_INSROW
                 if (!in_array($laporan->STATUS, ['Baru', 'Open']) || $laporan->ID_BAGIAN) {
                     $riwayatPenanganan[] = [
@@ -116,12 +118,21 @@ class LacakTicketingController extends Controller
 
                 // History: Diteruskan ke Unit Kerja
                 // Tanggal diambil dari TGL_PENUGASAN
-                if ($laporan->ID_BAGIAN && isset($laporan->unitKerja) && $laporan->TGL_PENUGASAN) {
+                if (!$isSpiCase && $laporan->ID_BAGIAN && isset($laporan->unitKerja) && $laporan->TGL_PENUGASAN) {
                     $riwayatPenanganan[] = [
                         'tanggal_aksi' => Carbon::parse($laporan->TGL_PENUGASAN)->format('d M Y'),
                         'aktor' => 'Humas',
                         'judul_aksi' => 'Diteruskan ke Unit Kerja',
                         'deskripsi_aksi' => 'Laporan diteruskan ke <b>' . $laporan->unitKerja->NAMA_BAGIAN . '</b> untuk penanganan lebih lanjut.',
+                    ];
+                }
+                // History: Laporan diterima oleh SPI (jenis laporan yang tipenya gratifikasi dan sponsorship)
+                elseif ($isSpiCase) {
+                    $riwayatPenanganan[] = [
+                        'tanggal_aksi' => Carbon::parse($laporan->TGL_INSROW ?? $laporan->TGL_COMPLAINT)->format('d M Y'),
+                        'aktor' => 'SPI',
+                        'judul_aksi' => 'Laporan Diterima',
+                        'deskripsi_aksi' => 'Laporan Telah diterima dan akan segera diproses oleh pihak Satuan Pengawas Internal (SPI).',
                     ];
                 }
 
@@ -235,33 +246,41 @@ class LacakTicketingController extends Controller
                 ];
                 $displayStatus = $statusMapping[$laporan->STATUS] ?? $laporan->STATUS;
 
-                $deskripsiStatusTerkini = 'Informasi status tiket Anda.';
-                switch ($laporan->STATUS) {
-                    case 'Open':
-                    case 'Baru':
-                        $deskripsiStatusTerkini = 'Laporan Anda telah kami terima dan akan segera diteruskan ke bagian terkait.';
-                        break;
-                    case 'On Progress':
-                    case 'Dalam Proses':
-                        $deskripsiStatusTerkini = 'Laporan Anda sedang dalam proses penanganan oleh ' . ($laporan->unitKerja->NAMA_BAGIAN ?? 'tim terkait') . '.';
-                        break;
-                    case 'Menunggu Konfirmasi':
-                    case 'Menunggu Konfirmasi Pelapor':
-                        $deskripsiStatusTerkini = 'Klarifikasi atau solusi telah diberikan. Mohon periksa riwayat penanganan dan berikan konfirmasi Anda.';
-                        break;
-                    case 'Banding':
-                        $deskripsiStatusTerkini = 'Anda menyatakan laporan belum selesai. Laporan Anda sedang dalam proses peninjauan kembali (banding).';
-                        break;
-                    case 'Close':
-                    case 'Selesai':
-                        if (!empty($laporan->RATING_LAPORAN) && is_numeric($laporan->RATING_LAPORAN)) {
-                            $deskripsiStatusTerkini = 'Terima kasih, laporan Anda telah diselesaikan dan kami telah menerima feedback Anda.';
-                        } else {
-                            $deskripsiStatusTerkini = 'Laporan Anda telah diselesaikan.';
-                        }
-                        break;
-                    default:
-                        $deskripsiStatusTerkini = 'Status laporan Anda saat ini: ' . $displayStatus . '.';
+                $deskripsiStatusTerkini = '';
+                $ditanganiOleh = 'Belum Ditentukan';
+                if ($isSpiCase) {
+                    $deskripsiStatusTerkini = 'Laporan telah kami terima dan akan segera diselesaikan oleh pihak bertanggung jawab Satuan Pengawas Internal (SPI).';
+                } else {
+                    if ($laporan->unit_kerja_list->isNotEmpty()) {
+                        $ditanganiOleh = $laporan->unit_kerja_list->pluck('NAMA_BAGIAN')->implode(', ');
+                    }
+                    switch ($laporan->STATUS) {
+                        case 'Open':
+                        case 'Baru':
+                            $deskripsiStatusTerkini = 'Laporan Anda telah kami terima dan akan segera diteruskan ke bagian terkait.';
+                            break;
+                        case 'On Progress':
+                        case 'Dalam Proses':
+                            $deskripsiStatusTerkini = 'Laporan Anda sedang dalam proses penanganan oleh ' . ($laporan->unitKerja->NAMA_BAGIAN ?? 'tim terkait') . '.';
+                            break;
+                        case 'Menunggu Konfirmasi':
+                        case 'Menunggu Konfirmasi Pelapor':
+                            $deskripsiStatusTerkini = 'Klarifikasi atau solusi telah diberikan. Mohon periksa riwayat penanganan dan berikan konfirmasi Anda.';
+                            break;
+                        case 'Banding':
+                            $deskripsiStatusTerkini = 'Anda menyatakan laporan belum selesai. Laporan Anda sedang dalam proses peninjauan kembali (banding).';
+                            break;
+                        case 'Close':
+                        case 'Selesai':
+                            if (!empty($laporan->RATING_LAPORAN) && is_numeric($laporan->RATING_LAPORAN)) {
+                                $deskripsiStatusTerkini = 'Terima kasih, laporan Anda telah diselesaikan dan kami telah menerima feedback Anda.';
+                            } else {
+                                $deskripsiStatusTerkini = 'Laporan Anda telah diselesaikan.';
+                            }
+                            break;
+                        default:
+                            $deskripsiStatusTerkini = 'Status laporan Anda saat ini: ' . $displayStatus . '.';
+                    }
                 }
 
                 $isMenungguKonfirmasi = in_array($laporan->STATUS, ['Menunggu Konfirmasi', 'Menunggu Konfirmasi Pelapor']);
@@ -286,9 +305,18 @@ class LacakTicketingController extends Controller
                     $tanggalDiperbaruiFormatted = Carbon::parse($laporan->TGL_EVALUASI)->format('d/m/Y');
                 }
 
-                $unitKerjaList = $laporan->unit_kerja_list; // Panggil accessor yang sudah kita perbaiki
+                $unitKerjaList = $laporan->unit_kerja_list;
                 $namaUnitKerja = $unitKerjaList->pluck('NAMA_BAGIAN')->toArray();
-                $ditanganiOleh = !empty($namaUnitKerja) ? implode(', ', $namaUnitKerja) : 'Belum Ditentukan';
+
+                if ($isSpiCase) {
+                    $ditanganiOleh = 'Satuan Pengawas Internal (SPI)';
+                } else {
+                    $unitKerjaList = $laporan->unit_kerja_list;
+                    $namaUnitKerja = $unitKerjaList->pluck('NAMA_BAGIAN')->toArray();
+                    if (!empty($namaUnitKerja)) {
+                        $ditanganiOleh = implode(', ', $namaUnitKerja);
+                    }
+                }
 
                 $data = [
                     'success' => true,
@@ -299,7 +327,6 @@ class LacakTicketingController extends Controller
                         'status' => $displayStatus,
                         'tanggal_dibuat' => Carbon::parse($laporan->TGL_COMPLAINT)->format('d/m/Y'),
                         'tanggal_diperbarui' => $tanggalDiperbaruiFormatted,
-                        // 'ditangani_oleh' => $laporan->unitKerja ? $laporan->unitKerja->NAMA_BAGIAN : 'Belum Ditentukan',
                         'ditangani_oleh' => $ditanganiOleh,
                         'deskripsi_status_terkini' => $deskripsiStatusTerkini,
                         'tgl_selesai_internal' => $tglSelesaiInternalISO,
@@ -398,8 +425,6 @@ class LacakTicketingController extends Controller
             return response()->json(['success' => false, 'message' => $statusCode === 400 ? $e->getMessage() : 'Terjadi kesalahan server internal.'], $statusCode);
         }
     }
-
-
 
     public function simpanFeedback(Request $request){
         $validator = Validator::make($request->all(), [
